@@ -105,7 +105,7 @@ case "$TEST_SUITE" in
     "quality")
         paver run_pep8 -l 725 > pep8.log || { cat pep8.log; EXIT=1; }
         paver run_pylint -l 4800 > pylint.log || { cat pylint.log; EXIT=1; }
-        paver run_quality
+        paver run_quality -p 75
 
         # Need to create an empty test result so the post-build
         # action doesn't fail the build.
@@ -121,7 +121,7 @@ END
 
     "unit")
         paver test
-        paver coverage
+        paver coverage -p 75
         ;;
 
     "lms-acceptance")

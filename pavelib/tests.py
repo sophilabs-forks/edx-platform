@@ -15,7 +15,6 @@ except ImportError:
 
 __test__ = False  # do not collect
 
-
 @task
 @needs(
     'pavelib.prereqs.install_prereqs',
@@ -160,12 +159,23 @@ def test(options):
 @needs('pavelib.prereqs.install_prereqs')
 @cmdopts([
     ("compare_branch", "b", "Branch to compare against, defaults to origin/master"),
+    ("percentage=", "p", "fail if coverage on changed files is below this percentage"),
 ])
 def coverage(options):
     """
     Build the html, xml, and diff coverage reports
+    :param: b, when determining coverage of changed files, use this branch as the baseline (defaults to master)
+    :param: p, fail this task if coverage of changed files is below this percentage (default: never fail)
     """
     compare_branch = getattr(options, 'compare_branch', 'origin/master')
+
+    # Set the string for diff-cover's --fail-under switch, if needed.
+    diff_threshold = int(getattr(options, 'percentage', -1))
+    threshold_string = ''
+    if diff_threshold > -1:
+        threshold_string = '--fail-under={0}'.format(diff_threshold)
+
+
 
     for directory in Env.LIB_TEST_DIRS + ['cms', 'lms']:
         report_dir = Env.REPORT_DIR / directory
@@ -200,10 +210,11 @@ def coverage(options):
         # Generate the diff coverage reports (HTML and console)
         sh(
             "diff-cover {xml_report_str} --compare-branch={compare_branch} "
-            "--html-report {diff_html_path}".format(
+            "--html-report {diff_html_path} {threshold_string}".format(
                 xml_report_str=xml_report_str,
                 compare_branch=compare_branch,
                 diff_html_path=diff_html_path,
+                threshold_string=threshold_string,
             )
         )
 
