@@ -246,6 +246,7 @@ msgid "Moderator"
 msgstr "Modérateur"
 
 #: common/djangoapps/django_comment_common/models.py
+#: lms/templates/discussion/_underscore_templates.html
 msgid "Community TA"
 msgstr "Assistant communauté d'apprentissage"
 
@@ -4114,7 +4115,7 @@ msgstr "Utilisateur non trouvé"
 
 #: lms/djangoapps/dashboard/support.py
 msgid "Course {course_id} not past the refund window."
-msgstr ""
+msgstr "Cours {course_id} pas devant la fenêtre de remboursement"
 
 #: lms/djangoapps/dashboard/support.py
 msgid "No order found for {user} in course {course_id}"
@@ -5982,6 +5983,8 @@ msgid ""
 "The payment processor returned a badly-typed value {value} for parameter "
 "{parameter}."
 msgstr ""
+"Le processeur de paiement a retourné une valeur mal écrite {valeur} pour le "
+"paramètre {paramètre}."
 
 #: lms/djangoapps/shoppingcart/processors/CyberSource2.py
 msgid ""
@@ -11622,7 +11625,7 @@ msgstr "#:"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid "Professional Education Invoicing Center"
-msgstr ""
+msgstr "Professional Education Invoicing Center"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid "Portland Street, "
@@ -11676,28 +11679,36 @@ msgid ""
 "A student can redeem one of these codes by registering an account on "
 "({site_name}.edx.org), starting the purchase"
 msgstr ""
+"Un étudiant peut racheter l'un de ces codes en enregistrant un compte sur  "
+"({site_name}.edx.org), en commençant l'achat"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid ""
 "process on this course by adding it to their shopping cart from this page "
 "({course_url}), and"
 msgstr ""
+"entrez dans ce cours en l'ajoutant à leur panier depuis cette page "
+"({course_url}), et"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid "entering their registration code while in the shopping cart."
-msgstr ""
+msgstr "entrée de leur code d'enregistrement depuis le panier."
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid ""
 "Thank you for your purchase! Failure to pay this invoice will result the "
 "invalidation of student enrollments"
 msgstr ""
+"Nous vous remercions de votre achat! Ne pas payer cette facture entraînera "
+"l'annulation des inscriptions des étudiants"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid ""
 "that use these codes. All purchases are final. Please refer to the "
 "cancellation policy"
 msgstr ""
+"qui utilisent ces codes. Tous les achats sont définitifs. S'il vous plaît "
+"veuillez vous référer à la politique d'annulation"
 
 #: lms/templates/emails/registration_codes_sale_invoice.txt
 msgid "on {site_name} for more information."
@@ -12380,7 +12391,7 @@ msgstr "Remettre à zéro l'échéance pour l'étudiant"
 
 #: lms/templates/instructor/instructor_dashboard_2/generate_registarion_codes_modal.html
 msgid "Generate Registration Code Modal"
-msgstr ""
+msgstr "Générer le code d'enregistrement Modal"
 
 #: lms/templates/instructor/instructor_dashboard_2/generate_registarion_codes_modal.html
 msgid "Please enter the details below"
@@ -12833,7 +12844,7 @@ msgstr ""
 
 #: lms/templates/instructor/instructor_dashboard_2/metrics.html
 msgid "Download Student Opened as a CSV"
-msgstr ""
+msgstr "Télécharger les données de l'étudiant et les ouvrir comme un CSV"
 
 #: lms/templates/instructor/instructor_dashboard_2/metrics.html
 msgid "Download Student Grades as a CSV"
@@ -12905,11 +12916,11 @@ msgstr "Afficher l'historique des tâches liées aux emails"
 #: lms/templates/instructor/instructor_dashboard_2/set_course_mode_price_modal.html
 #: lms/templates/instructor/instructor_dashboard_2/set_course_mode_price_modal.html
 msgid "Set Course Mode Price"
-msgstr ""
+msgstr "Définir le prix du mode de cours"
 
 #: lms/templates/instructor/instructor_dashboard_2/set_course_mode_price_modal.html
 msgid "Please enter Course Mode detail below"
-msgstr ""
+msgstr "Veuillez entrer le détail du mode de cours ci-dessous"
 
 #: lms/templates/instructor/instructor_dashboard_2/student_admin.html
 msgid "Student Gradebook"
@@ -13437,6 +13448,7 @@ msgstr "Prix unitaire"
 #: lms/templates/shoppingcart/verified_cert_receipt.html
 msgid "Note: items with strikethough like <del>this</del> have been refunded."
 msgstr ""
+"Note: Les éléments barrés comme <del>celui-ci</del> ont été remboursés."
 
 #: lms/templates/shoppingcart/receipt.html
 msgid "Billed To:"
@@ -13663,6 +13675,12 @@ msgid ""
 "cannot allow you to access this particular course. Feel free to browse our "
 "catalogue to find other courses you may be interested in taking."
 msgstr ""
+"Notre système indique que vous essayez d'accéder à un cours edX d'un pays "
+"actuellement soumis à des sanctions américaines économiques et commerciales."
+" Malheureusement, pour le moment edX doit se conformer aux contrôles à "
+"l'exportation, et nous ne pouvons pas vous permettre d'accéder à ce cours "
+"particulier. N'hésitez pas à parcourir notre catalogue pour trouver d'autres"
+" cours qui vous intéresseraient et que vous pourriez suivre."
 
 #: lms/templates/static_templates/media-kit.html
 #: lms/templates/static_templates/media-kit.html
@@ -13808,7 +13826,7 @@ msgstr "Inscrit en tant que:"
 
 #: lms/templates/verify_student/_verification_header.html
 msgid "Congrats! You are now registered to audit"
-msgstr ""
+msgstr "Félicitations ! Vous êtes maintenant inscrit pour auditer le cours"
 
 #: lms/templates/verify_student/_verification_support.html
 #: lms/templates/verify_student/_verification_support.html
@@ -14514,6 +14532,10 @@ msgid ""
 "and retake your photos. If you are still having trouble, please contact us "
 "at {email_address}"
 msgstr ""
+"Nous sommes désolés, il ya eu une erreur sur cette page. Veuillez s'il vous "
+"plaît rafraîchir la page et reprendre vos photos. Si vous rencontrez "
+"toujours des problèmes, veuillez s'il vous plaît nous contacter à l'adresse "
+"{email_address}"
 
 #: lms/templates/verify_student/photo_verification.html
 msgid "Take Your Photo"
@@ -14541,7 +14563,7 @@ msgstr "Veuillez confirmez votre contribution pour ce cours (min. $"
 
 #: lms/templates/verify_student/photo_verification.html
 msgid "Your Course Total"
-msgstr ""
+msgstr "Votre total de cours"
 
 #: lms/templates/verify_student/photo_verification.html
 msgid "To complete your registration, you will need to pay:"
@@ -15039,6 +15061,10 @@ msgid ""
 " you have properly configured your experiment groups and make changes to "
 "existing content."
 msgstr ""
+"Vous pouvez afficher et modifier sur cette page des éléments de cours qui "
+"contiennent d'autres éléments. Dans le cas de blocs d'expérimentation, ceci "
+"vous permet de confirmer que vous avez correctement configuré vos groupes "
+"d'expérimentation et apporté des modifications au contenu existant."
 
 #: cms/templates/container.html
 msgid "Unit Location"
@@ -15199,7 +15225,7 @@ msgstr ""
 
 #: cms/templates/course-create-rerun.html
 msgid "Learn more about Course Re-runs"
-msgstr ""
+msgstr "Découvrez-en plus sur les cours dérivés"
 
 #: cms/templates/course_info.html cms/templates/course_info.html
 msgid "Course Updates"
@@ -15240,6 +15266,11 @@ msgid ""
 "the course team; review course updates and other assets for dated material; "
 "and seed the discussions and wiki."
 msgstr ""
+"Aucun contenu du cours n'est actuellement visible, et aucun étudiant n'est "
+"inscrit. Assurez-vous d'examiner et de réinitialiser toutes les dates, y "
+"compris la date de début du cours; de mettre en place l'équipe du cours; "
+"d'examiner les mises à jour de cours et d'autres actifs pour le matériel "
+"ancien; et initier les discussions et le wiki."
 
 #: cms/templates/course_outline.html
 msgid "Click to add a new section"
@@ -15259,7 +15290,7 @@ msgstr "Déplier toutes les Sections"
 
 #: cms/templates/course_outline.html
 msgid "Click to open the courseware in the LMS in a new tab"
-msgstr ""
+msgstr "Cliquez pour ouvrir le didacticiel du LMS dans un nouvel onglet"
 
 #: cms/templates/course_outline.html cms/templates/edit-tabs.html
 #: cms/templates/index.html
@@ -15311,6 +15342,9 @@ msgid ""
 "date. When you configure a subsection, you can also set the grading policy "
 "and due date."
 msgstr ""
+"Sélectionnez l'icône Configuration pour une section ou une sous-section pour"
+" définir sa date de sortie. Lorsque vous configurez une sous-section, vous "
+"pouvez également définir la politique de notation et la date d'échéance."
 
 #: cms/templates/course_outline.html
 msgid "Changing the content students see"
@@ -15719,6 +15753,9 @@ msgid ""
 "experiment. To delete a configuration, hover over its box and click the "
 "delete icon."
 msgstr ""
+"Vous ne pouvez supprimer une configuration de groupe que si elle n'est pas "
+"utilisée dans une expérience. Pour supprimer une configuration, survolez sa "
+"boîte et cliquez sur l'icône de suppression."
 
 #: cms/templates/group_configurations.html cms/templates/settings.html
 #: cms/templates/settings_advanced.html cms/templates/settings_graders.html
@@ -15834,6 +15871,9 @@ msgid ""
 "learning. Insert videos, discussions, and a wide variety of exercises with "
 "just a few clicks."
 msgstr ""
+"Studio vous permet de tisser vos contenus de façon à  renforcer "
+"l'apprentissage. Insérez des vidéos, des discussions, et une grande variété "
+"d'exercices en seulement quelques clics."
 
 #: cms/templates/howitworks.html
 msgid "Create Learning Pathways"
@@ -15868,6 +15908,8 @@ msgid ""
 "It's more than just multiple choice. Studio supports more than a dozen types"
 " of problems to challenge your learners."
 msgstr ""
+"Il s'agit de plus qu'un choix multiple. Studio prend en charge plus d'une "
+"douzaine de types de problèmes pour interroger vos apprenants."
 
 #: cms/templates/howitworks.html cms/templates/howitworks.html
 msgid ""
@@ -16918,6 +16960,8 @@ msgid ""
 "You can manage this image along with all of your other <a href='{}'>files "
 "&amp; uploads</a>"
 msgstr ""
+"Vous pouvez modifier cette image ainsi que tous vos autres <a "
+"href='{}'>fichiers &amp; téléversements</a>"
 
 #: cms/templates/settings.html
 msgid ""
@@ -17115,6 +17159,8 @@ msgid ""
 "You can specify whether your course offers students a grace period for late "
 "assignments."
 msgstr ""
+"Vous pouvez spécifier si votre cours peut offrir aux étudiants une période "
+"de grâce pour les devoirs en retard."
 
 #: cms/templates/settings_graders.html
 msgid ""

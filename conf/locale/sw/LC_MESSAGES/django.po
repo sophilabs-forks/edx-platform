@@ -8435,7 +8435,7 @@ msgstr ""
 
 #: lms/templates/courseware/course_about.html
 msgid "Overview"
-msgstr ""
+msgstr "Mpangilio"
 
 #: lms/templates/courseware/course_about.html
 msgid "Share with friends and family!"

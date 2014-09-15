@@ -56,6 +56,7 @@ msgstr ""
 msgid "OK"
 msgstr "լավ"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: cms/static/coffee/src/views/tabs.js cms/static/js/views/asset.js
@@ -67,32 +68,68 @@ msgstr "լավ"
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 #: lms/static/admin/js/admin/DateTimeShortcuts.js
 #: lms/static/admin/js/admin/DateTimeShortcuts.js
+#: cms/templates/js/add-xblock-component-menu-problem.underscore
+#: cms/templates/js/add-xblock-component-menu.underscore
+#: cms/templates/js/course_info_handouts.underscore
+#: cms/templates/js/edit-textbook.underscore
+#: cms/templates/js/group-configuration-edit.underscore
+#: cms/templates/js/section-name-edit.underscore
+#: cms/templates/js/xblock-string-field-editor.underscore
+#, fuzzy
 msgid "Cancel"
-msgstr "չեղարկել"
+msgstr ""
+"#-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#\n"
+"չեղարկել\n"
+"#-#-#-#-#  underscore-studio.po (edx-platform)  #-#-#-#-#\n"
+"վերացնել"
 
 #: cms/static/js/base.js lms/static/js/verify_student/photocapture.js
+#: cms/templates/js/checklist.underscore
+#, fuzzy
 msgid "This link will open in a new browser window/tab"
-msgstr "Հղումը կբացվի բրաուզերի նոր պատուհանում/թաբում"
+msgstr ""
+"#-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#\n"
+"Հղումը կբացվի բրաուզերի նոր պատուհանում/թաբում\n"
+"#-#-#-#-#  underscore-studio.po (edx-platform)  #-#-#-#-#\n"
+"Հղումը կբացվի նոր բրաուզերի նոր պատուհանում/թաբում"
 
 #: cms/static/js/views/asset.js
 #: cms/static/js/views/group_configuration_item.js
 #: cms/static/js/views/show_textbook.js
 #: common/static/js/vendor/ova/catch/js/catch.js
 #: common/static/js/vendor/ova/catch/js/catch.js
+#: cms/templates/js/course-outline.underscore
+#: cms/templates/js/course-outline.underscore
+#: cms/templates/js/course_grade_policy.underscore
+#: cms/templates/js/group-configuration-details.underscore
+#: cms/templates/js/group-configuration-details.underscore
+#: cms/templates/js/group-configuration-edit.underscore
+#: cms/templates/js/group-configuration-edit.underscore
+#: cms/templates/js/show-textbook.underscore
+#: cms/templates/js/xblock-outline.underscore
+#: cms/templates/js/xblock-outline.underscore
 msgid "Delete"
 msgstr "Ջնջել"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: cms/static/js/views/assets.js
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/asset-library.underscore
 msgid "Name"
 msgstr "Անուն"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: cms/static/js/views/modals/base_modal.js
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/course_info_handouts.underscore
+#: cms/templates/js/edit-textbook.underscore
+#: cms/templates/js/group-configuration-edit.underscore
+#: cms/templates/js/section-name-edit.underscore
+#: cms/templates/js/xblock-string-field-editor.underscore
 msgid "Save"
 msgstr "Պահպանել"
 
@@ -307,9 +344,11 @@ msgstr "Վերնագիր 3"
 msgid "Add to Dictionary"
 msgstr "Ավելացնել բառարանում"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/add-xblock-component-menu-problem.underscore
 msgid "Advanced"
 msgstr "Խորացված"
 
@@ -470,9 +509,11 @@ msgstr ""
 msgid "Clear formatting"
 msgstr ""
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: common/templates/js/image-modal.underscore
 msgid "Close"
 msgstr "Փակել"
 
@@ -590,9 +631,11 @@ msgstr ""
 msgid "Delete table"
 msgstr "Ջնջել աղյուսակը"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/group-configuration-edit.underscore
 msgid "Description"
 msgstr "Նկարագրություն"
 
@@ -626,10 +669,16 @@ msgstr ""
 msgid "Edit HTML"
 msgstr "Խմբագրել HTML-ը"
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 #: common/static/js/vendor/ova/catch/js/catch.js
+#: cms/templates/js/course_info_handouts.underscore
+#: cms/templates/js/group-configuration-details.underscore
+#: cms/templates/js/show-textbook.underscore
+#: cms/templates/js/xblock-string-field-editor.underscore
+#: cms/templates/js/mock/mock-container-page.underscore
 msgid "Edit"
 msgstr "Խմբագրել"
 
@@ -867,7 +916,7 @@ msgstr ""
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 msgid "Inline"
-msgstr ""
+msgstr "Ներդրված"
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -1031,9 +1080,12 @@ msgstr ""
 msgid "New window"
 msgstr ""
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/paging-footer.underscore
+#: cms/templates/js/paging-header.underscore
 msgid "Next"
 msgstr "Հաջորդ"
 
@@ -1129,12 +1181,19 @@ msgstr ""
 msgid "Prev"
 msgstr ""
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 #: lms/static/coffee/src/customwmd.js
+#: cms/templates/js/asset-library.underscore
+#, fuzzy
 msgid "Preview"
-msgstr "Նախատեսք"
+msgstr ""
+"#-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#\n"
+"Նախատեսք\n"
+"#-#-#-#-#  underscore-studio.po (edx-platform)  #-#-#-#-#\n"
+"Նախադիտում"
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -1167,10 +1226,13 @@ msgstr ""
 msgid "Replace with"
 msgstr ""
 
+#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
+#: cms/templates/js/metadata-file-uploader-item.underscore
+#: cms/templates/js/video/metadata-translations-item.underscore
 msgid "Replace"
 msgstr "Փոխարինել"
 
@@ -1442,7 +1504,7 @@ msgstr ""
 #. browser when a user needs to edit HTML
 #: common/lib/xmodule/xmodule/js/src/html/edit.js
 msgid "View"
-msgstr ""
+msgstr "Դիտել"
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -2043,6 +2105,15 @@ msgstr "Աննոտացիայի տեքստը"
 
 #: common/static/js/vendor/ova/catch/js/catch.js
 #: common/static/js/vendor/ova/catch/js/catch.js
+#: cms/templates/js/metadata-dict-entry.underscore
+#: cms/templates/js/metadata-file-uploader-entry.underscore
+#: cms/templates/js/metadata-list-entry.underscore
+#: cms/templates/js/metadata-number-entry.underscore
+#: cms/templates/js/metadata-option-entry.underscore
+#: cms/templates/js/metadata-string-entry.underscore
+#: cms/templates/js/mock/mock-xmodule-editor.underscore
+#: cms/templates/js/mock/mock-xmodule-settings-only-editor.underscore
+#: cms/templates/js/video/metadata-translations-entry.underscore
 msgid "Clear"
 msgstr "Մաքրել"
 
@@ -2099,6 +2170,7 @@ msgid "Choose"
 msgstr "ընտրել"
 
 #: lms/static/admin/js/SelectFilter2.js
+#: cms/templates/js/video/metadata-translations-item.underscore
 msgid "Remove"
 msgstr "հեռացնել"
 
@@ -2265,6 +2337,7 @@ msgid "<%= num_students %> students scored."
 msgstr "<%= num_students %> գնահատված ուսանողներ"
 
 #: lms/static/coffee/src/instructor_dashboard/data_download.js
+#: cms/templates/js/mock/mock-group-configuration-page.underscore
 msgid "Loading..."
 msgstr "Բեռնվում է...."
 
@@ -2738,7 +2811,7 @@ msgstr ""
 
 #: lms/static/coffee/src/instructor_dashboard/util.js
 msgid "Message:"
-msgstr ""
+msgstr "Նամակ`"
 
 #: lms/static/coffee/src/instructor_dashboard/util.js
 msgid "No tasks currently running."
@@ -2973,7 +3046,7 @@ msgstr ""
 
 #: cms/static/coffee/src/main.js
 msgid "Studio's having trouble saving your work"
-msgstr ""
+msgstr "Ստուդիոն չի կարողանում պահպանել Ձեր աշխատանքը"
 
 #: cms/static/coffee/src/views/tabs.js cms/static/coffee/src/views/tabs.js
 #: cms/static/coffee/src/xblock/cms.runtime.v1.js
@@ -2989,12 +3062,14 @@ msgstr ""
 
 #: cms/static/coffee/src/views/tabs.js
 msgid "Delete Page Confirmation"
-msgstr ""
+msgstr "Ջնջել էջի հաստատումը"
 
 #: cms/static/coffee/src/views/tabs.js
 msgid ""
 "Are you sure you want to delete this page? This action cannot be undone."
 msgstr ""
+"Համոզվա՞ծ եք, որ ցանկանում եք ջնջել այս էջը: Այս գործողությունը չի կարող "
+"չեղարկվել:"
 
 #: cms/static/coffee/src/views/tabs.js
 #: cms/static/js/views/course_info_update.js
@@ -3008,15 +3083,15 @@ msgstr ""
 
 #: cms/static/js/base.js
 msgid "This link will open in a modal window"
-msgstr ""
+msgstr "Այս հղումը կբացվի մոդալ պատուհանում"
 
 #: cms/static/js/sock.js
 msgid "Hide Studio Help"
-msgstr ""
+msgstr "Թաքցնել Studio օգնությունը"
 
 #: cms/static/js/sock.js
 msgid "Looking for Help with Studio?"
-msgstr ""
+msgstr "Օգնությո՞ւն է պետք Stuido-ի համար:"
 
 #: cms/static/js/collections/group.js
 msgid "Group %s"
@@ -3031,11 +3106,11 @@ msgstr ""
 
 #: cms/static/js/models/course.js cms/static/js/models/section.js
 msgid "You must specify a name"
-msgstr ""
+msgstr "Դուք պետք է անուն նշեք"
 
 #: cms/static/js/models/group.js
 msgid "Group name is required"
-msgstr ""
+msgstr "Խմբի անունը պարտադիր է"
 
 #: cms/static/js/models/group_configuration.js
 msgid "Group A"
@@ -3069,23 +3144,25 @@ msgstr "կամ"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "The course must have an assigned start date."
-msgstr ""
+msgstr "Դասընթացը պետք է նշանակված սկբնաժամկետ ունենա"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "The course end date cannot be before the course start date."
-msgstr ""
+msgstr "Դասընթացի վերջնաժամկետը չի կարող լինել սկբնաժամկետից առաջ"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "The course start date cannot be before the enrollment start date."
-msgstr ""
+msgstr "Դասընթացի սկբնաժամկետը չի կարող լինել անդամագրման սկբնաժամկետից առաջ"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "The enrollment start date cannot be after the enrollment end date."
 msgstr ""
+"Անդամագրման սկբնաժամկետը չի կարող լինել անդամագրման վերջնաժամկետից առաջ"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "The enrollment end date cannot be after the course end date."
 msgstr ""
+"Անդամագրման վերջնաժամկետը չի կարող լինել դասընթացի վերջնաժամկետից հետո"
 
 #: cms/static/js/models/settings/course_details.js
 msgid "Key should only contain letters, numbers, _, or -"
@@ -3093,7 +3170,7 @@ msgstr ""
 
 #: cms/static/js/models/settings/course_grader.js
 msgid "There's already another assignment type with this name."
-msgstr ""
+msgstr "Նշված անունով առաջադրանքի տեսակ արդեն կա"
 
 #: cms/static/js/models/settings/course_grader.js
 msgid "Please enter an integer between 0 and 100."
@@ -3117,7 +3194,7 @@ msgstr ""
 
 #: cms/static/js/views/asset.js
 msgid "Delete File Confirmation"
-msgstr ""
+msgstr "Ջնջել ֆայլի հաստատումը"
 
 #: cms/static/js/views/asset.js
 msgid ""
@@ -3128,36 +3205,37 @@ msgstr ""
 
 #: cms/static/js/views/asset.js
 msgid "Your file has been deleted."
-msgstr ""
+msgstr "Ձեր ֆայլը ջնջվել է"
 
 #: cms/static/js/views/assets.js cms/templates/js/asset-library.underscore
 msgid "Date Added"
-msgstr ""
+msgstr "Ավելացնելու ժամանակը"
 
 #: cms/static/js/views/assets.js
 msgid "Uploading…"
 msgstr "Վերբեռնվում է..."
 
 #: cms/static/js/views/assets.js
+#: cms/templates/js/asset-upload-modal.underscore
 msgid "Choose File"
 msgstr "Ընտրել ֆայլ"
 
 #: cms/static/js/views/assets.js
 #: cms/templates/js/asset-upload-modal.underscore
 msgid "Upload New File"
-msgstr ""
+msgstr "Բենռել նոր ֆայլ"
 
 #: cms/static/js/views/assets.js
 msgid "Load Another File"
-msgstr ""
+msgstr "Բեռնել մեկ այլ ֆայլ"
 
 #: cms/static/js/views/course_info_update.js
 msgid "Are you sure you want to delete this update?"
-msgstr ""
+msgstr "Համոզվա՞ծ եք, որ ցանկանում եք ջնջել այս թարմացումը:"
 
 #: cms/static/js/views/course_info_update.js
 msgid "This action cannot be undone."
-msgstr ""
+msgstr "Այս գործողությունը չի կարող չեղարկվել"
 
 #: cms/static/js/views/course_rerun.js
 msgid "Create Re-run"
@@ -3169,25 +3247,25 @@ msgstr ""
 
 #: cms/static/js/views/edit_chapter.js
 msgid "Upload a new PDF to “<%= name %>”"
-msgstr ""
+msgstr "Նոր PDF բեռնել “<%= name %>”-ին"
 
 #: cms/static/js/views/edit_chapter.js
 msgid "Please select a PDF file to upload."
-msgstr ""
+msgstr "Խնդրում ենք ընտրել PDF ֆայլ բեռնելու համար "
 
 #: cms/static/js/views/edit_textbook.js
 #: cms/static/js/views/group_configuration_edit.js
 #: cms/static/js/views/overview_assignment_grader.js
 msgid "Saving"
-msgstr ""
+msgstr "Պահպանելիս"
 
 #. Translators: 'count' is number of groups that the group
 #. configuration contains.
 #: cms/static/js/views/group_configuration_details.js
 msgid "Contains %(count)s group"
 msgid_plural "Contains %(count)s groups"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Պարունակում է %(count)s խմբեր"
+msgstr[1] "Պարունակում է %(count)s խմբեր"
 
 #: cms/static/js/views/group_configuration_details.js
 msgid "Not in Use"
@@ -3224,7 +3302,7 @@ msgstr ""
 #: cms/static/js/views/group_configuration_item.js
 #: cms/static/js/views/show_textbook.js
 msgid "Deleting"
-msgstr ""
+msgstr "Ջնջելիս"
 
 #: cms/static/js/views/import.js cms/static/js/views/import.js.c
 msgid "Choose new file"
@@ -3243,6 +3321,8 @@ msgid ""
 "File format not supported. Please upload a file with a <code>tar.gz</code> "
 "extension."
 msgstr ""
+"Ֆայլի ֆորմատը չի ընդունվում: Խնդրում ենք վեռնել ֆայլը  <code>tar.gz</code> "
+"extension-ով"
 
 #: cms/static/js/views/metadata.js
 msgid "Upload File"
@@ -3250,15 +3330,15 @@ msgstr "Վերբեռնել ֆայլը"
 
 #: cms/static/js/views/overview.js
 msgid "Collapse All Sections"
-msgstr ""
+msgstr "Փակել բոլոր բաժինները"
 
 #: cms/static/js/views/overview.js
 msgid "Expand All Sections"
-msgstr ""
+msgstr "Բացել բոլոր բաժինները"
 
 #: cms/static/js/views/overview.js
 msgid "Release date:"
-msgstr ""
+msgstr "Թաղարկման ամսաթիվը`"
 
 #: cms/static/js/views/overview.js
 msgid "{month}/{day}/{year} at {hour}:{minute} UTC"
@@ -3266,13 +3346,13 @@ msgstr ""
 
 #: cms/static/js/views/overview.js
 msgid "Edit section release date"
-msgstr ""
+msgstr "Խմբագրել բաժնի թողարկման ամսաթիվը"
 
 #: cms/static/js/views/overview_assignment_grader.js
 #: cms/templates/js/course-outline.underscore
 #: cms/templates/js/grading-editor.underscore
 msgid "Not Graded"
-msgstr ""
+msgstr "Չգնահատված"
 
 #. Translators: sample result: "Showing 0-9 out of 25 total, sorted by Date
 #. Added ascending"
@@ -3294,69 +3374,73 @@ msgstr ""
 #. "Showing 0-9 out of 25 total".
 #: cms/static/js/views/paging_header.js
 msgid "%(total_items)s total"
-msgstr ""
+msgstr "%(total_items)s ընդհանուր"
 
 #: cms/static/js/views/section_edit.js
 msgid "Your change could not be saved"
-msgstr ""
+msgstr "Ձեր փոփոխությունը չի կարող պահպանվել"
 
 #: cms/static/js/views/section_edit.js
 msgid "Return and resolve this issue"
-msgstr ""
+msgstr "Վերադառնալ և լուծել այս խնդիրը"
 
 #: cms/static/js/views/show_textbook.js
 msgid "Delete “<%= name %>”?"
-msgstr ""
+msgstr "Ջնջե՞լ “<%= name %>”-ը:"
 
 #: cms/static/js/views/show_textbook.js
 msgid ""
 "Deleting a textbook cannot be undone and once deleted any reference to it in"
 " your courseware's navigation will also be removed."
 msgstr ""
+"Դասագիրք ջնջելը չի կարող չեղարկվել, և ջնջելուց հետո դեպի այն բոլոր հղումները"
+" Ձեր դասընթացի նավիգացիայում նույնպես կջնջվեն"
 
 #: cms/static/js/views/uploads.js
 #: cms/templates/js/metadata-file-uploader-item.underscore
 #: cms/templates/js/video/metadata-translations-item.underscore
 msgid "Upload"
-msgstr ""
+msgstr "Բեռնել"
 
 #: cms/static/js/views/uploads.js
 msgid "We're sorry, there was an error"
-msgstr ""
+msgstr "Հայցում ենք Ձեր ներողամտությունը, սխալ պատահեց"
 
 #: cms/static/js/views/validation.js
 msgid "You've made some changes"
-msgstr ""
+msgstr "Դուք որոշ փոփոխություններ եք կատարել"
 
 #: cms/static/js/views/validation.js
 msgid "Your changes will not take effect until you save your progress."
-msgstr ""
+msgstr "Ձեր փոփոխությունները չեն երևա մինչև պահպանվելը"
 
 #: cms/static/js/views/validation.js
 msgid "You've made some changes, but there are some errors"
-msgstr ""
+msgstr "Դուք որոշ փոփոխություններ եք կատարել, բայց որոշ սխալներ կան"
 
 #: cms/static/js/views/validation.js
 msgid ""
 "Please address the errors on this page first, and then save your progress."
 msgstr ""
+"Խնդրում եք նախ այս էջի սխալներին անդրադառնալ, և հետո միայն պահպանել Ձեր "
+"առաջընթացը"
 
 #: cms/static/js/views/validation.js
 msgid "Save Changes"
-msgstr ""
+msgstr "Պահպանել փոփոխությունները"
 
 #: cms/static/js/views/validation.js
 msgid "Your changes have been saved."
-msgstr ""
+msgstr "Ձեր փոփոխությունները պահպանվել են"
 
 #: cms/static/js/views/xblock_editor.js
 msgid "Editor"
-msgstr ""
+msgstr "Խմբագրիչ"
 
 #: cms/static/js/views/xblock_editor.js
 #: cms/templates/js/mock/mock-group-configuration-page.underscore
 msgid "Settings"
-msgstr ""
+msgstr "Կարգավորումներ"
 
 #: cms/static/js/views/xblock_outline.js
 msgid "New %(component_type)s"
@@ -3392,11 +3476,11 @@ msgstr ""
 
 #: cms/static/js/views/modals/edit_xblock.js
 msgid "Component"
-msgstr ""
+msgstr "Բաղկացուցիչ"
 
 #: cms/static/js/views/modals/edit_xblock.js
 msgid "Editing: %(title)s"
-msgstr ""
+msgstr "Խմբագրում է` %(title)s"
 
 #: cms/static/js/views/modals/validation_error_modal.js
 msgid "Validation Error While Saving"
@@ -3474,7 +3558,7 @@ msgstr ""
 
 #: cms/static/js/views/settings/advanced.js
 msgid "Your policy changes have been saved."
-msgstr ""
+msgstr "Քաղաքականության Ձեր փոփոխությունները պահպանվել են"
 
 #: cms/static/js/views/settings/advanced.js
 msgid ""
@@ -3485,29 +3569,31 @@ msgstr ""
 
 #: cms/static/js/views/settings/main.js
 msgid "Upload your course image."
-msgstr ""
+msgstr "Բեռնել Ձեր դասընթացի նկարը"
 
 #: cms/static/js/views/settings/main.js
 msgid "Files must be in JPEG or PNG format."
-msgstr ""
+msgstr "Ֆայլերը պետք է լինեն JPEG կամ PNG ֆորմատի"
 
 #: cms/static/js/views/utils/create_course_utils.js
 msgid "Required field."
-msgstr ""
+msgstr "Պահանջված դաշտ"
 
 #: cms/static/js/views/utils/create_course_utils.js
 msgid "Please do not use any spaces in this field."
-msgstr ""
+msgstr "Խնդրում ենք պարբերություն չօգտագործել այս դաշտում"
 
 #: cms/static/js/views/utils/create_course_utils.js
 msgid "Please do not use any spaces or special characters in this field."
-msgstr ""
+msgstr "Խնդրում ենք պարբերություն կամ հատուկ նիշեր չօգտագործել այս դաշտում"
 
 #: cms/static/js/views/utils/create_course_utils.js
 msgid ""
 "The combined length of the organization, course number, and course run "
 "fields cannot be more than 65 characters."
 msgstr ""
+"Կազմակերպության, դասընթացի համարի և դասընթացի երկարության դաշտերի գումարային"
+" երկարությունը չի կարող գերազանցել 65 նիշը"
 
 #: cms/static/js/views/utils/xblock_utils.js
 msgid "component"
@@ -3545,19 +3631,19 @@ msgstr ""
 
 #: cms/static/js/views/video/translations_editor.js
 msgid "Upload translation"
-msgstr ""
+msgstr "Բեռնել թարգմանությունը"
 
 #: common/templates/js/image-modal.underscore
 msgid "Large"
-msgstr ""
+msgstr "Մեծ"
 
 #: common/templates/js/image-modal.underscore
 msgid "Zoom In"
-msgstr ""
+msgstr "Մոտեցնել"
 
 #: common/templates/js/image-modal.underscore
 msgid "Zoom Out"
-msgstr ""
+msgstr "Հեռվացնել"
 
 #: common/templates/js/discussion/thread-show.underscore
 msgid "This post is visible only to %(group_name)s."
@@ -3614,7 +3700,7 @@ msgstr ""
 #: cms/templates/js/asset-library.underscore
 #: cms/templates/js/basic-modal.underscore
 msgid "Actions"
-msgstr ""
+msgstr "Գործողություններ"
 
 #: cms/templates/js/asset-library.underscore
 msgid "You haven't added any assets to this course yet."
@@ -3626,11 +3712,11 @@ msgstr ""
 
 #: cms/templates/js/asset-upload-modal.underscore
 msgid "close"
-msgstr ""
+msgstr "փակել"
 
 #: cms/templates/js/asset.underscore
 msgid "Open/download this file"
-msgstr ""
+msgstr "Բացել/ներբեռնել այս ֆայլը"
 
 #: cms/templates/js/asset.underscore
 msgid "Delete this asset"
@@ -3725,7 +3811,7 @@ msgstr ""
 
 #: cms/templates/js/course-outline.underscore
 msgid "Due:"
-msgstr ""
+msgstr "Վերջնաժամկետը`"
 
 #: cms/templates/js/course-outline.underscore
 #: cms/templates/js/xblock-outline.underscore
@@ -3801,11 +3887,11 @@ msgstr ""
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "Chapter Name"
-msgstr ""
+msgstr "Գլխի անվանումը"
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "Chapter %s"
-msgstr ""
+msgstr "Գլուխ %s"
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "provide the title/name of the chapter that will be used in navigating"
@@ -3817,7 +3903,7 @@ msgstr ""
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "path/to/introductionToCookieBaking-CH%d.pdf"
-msgstr ""
+msgstr "path/to/introductionToCookieBaking-CH%d.pdf"
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "upload a PDF file or provide the path to a Studio asset file"
@@ -3825,11 +3911,11 @@ msgstr ""
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "Upload PDF"
-msgstr ""
+msgstr "Վերբեռնել PDF"
 
 #: cms/templates/js/edit-chapter.underscore
 msgid "delete chapter"
-msgstr ""
+msgstr "ջնջել գլուխը"
 
 #: cms/templates/js/edit-textbook.underscore
 #: cms/templates/js/group-configuration-edit.underscore
@@ -3872,7 +3958,7 @@ msgstr ""
 
 #: cms/templates/js/group-configuration-details.underscore
 msgid "ID"
-msgstr ""
+msgstr "Նույնականացման համար (ID)"
 
 #: cms/templates/js/group-configuration-details.underscore
 #: cms/templates/js/group-configuration-edit.underscore
@@ -3937,7 +4023,7 @@ msgstr ""
 
 #: cms/templates/js/group-configuration-edit.underscore
 msgid "Create"
-msgstr ""
+msgstr "Ստեղծել"
 
 #: cms/templates/js/group-edit.underscore
 msgid "delete group"
@@ -3964,7 +4050,7 @@ msgstr ""
 #: cms/templates/js/metadata-file-uploader-item.underscore
 #: cms/templates/js/video/metadata-translations-item.underscore
 msgid "Download"
-msgstr ""
+msgstr "Ներբեռնել"
 
 #: cms/templates/js/no-group-configurations.underscore
 msgid "You haven't created any group configurations yet."
@@ -3985,7 +4071,7 @@ msgstr ""
 #: cms/templates/js/paging-footer.underscore
 #: cms/templates/js/paging-header.underscore
 msgid "Previous"
-msgstr ""
+msgstr "Նախորդ"
 
 #: cms/templates/js/paging-footer.underscore
 msgid "Page number"
@@ -4213,7 +4299,7 @@ msgstr ""
 #: cms/templates/js/video/transcripts/messages/transcripts-uploaded.underscore
 #: cms/templates/js/video/transcripts/messages/transcripts-use-existing.underscore
 msgid "Error."
-msgstr ""
+msgstr "Սխալ:"
 
 #: cms/templates/js/video/transcripts/messages/transcripts-choose.underscore
 msgid "Timed Transcript from"
