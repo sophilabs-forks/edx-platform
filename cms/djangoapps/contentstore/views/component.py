@@ -146,7 +146,7 @@ def container_handler(request, usage_key_string):
         except ItemNotFoundError:
             return HttpResponseBadRequest()
 
-        with modulestore().bulk_operations(course):
+        with modulestore().bulk_operations(usage_key.course_key):
             component_templates = get_component_templates(course)
             ancestor_xblocks = []
             parent = get_parent_xblock(xblock)
