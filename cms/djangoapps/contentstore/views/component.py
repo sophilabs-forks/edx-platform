@@ -140,8 +140,8 @@ def container_handler(request, usage_key_string):
     """
     if 'text/html' in request.META.get('HTTP_ACCEPT', 'text/html'):
 
+        usage_key = UsageKey.from_string(usage_key_string)
         with modulestore().bulk_operations(usage_key.course_key):
-            usage_key = UsageKey.from_string(usage_key_string)
             try:
                 course, xblock, lms_link = _get_item_in_course(request, usage_key)
             except ItemNotFoundError:
