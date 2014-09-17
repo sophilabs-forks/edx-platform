@@ -56,7 +56,6 @@ log = logging.getLogger(__name__)
 
 registry = TagRegistry()
 
-CORRECTMAP_PY = None
 CorrectMap = correctmap.CorrectMap  # pylint: disable=C0103
 
 QUESTION_HINT_CORRECT_STYLE = 'feedback_hint_correct'
@@ -328,11 +327,8 @@ class LoncapaResponse(object):
             # We may extend this in the future to add another argument which provides a
             # callback procedure to a social hint generation system.
 
-            global CorrectMAP_PY
-            if CorrectMAP_PY is None:
-                # We need the CorrectMap code for hint functions. No, this is not great.
-                CorrectMAP_PY = inspect.getsource(correctmap)
-
+            # We need the CorrectMap code for hint functions. No, this is not great.
+            CorrectMAP_PY = inspect.getsource(correctmap)
             code = (
                 CorrectMAP_PY + "\n" +
                 self.context['script_code'] + "\n" +
@@ -937,7 +933,7 @@ class MultipleChoiceResponse(LoncapaResponse):
 
         ]
 
-    def get_distractor_hints(self, new_cmap, student_answers):
+    def get_distractor_hints(self, new_cmap, student_answer_dict):
         """
         Check the XML for any hints which should be delivered to the student based
         on the answer choices made.
@@ -948,11 +944,19 @@ class MultipleChoiceResponse(LoncapaResponse):
         :return:                nothing
         """
 
-        for student_answer in student_answers:
-            if self.answer_id == student_answer:  # if this is a student answer this instance should process
-                choicegroup_test = '[@id="' + student_answer + '"]'
-                choice_test = '[@name="' + student_answers[student_answer] + '"]'
-                choice = self.xml.xpath('//choicegroup' + choicegroup_test + '/choice' + choice_test)[0]
+
+        if self.answer_id in student_answer_dict:  # if we should process this student answer
+            student_answer = student_answer_dict[self.answer_id]
+
+            # a multiple choice component should have only a single answer
+            if isinstance(student_answer, list):  # if the answer is not in the form of a *single* answer
+                student_answer = student_answer[0]  # force the first answer to be *the* answer
+
+            choicegroup_test = '[@id="' + self.answer_id + '"]'
+            choice_test = '[@name="' + student_answer + '"]'
+            choice_list = self.xml.xpath('//choicegroup' + choicegroup_test + '/choice' + choice_test)
+            if len(choice_list) > 0:
+                choice = choice_list[0]
                 choice_hints = self.xml.xpath('//choicegroup' + choicegroup_test + '/choice' + choice_test + '/choicehint')
                 if choice_hints:
                     choice_hint = choice_hints[0]
@@ -969,7 +973,6 @@ class MultipleChoiceResponse(LoncapaResponse):
                         new_cmap[self.answer_id]['msg'] = new_cmap[self.answer_id]['msg'] + \
                             '<div class="' + message_style_class + '">' \
                             + correctness_string + choice_hint_text + '</div>'
-                break  # having found the student response associated with this instance, we can stop looking
 
     def mc_setup_response(self):
         """
@@ -1695,9 +1698,8 @@ class StringResponse(LoncapaResponse):
                     flags = re.IGNORECASE if self.case_insensitive else 0
                     regexp = re.compile(pattern.strip(), flags=flags | re.UNICODE)
                     result = bool(re.search(regexp, answer[0].strip()))
-                except Exception:
-                    msg = _("Illegal regex expression: ") + pattern
-                    raise ResponseError(msg)
+                except:  # if there is a regex expression, just ignore it as if there was no match
+                    pass
             else:
                 test_pattern = pattern
                 answer = answer[0].strip()
