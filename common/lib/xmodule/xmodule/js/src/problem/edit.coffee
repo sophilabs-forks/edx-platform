@@ -287,14 +287,14 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
   # 'customLabel' variable for later handling
   #
   @extractCustomLabel: (feedbackString) ->
-    returnString = feedbackString                     # assume we will find no custom label
+    returnString = feedbackString  # assume we will find no custom label
     tokens = feedbackString.split('::')
-    if tokens.length > 1                              # check for a custom label to precede the feedback string
+    if tokens.length > 1  # check for a custom label to precede the feedback string
       @customLabel = ' label="' + tokens[0] + '"'    # save the custom label for insertion into the XML
       returnString = tokens[1]
     else
       @customLabel = ''
-    return returnString                               # return the feedback string but without the custom label, if any
+    return returnString  # return the feedback string but without the custom label, if any
 
   #________________________________________________________________________________
   # search for any text demarcated as a 'question hint' by the double braces {{..}}
@@ -363,14 +363,14 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
   # going on.
   #
   @substituteCommasInHints: (optionString) ->
-    originalLength = optionString.length                                # save the starting length of the string
+    originalLength = optionString.length  # save the starting length of the string
 
     newLength = 0
-    while newLength != optionString.length                              # continue replacements until none are left
+    while newLength != optionString.length  # continue replacements until none are left
       newLength = optionString.length
       optionString = optionString.replace( /({{[^,]*),([^}]*}})/gm, '$1;;;$2')
 
-    if optionString.length == originalLength                            # if we found no commas to replace
+    if optionString.length == originalLength  # if we found no commas to replace
       optionString = optionString.replace( /;;;/gm, ',' )   # try the reverse replacment
     return optionString
 
@@ -381,7 +381,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     correctAnswerText = ''
     correctAnswerFound = false
     dropdownMatches = xmlString.match( /\[\[([^\]]+)\]\]/ )   # try to match an opening and closing double bracket
-    if dropdownMatches                            # the xml has an opening and closing double bracket [[...]]
+    if dropdownMatches  # the xml has an opening and closing double bracket [[...]]
       reducedXmlString = xmlString.replace(dropdownMatches[0], '')
       returnXmlString = MarkdownEditingDescriptor.insertParagraphText(xmlString, reducedXmlString)
       returnXmlString +=  '\n<optionresponse>\n'
@@ -402,7 +402,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           correctnessText = ''
           itemText = ''
           hintMatches = line.match( /_([0-9]+)_/ ); # check for an extracted hint string
-          if hintMatches                            # if we found one
+          if hintMatches  # if we found one
             hintIndex = parseInt(hintMatches[1])
             hintText = MarkdownEditingDescriptor.distractorHintStrings[ hintIndex ]
             hintText = hintText.trim()
@@ -410,7 +410,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
             line = line.replace(hintMatches[0], '')  # remove the hint marker, else it will be displayed
 
           correctChoiceMatch = line.match( /^\s*\(([^)]+)\)/ )  # try to match a parenthetical string: '(...)'
-          if correctChoiceMatch and not correctAnswerFound      # matched so this must be the correct answer
+          if correctChoiceMatch and not correctAnswerFound  # matched so this must be the correct answer
             correctnessText = 'True'
             itemText = correctChoiceMatch[1]
             correctAnswerText = itemText
@@ -419,7 +419,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           else
             correctnessText = 'False'
             itemText = line.trim()
-            optionsString += delimiter   + itemText.trim()
+            optionsString += delimiter  + itemText.trim()
 
           if itemText[itemText.length-1] == ','     # check for an end-of-line comma
             itemText = itemText.slice(0, itemText.length-1) # suppress it
@@ -458,7 +458,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
       hintTextUnselected = ''
 
       choiceMatches = line.match(/(\s*\[\s*x?\s*\])([^\n]+)/)
-      if choiceMatches           # this line includes '[...]' so it must be a checkbox choice
+      if choiceMatches  # this line includes '[...]' so it must be a checkbox choice
         line = choiceMatches[2]  # remove the [..] phrase, else it will be displayed to student
         hintMatches = line.match( /_([0-9]+)_/ )  # check for an extracted hint string
         if hintMatches
@@ -489,15 +489,15 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           choiceString += '               </choicehint>\n    '
         choiceString += '</choice>\n'
 
-      else                        # this line is not a checkbox choice, but it may be a combination hint spec line
+      else  # this line is not a checkbox choice, but it may be a combination hint spec line
         hintMatches = line.match( /_([0-9]+)_/ )  # check for an extracted hint string
-        if hintMatches            # the line does contain an extracted hint string
+        if hintMatches  # the line does contain an extracted hint string
           returnXmlString = returnXmlString.replace(hintMatches[0], '')  # remove the phrase, else it will be displayed to student
           hintIndex = parseInt(hintMatches[1])
           hintText = MarkdownEditingDescriptor.distractorHintStrings[ hintIndex ]
           hintText = hintText.trim()
           combinationHintMatch = hintText.match( /\(\((.+)\)\)(.+)/ )
-          if combinationHintMatch                   # the line does contain a combination hint phrase
+          if combinationHintMatch  # the line does contain a combination hint phrase
             booleanExpressionStrings.push(combinationHintMatch[1])
             booleanHintPhrases.push(combinationHintMatch[2])
 
@@ -567,7 +567,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
             if operator == '='
               if answerExpression
                 hintMatches = line.match( /_([0-9]+)_/ )          # check for an extracted hint string
-                if hintMatches                                    # the line does contain an extracted hint string
+                if hintMatches  # the line does contain an extracted hint string
                   xmlString = xmlString.replace(hintMatches[0], '')  # remove the phrase, else it will be displayed
                   answerExpression = answerExpression.replace(hintMatches[0], '')
                   answerExpression = answerExpression.trim()
@@ -580,7 +580,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
                   answerString = answerExpression
                   if hintText
                     hintElementString = '<correcthint ' + @customLabel + '>' + hintText + '\n        </correcthint>\n'
-                  if plusMinus and tolerance    # author has supplied a tolerance specification on the *first* answer
+                  if plusMinus and tolerance  # author has supplied a tolerance specification on the *first* answer
                     responseParameterElementString = '  <responseparam type="tolerance" default="' + tolerance + '" />\n'
 
             if operator == 'or='        # this is a weird case because we have to discard this answer--it isn't
@@ -621,7 +621,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
         if operator == '=' or operator == 'or='
           if answerExpression
             hintMatches = line.match( /_([0-9]+)_/ ) # check for an extracted hint string
-            if hintMatches                                # the line does contain an extracted hint string
+            if hintMatches  # the line does contain an extracted hint string
               xmlString = xmlString.replace(hintMatches[0], '')  # remove the phrase, else it will be displayed
               answerExpression = answerExpression.replace(hintMatches[0], '')
               answerExpression = answerExpression.trim()
