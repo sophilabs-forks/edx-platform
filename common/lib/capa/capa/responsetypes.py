@@ -263,9 +263,14 @@ class LoncapaResponse(object):
         :param distractor:
         :return:
         """
+        correctness_string = ''
         if distractor_hint_label is not None:
-            correctness_string = str(distractor_hint_label) + ':'
-        else:
+            if not isinstance(distractor_hint_label, basestring):  # if the distractor hint is not in the form of a string
+                distractor_hint_label = distractor_hint_label.get('label')  # convert it to a simple string
+            if distractor_hint_label is not None:
+                correctness_string = str(distractor_hint_label) + ':'
+
+        if len(correctness_string) == 0:
             correctness_string = 'Incorrect:'  # assume the answer is incorrect
             if new_cmap.cmap[answer_id]['correctness'] == 'correct':
                 correctness_string = 'Correct:'
