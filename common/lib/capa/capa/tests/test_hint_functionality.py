@@ -64,13 +64,6 @@ class TextInputHintsTest(HintTest):
             u'<div class="feedback_hint_incorrect">Incorrect: The country name does not end in LAND</div>'
         )
 
-        # an illegally constructed regular expression hint throws an exception
-        with self.assertRaises(ResponseError):
-            self._check_student_selection_result(
-                u'1_4_1', 'SOME ANSWER',
-                u''
-            )
-
     @data(
         {'problem_id': u'1_2_1', 'choice': 'Germany', 'expected_string': u'<div class="feedback_hint_incorrect">Incorrect: I do not think so.</div>', 'expect_failure': False},
         {'problem_id': u'1_2_1', 'choice': 'Germany', 'expected_string': u'<div class="feedback_hint_incorrect">Incorrect: I do not think so.</div>', 'expect_failure': False},
