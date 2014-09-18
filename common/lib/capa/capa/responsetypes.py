@@ -371,42 +371,42 @@ class LoncapaResponse(object):
                 raise ResponseError(msg)
 
             new_cmap.set_dict(globals_dict['new_cmap_dict'])
-        else:  # no hint function provided
-            extended_hints_found = self.get_xml_hints(student_answers, new_cmap)  # check for and handle extended hints
-            if not extended_hints_found:  # if no extended hints were found, revert to older style hinting
-                # hint specified by conditions and text dependent on conditions (a-la Loncapa design)
-                # see http://help.loncapa.org/cgi-bin/fom?file=291
-                #
-                # Example:
-                #
-                # <formularesponse samples="x@-5:5#11" id="11" answer="$answer">
-                #   <textline size="25" />
-                #   <hintgroup>
-                #     <formulahint samples="x@-5:5#11" answer="$wrongans" name="inversegrad"></formulahint>
-                #     <hintpart on="inversegrad">
-                #       <text>You have inverted the slope in the question.  The slope is
-                #             (y2-y1)/(x2 - x1) you have the slope as (x2-x1)/(y2-y1).</text>
-                #     </hintpart>
-                #   </hintgroup>
-                # </formularesponse>
-
-                if (self.hint_tag is not None
-                        and hintgroup is not None
-                        and hintgroup.find(self.hint_tag) is not None
-                        and hasattr(self, 'check_hint_condition')):
-
-                    rephints = hintgroup.findall(self.hint_tag)
-                    hints_to_show = self.check_hint_condition(rephints, student_answers)
-                    # can be 'on_request' or 'always' (default)
-
-                    hintmode = hintgroup.get('mode', 'always')
-                    for hintpart in hintgroup.findall('hintpart'):
-                        if hintpart.get('on') in hints_to_show:
-                            hint_text = hintpart.find('text').text
-                            # make the hint appear after the last answer box in this
-                            # response
-                            aid = self.answer_ids[-1]
-                            new_cmap.set_hint_and_mode(aid, hint_text, hintmode)
+        # else:  # no hint function provided
+            # extended_hints_found = self.get_xml_hints(student_answers, new_cmap)  # check for and handle extended hints
+            # if not extended_hints_found:  # if no extended hints were found, revert to older style hinting
+            #     # hint specified by conditions and text dependent on conditions (a-la Loncapa design)
+            #     # see http://help.loncapa.org/cgi-bin/fom?file=291
+            #     #
+            #     # Example:
+            #     #
+            #     # <formularesponse samples="x@-5:5#11" id="11" answer="$answer">
+            #     #   <textline size="25" />
+            #     #   <hintgroup>
+            #     #     <formulahint samples="x@-5:5#11" answer="$wrongans" name="inversegrad"></formulahint>
+            #     #     <hintpart on="inversegrad">
+            #     #       <text>You have inverted the slope in the question.  The slope is
+            #     #             (y2-y1)/(x2 - x1) you have the slope as (x2-x1)/(y2-y1).</text>
+            #     #     </hintpart>
+            #     #   </hintgroup>
+            #     # </formularesponse>
+            #
+            #     if (self.hint_tag is not None
+            #             and hintgroup is not None
+            #             and hintgroup.find(self.hint_tag) is not None
+            #             and hasattr(self, 'check_hint_condition')):
+            #
+            #         rephints = hintgroup.findall(self.hint_tag)
+            #         hints_to_show = self.check_hint_condition(rephints, student_answers)
+            #         # can be 'on_request' or 'always' (default)
+            #
+            #         hintmode = hintgroup.get('mode', 'always')
+            #         for hintpart in hintgroup.findall('hintpart'):
+            #             if hintpart.get('on') in hints_to_show:
+            #                 hint_text = hintpart.find('text').text
+            #                 # make the hint appear after the last answer box in this
+            #                 # response
+            #                 aid = self.answer_ids[-1]
+            #                 new_cmap.set_hint_and_mode(aid, hint_text, hintmode)
 
     @abc.abstractmethod
     def get_score(self, student_answers):
@@ -1630,7 +1630,7 @@ class StringResponse(LoncapaResponse):
                 correct_label = _('Incorrect')
                 hint_style = QUESTION_HINT_INCORRECT_STYLE
 
-            new_cmap[self.answer_id]['msg'] += '<div class="{0}">{1}: {2}</div>'.format(hint_style, correct_label, hint_text )
+            new_cmap[self.answer_id]['msg'] += '<div class="{0}">{1}: {2}</div>'.format(hint_style, correct_label, str(hint_text) )
 
     def get_distractor_hints(self, new_cmap, student_answers):
         """
