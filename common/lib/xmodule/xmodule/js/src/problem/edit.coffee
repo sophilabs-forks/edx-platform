@@ -268,18 +268,18 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     else
       return template
 
-  #________________________________________________________________________________
-  @insertParagraphText: (xmlString, reducedXmlString) ->
-      returnXmlString = ''
-      for line in reducedXmlString.split('\n')
-        trimmedLine = line.trim()
-        if trimmedLine.length > 0
-          compoundConditionMatches = line.match( /\{\{(.+)\}\}/ )      # string surrounded by {{...}} is a match group
-          if compoundConditionMatches == null
-            returnXmlString += '<p>\n'
-            returnXmlString += trimmedLine
-            returnXmlString += '</p>\n'
-      return returnXmlString
+#  #________________________________________________________________________________
+#  @insertParagraphText: (xmlString, reducedXmlString) ->
+#      returnXmlString = ''
+#      for line in reducedXmlString.split('\n')
+#        trimmedLine = line.trim()
+#        if trimmedLine.length > 0
+#          compoundConditionMatches = line.match( /\{\{(.+)\}\}/ )      # string surrounded by {{...}} is a match group
+#          if compoundConditionMatches == null
+#            returnXmlString += '<p>\n'
+#            returnXmlString += trimmedLine
+#            returnXmlString += '</p>\n'
+#      return returnXmlString
 
   #________________________________________________________________________________
   # check a hint string for a custom label (e.g., 'NOPE::you got this answer wrong')
@@ -290,8 +290,8 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     returnString = feedbackString  # assume we will find no custom label
     tokens = feedbackString.split('::')
     if tokens.length > 1  # check for a custom label to precede the feedback string
-      @customLabel = ' label="' + tokens[0] + '"'    # save the custom label for insertion into the XML
-      returnString = tokens[1]
+      @customLabel = ' label="' + tokens[0].trim() + '"'    # save the custom label for insertion into the XML
+      returnString = tokens[1].trim()
     else
       @customLabel = ''
     return returnString  # return the feedback string but without the custom label, if any
