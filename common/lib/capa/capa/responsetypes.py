@@ -371,8 +371,8 @@ class LoncapaResponse(object):
                 raise ResponseError(msg)
 
             new_cmap.set_dict(globals_dict['new_cmap_dict'])
-        # else:  # no hint function provided
-            # extended_hints_found = self.get_xml_hints(student_answers, new_cmap)  # check for and handle extended hints
+        else:  # no hint function provided
+            extended_hints_found = self.get_xml_hints(student_answers, new_cmap)  # check for and handle extended hints
             # if not extended_hints_found:  # if no extended hints were found, revert to older style hinting
             #     # hint specified by conditions and text dependent on conditions (a-la Loncapa design)
             #     # see http://help.loncapa.org/cgi-bin/fom?file=291
