@@ -1330,7 +1330,7 @@ class OptionResponse(LoncapaResponse):
 
                                 new_cmap[student_answer_id]['msg'] = new_cmap[student_answer_id]['msg'] + \
                                     '<div class="' + message_style_class + '">' \
-                                    + correctness_string + paragraphed_hint_text + '</div>'
+                                    + correctness_string + option_hint_text + '</div>'
                 break  # our particular answer was found, we can stop looking
 #-----------------------------------------------------------------------------
 
@@ -1630,7 +1630,7 @@ class StringResponse(LoncapaResponse):
                 correct_label = _('Incorrect')
                 hint_style = QUESTION_HINT_INCORRECT_STYLE
 
-            new_cmap[self.answer_id]['msg'] += '<div class="{0}">{1}: {2}</div>'.format(hint_style, correct_label, paragraphed_hint_text )
+            new_cmap[self.answer_id]['msg'] += '<div class="{0}">{1}: {2}</div>'.format(hint_style, correct_label, hint_text )
 
     def get_distractor_hints(self, new_cmap, student_answers):
         """
@@ -1642,8 +1642,6 @@ class StringResponse(LoncapaResponse):
         :param student_answers: the set of answer choices made by the student
         :return:                True if a single choice hint was found
         """
-        hint_found = False
-
         for problem_id in student_answers:
             if self.answer_id == problem_id:
                 student_answer = student_answers[problem_id]
@@ -1651,39 +1649,38 @@ class StringResponse(LoncapaResponse):
                 # check the primary answer first
                 for primary_answer in self.original_xml.xpath('//stringresponse'):
                     if self._check_hint_condition_match(primary_answer.get('answer'), student_answer, self.regexp):
-                        hint_found = True
                         correct_hint_element_list = self.original_xml.xpath('//correcthint')
                         if len(correct_hint_element_list) > 0:
                             hint_text = correct_hint_element_list[0].text.strip()  # there will only be 1 item in the list
                             self._append_hint(hint_text, new_cmap, True)
+                        return True  # hint found, we can stop looking
 
                 # check all additional answers
-                if not hint_found:
-                    for additional_answer in self.original_xml.xpath('//additional_answer'):
-                        additional_answer_text = additional_answer.get("answer")
-                        if self._check_hint_condition_match(additional_answer_text, student_answer, self.regexp):
-                            hint_found = True
-                            hint_text = additional_answer.text.strip()
-                            self._append_hint(hint_text, new_cmap, True)
+                for additional_answer in self.original_xml.xpath('//additional_answer'):
+                    additional_answer_text = additional_answer.get("answer")
+                    if self._check_hint_condition_match(additional_answer_text, student_answer, self.regexp):
+                        hint_text = additional_answer.text.strip()
+                        self._append_hint(hint_text, new_cmap, True)
+                        return True  # hint found, we can stop looking
+
 
                 # check all incorrect answers (regex not allowed)
-                if not hint_found:
-                    for incorrect_answer in self.original_xml.xpath('//stringequalhint'):
-                        incorrect_answer_text = incorrect_answer.get("answer")
-                        if self._check_hint_condition_match(incorrect_answer_text, student_answer, False):
-                            hint_found = True
-                            hint_text = incorrect_answer.text.strip()
-                            self._append_hint(hint_text, new_cmap, False)
+                for incorrect_answer in self.original_xml.xpath('//stringequalhint'):
+                    incorrect_answer_text = incorrect_answer.get("answer")
+                    if self._check_hint_condition_match(incorrect_answer_text, student_answer, False):
+                        hint_text = incorrect_answer.text.strip()
+                        self._append_hint(hint_text, new_cmap, False)
+                        return True  # hint found, we can stop looking
 
                 # check all incorrect answers (regex supplied)
-                if not hint_found:
-                    for incorrect_answer in self.original_xml.xpath('//regexphint'):
-                        incorrect_answer_text = incorrect_answer.get("answer")
-                        if self._check_hint_condition_match(incorrect_answer_text, student_answer, True):
-                            hint_found = True
-                            hint_text = incorrect_answer.text.strip()
-                            self._append_hint(hint_text, new_cmap, False)
-        return hint_found
+                for incorrect_answer in self.original_xml.xpath('//regexphint'):
+                    incorrect_answer_text = incorrect_answer.get("answer")
+                    if self._check_hint_condition_match(incorrect_answer_text, student_answer, True):
+                        hint_text = incorrect_answer.text.strip()
+                        self._append_hint(hint_text, new_cmap, False)
+                        return True  # hint found, we can stop looking
+
+        return False  # no hint was found
 
     def _check_hint_condition_match(self, pattern, answer, use_regex):
         """
