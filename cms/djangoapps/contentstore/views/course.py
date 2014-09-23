@@ -208,15 +208,16 @@ def course_handler(request, course_key_string=None):
     DELETE
         json: delete this branch from this course (leaving off /branch/draft would imply delete the course)
     """
-    try:
+    course_key = CourseKey.from_string(course_key_string)
+    with modulestore().bulk_operations(course_key):
         response_format = request.REQUEST.get('format', 'html')
         if response_format == 'json' or 'application/json' in request.META.get('HTTP_ACCEPT', 'application/json'):
             if request.method == 'GET':
-                course_module = _get_course_module(CourseKey.from_string(course_key_string), request.user, depth=None)
+                course_module = _get_course_module(course_key, request.user, depth=None)
                 return JsonResponse(_course_outline_json(request, course_module))
             elif request.method == 'POST':  # not sure if this is only post. If one will have ids, it goes after access
                 return _create_or_rerun_course(request)
-            elif not has_course_access(request.user, CourseKey.from_string(course_key_string)):
+            elif not has_course_access(request.user, course_key):
                 raise PermissionDenied()
             elif request.method == 'PUT':
                 raise NotImplementedError()
@@ -228,11 +229,9 @@ def course_handler(request, course_key_string=None):
             if course_key_string is None:
                 return course_listing(request)
             else:
-                return course_index(request, CourseKey.from_string(course_key_string))
+                return course_index(request, course_key)
         else:
             return HttpResponseNotFound()
-    except InvalidKeyError:
-        raise Http404
 
 
 @login_required
