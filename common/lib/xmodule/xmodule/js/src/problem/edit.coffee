@@ -268,19 +268,6 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     else
       return template
 
-#  #________________________________________________________________________________
-#  @insertParagraphText: (xmlString, reducedXmlString) ->
-#      returnXmlString = ''
-#      for line in reducedXmlString.split('\n')
-#        trimmedLine = line.trim()
-#        if trimmedLine.length > 0
-#          compoundConditionMatches = line.match( /\{\{(.+)\}\}/ )      # string surrounded by {{...}} is a match group
-#          if compoundConditionMatches == null
-#            returnXmlString += '<p>\n'
-#            returnXmlString += trimmedLine
-#            returnXmlString += '</p>\n'
-#      return returnXmlString
-
   #________________________________________________________________________________
   # check a hint string for a custom label (e.g., 'NOPE::you got this answer wrong')
   # if found, remove the label and the :: delimiter and save the label in the
@@ -306,7 +293,6 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
 
     DOUBLE_LEFT_BRACE_MARKER = '~~~'
     DOUBLE_RIGHT_BRACE_MARKER = '```'
-
     xmlString = xmlString.replace(/\{\{/g, DOUBLE_LEFT_BRACE_MARKER)   # replace all double left braces with '~~~~'
     xmlString = xmlString.replace(/}}/g, DOUBLE_RIGHT_BRACE_MARKER)    # replace all double right braces with '```'
 
@@ -317,6 +303,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
         xmlString = xmlString.replace( distractorHintMatch, '_' + index++ + '_')
         distractorHintMatch = distractorHintMatch.replace(/~~~/gm, '')
         distractorHintMatch = distractorHintMatch.replace(/```/gm, '')
+        distractorHintMatch = distractorHintMatch.replace(/\n/gm, '_RETURN_')
         @distractorHintStrings.push(distractorHintMatch)   # save the string but no delimiters
 
     return xmlString
@@ -352,29 +339,6 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     return xmlStringUnderConstruction
 
   #________________________________________________________________________________
-  # search for any commas found *within* a hint string (i.e., enclosed by the
-  # {{...}} braces). if any are found, replace them by a very unique string (';;;')
-  # so the parser won't get confused when a split on commas is performed. if
-  # no such commas are found, try to replace the very unique string *back* to
-  # a comma.
-  #
-  # the strategy is to encapsulate this subsitution operation here in a
-  # single bi-directional function to make it easier to understand what's
-  # going on.
-  #
-  @substituteCommasInHints: (optionString) ->
-    originalLength = optionString.length  # save the starting length of the string
-
-    newLength = 0
-    while newLength != optionString.length  # continue replacements until none are left
-      newLength = optionString.length
-      optionString = optionString.replace( /({{[^,]*),([^}]*}})/gm, '$1;;;$2')
-
-    if optionString.length == originalLength  # if we found no commas to replace
-      optionString = optionString.replace( /;;;/gm, ',' )   # try the reverse replacment
-    return optionString
-
-  #________________________________________________________________________________
   @parseForDropdown: (xmlString) ->
     # parse the supplied string knowing it is a drop down component
 
@@ -382,25 +346,20 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
     correctAnswerFound = false
     dropdownMatches = xmlString.match( /\[\[([^\]]+)\]\]/ )   # try to match an opening and closing double bracket
     if dropdownMatches  # the xml has an opening and closing double bracket [[...]]
-      reducedXmlString = xmlString.replace(dropdownMatches[0], '')
-      returnXmlString = MarkdownEditingDescriptor.insertParagraphText(xmlString, reducedXmlString)
       returnXmlString +=  '\n<optionresponse>\n'
       returnXmlString += '    <optioninput options="OPTIONS_PLACEHOLDER" correct="CORRECT_PLACEHOLDER">\n'
-
       optionsString = ''
       delimiter = ''
 
       dropdownMatch = dropdownMatches[1]              # the match string is the entire set of drop down options
-      dropdownMatch = @substituteCommasInHints(dropdownMatch)   # hide any in-hint commas
 
       for line in dropdownMatch.split( /[,\n]/)  # split the string between [[..]] brackets into single lines
         line = line.trim()
-        line = @substituteCommasInHints(line)         # unhide any in-hint commas
-
         if line.length > 0
           hintText = ''
           correctnessText = ''
           itemText = ''
+
           hintMatches = line.match( /_([0-9]+)_/ ); # check for an extracted hint string
           if hintMatches  # if we found one
             hintIndex = parseInt(hintMatches[1])
@@ -429,7 +388,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
             returnXmlString += '\n'
             returnXmlString += '               <optionhint ' + @customLabel + '>' + hintText + '\n'
             returnXmlString += '               </optionhint>\n'
-          returnXmlString += '</option>\n'
+          returnXmlString += '          </option>\n'
 
           delimiter = ','
       returnXmlString += '    </optioninput>\n'
@@ -816,6 +775,8 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
       xml = xml.replace(/(<p>\s*<\/p>)/gm, '');      // remove empty paragraph tags
 
       xml = splits.join('');
+
+      xml = xml.replace(/_RETURN_/gm, '\n');         // replace any RETURN markers with the original '\n' character
 
       // remove superfluous lines
       xml = xml.replace(/\n\n\n/g, '\n');
