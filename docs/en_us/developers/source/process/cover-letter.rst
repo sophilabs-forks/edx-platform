@@ -7,12 +7,16 @@ the "Description" field on Github. A good cover letter concisely answers as
 many of the following questions as possible. Not all pull requests will have
 answers to every one of these questions, which is okay!
 
-* What JIRA ticket does this address? Please provide a link to the JIRA ticket
+* What JIRA ticket does this address (if any)? Please provide a link to the JIRA ticket
   representing the bug you are fixing or the feature discussion you've already
   had with the edX product owners.
 
 * Who have you talked to at edX about this work? Design, architecture, previous PRs,
-  course project manager, IRC, mailing list, etc.
+  course project manager, IRC, mailing list, etc. Please include links to relevant
+  discussions.
+
+* Why do you need this change? It's important for us to understand what problem your
+  change is trying to solve, so please describe fully why you feel this change is needed.
 
 * What components are affected? (LMS, Studio, a specific app in the system, etc)
 
@@ -22,10 +26,10 @@ answers to every one of these questions, which is okay!
 * Test instructions for manual testing. When it makes sense to do so, a good test
   plan includes a tarball of a small test course that has a unit which triggers
   the bug or illustrates the new feature. Another option would be to provide
-  explicit, numbered steps (potentially with screenshots!) to walk the reviewer
+  explicit, numbered steps (ideally with screenshots!) to walk the reviewer
   through your feature or fix.
 
-* Please provide screenshots for all user-facing changes
+* Please provide screenshots for all user-facing changes.
 
 * Indicate the urgency of your request. If this is a pull request for a course
   running or about to run on edx.org, we need to understand your time constraints.

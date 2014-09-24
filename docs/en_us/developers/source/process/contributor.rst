@@ -16,7 +16,8 @@ track -- before you spend a lot of time and effort making a pull request.
 .. _open an issue in our JIRA issue tracker: https://openedx.atlassian.net
 
 If you've got an idea for a new feature or new functionality for an existing feature,
-and wish to contribute your code upstream, please `start a discussion on JIRA`_.
+and wish to contribute your code upstream, please `start a discussion on JIRA`_
+(you may first need to `create a free JIRA account`_).
 Do this by visiting the JIRA website and clicking the "Create" button at the top.
 Choose the project "Open Source Pull Requests" and the issue type "Feature Proposal";
 in the description give us as much detail as you can for the feature or functionality
@@ -26,6 +27,7 @@ product team early on in your journey and increase the likelihood of a successfu
 pull request.
 
 .. _start a discussion on JIRA: https://openedx.atlassian.net/secure/Dashboard.jspa
+.. _create a free JIRA account: https://openedx.atlassian.net/admin/users/sign-up
 
 It’s also sometimes useful to submit a pull request even before the code is
 working properly, to make it easier to collect early feedback. To indicate to
@@ -42,7 +44,7 @@ list of requirements to be sure that your pull request is ready to be reviewed:
 #. The code should be clear and understandable.
    Comments in code, detailed docstrings, and good variable naming conventions
    are expected. The `edx-platform Github wiki`_ contains many great links to
-   style guides for Python, Javascript, and internationaliation conventions.
+   style guides for Python, Javascript, and internationalization (i18n) conventions.
 
 #. The pull request should be as small as possible.
    Each pull request should encompass only one idea: one bugfix, one feature,
@@ -54,7 +56,7 @@ list of requirements to be sure that your pull request is ready to be reviewed:
    "Fixup" commits should be squashed together. The best pull requests contain
    only a single, logical change -- which means only a single, logical commit.
 
-#. All code in the pull request must be compatible with edX’s AGPL license.
+#. All code in the pull request must be compatible with edX's AGPL license.
    This means that the author of the pull request must sign a `contributor's
    agreement with edX`_, and all libraries included or referenced in
    the pull request must have `compatible licenses`_.
@@ -114,6 +116,24 @@ even for reasons that are unrelated to the quality of your code change. However,
 if we do reject your pull request, we will explain why we aren’t taking it, and
 try to suggest other ways that you can accomplish the same result in a way that
 we will accept.
+
+Once A PR is Open
+-----------------
+
+Once a pull request is open, our faithful robot "Botbro" will open up a JIRA ticket
+in our system to track review of your pull request. The JIRA ticket is a way for
+non-engineers (particularly, product owners) to understand your change and prioritize
+your pull request for team review.
+
+If you open up your pull request with a solid description, following the
+:doc:`pull request cover letter <cover-letter>` guidelines, the product owners will be able
+to quickly understand your change and prioritize it for review. However, they may have
+some questions about your intention, need, and/or approach that they will ask about
+on the JIRA ticket. A community manager will ping you on Github to clarify these questions if
+they arise; you are not required to monitor the JIRA discussion.
+
+Once the product team has sent your pull request to the engineering teams for review, all
+technical discussion regarding your change will occur on Github, inline with your code.
 
 Further Information
 -------------------

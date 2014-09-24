@@ -50,8 +50,11 @@ If you are a :doc:`contributor <contributor>` submitting a pull request, expect 
 take a few weeks before it can be merged. The earlier you can start talking
 with the rest of the Open edX community about the changes you want to make,
 before you even start changing code, the better the whole process
-will go.  Follow the guidelines in this document for a high-quality pull
-request: include a detailed description of your pull request when you open it on Github,
+will go. 
+
+Follow the guidelines in this document for a high-quality pull request: include a detailed
+description of your pull request when you open it on Github (we recommend using a
+:doc:`pull request cover letter <cover-letter>` to guide your description),
 keep the code clear and readable, make sure the tests pass, be responsive to code review comments.
 Small pull requests are easier to review than large pull requests, so
 split up your changes into several small pull requests when possible --
