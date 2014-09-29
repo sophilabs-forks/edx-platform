@@ -22,10 +22,33 @@ class IsUser(permissions.BasePermission):
 
 
 class UserDetail(generics.RetrieveAPIView):
-    """Read-only information about our User.
+    """
+    **Use Case**
 
-    This will be where users are redirected to after API login and will serve
-    as a place to list all useful resources this user can access.
+        Get information about the currently logged in user and
+        access other resources the user has permissions for.
+
+        Users are redirected to this endpoint after logging in.
+
+        You can use the **course_enrollments** value in
+        the response to get a list of courses the user is enrolled in.
+
+    **Example request**:
+
+        GET /api/mobile/v0.5/users/{username}
+
+    **Response Values**
+
+        * id: The ID of the currently logged in user.
+
+        * username: The username of the currently logged in user.
+
+        * email: The email address of the currently logged in user.
+
+        * name: The full name of the currently logged in user.
+
+        * course_enrollments: The URI to list the courses the currently logged
+          in user is enrolled in.
     """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated, IsUser)

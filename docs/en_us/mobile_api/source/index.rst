@@ -16,6 +16,8 @@ Contents:
 
     preface
     users
+    course_info
+    video_outlines
 
 
 

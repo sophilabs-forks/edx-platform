@@ -67,7 +67,7 @@ exclude_patterns = ['build']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'edXDocs'
 
-project = u'edX Mobile API'
+project = u'edX Mobile API Version 0.5'
 copyright = u'2014, edX'
 
 # --- Mock modules ------------------------------------------------------------
