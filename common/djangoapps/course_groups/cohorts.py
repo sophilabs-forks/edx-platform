@@ -9,6 +9,7 @@ import logging
 import random
 
 from courseware import courses
+from eventtracking import tracker
 from student.models import get_user_by_username_or_email
 from .models import CourseUserGroup
 
@@ -138,6 +139,37 @@ def get_cohorted_commentables(course_key):
     return ans
 
 
+def _get_or_create_cohort(course_key, name, auto):
+    cohort, created = CourseUserGroup.objects.get_or_create(
+        course_id=course_key,
+        group_type=CourseUserGroup.COHORT,
+        name=name
+    )
+    if created:
+        tracker.emit(
+            "edx.cohort.created",
+            {
+                "cohort_id": cohort.id,
+                "cohort_name": cohort.name,
+                "auto": auto,
+            }
+        )
+    return (cohort, created)
+
+
+def _add_user_to_cohort(user, cohort, auto):
+    user.course_groups.add(cohort)
+    tracker.emit(
+        "edx.cohort.user.added",
+        {
+            "user_id": user.id,
+            "cohort_id": cohort.id,
+            "cohort_name": cohort.name,
+            "auto": auto,
+        }
+    )
+
+
 def get_cohort(user, course_key):
     """
     Given a django User and a CourseKey, return the user's cohort in that
@@ -180,13 +212,9 @@ def get_cohort(user, course_key):
         # Use the "default cohort".
         group_name = DEFAULT_COHORT_NAME
 
-    group, _ = CourseUserGroup.objects.get_or_create(
-        course_id=course_key,
-        group_type=CourseUserGroup.COHORT,
-        name=group_name
-    )
-    user.course_groups.add(group)
-    return group
+    cohort, _ = _get_or_create_cohort(course_key, group_name, auto=True)
+    _add_user_to_cohort(user, cohort, auto=True)
+    return cohort
 
 
 def get_course_cohorts(course):
@@ -203,11 +231,7 @@ def get_course_cohorts(course):
     """
     # Ensure all auto cohorts are created.
     for group_name in course.auto_cohort_groups:
-        CourseUserGroup.objects.get_or_create(
-            course_id=course.location.course_key,
-            group_type=CourseUserGroup.COHORT,
-            name=group_name
-        )
+        _get_or_create_cohort(course.location.course_key, group_name, auto=True)
 
     return list(CourseUserGroup.objects.filter(
         course_id=course.location.course_key,
@@ -246,22 +270,15 @@ def add_cohort(course_key, name):
     Add a cohort to a course.  Raises ValueError if a cohort of the same name already
     exists.
     """
-    log.debug("Adding cohort %s to %s", name, course_key)
-    if CourseUserGroup.objects.filter(course_id=course_key,
-                                      group_type=CourseUserGroup.COHORT,
-                                      name=name).exists():
-        raise ValueError("Can't create two cohorts with the same name")
-
     try:
         course = courses.get_course_by_id(course_key)
     except Http404:
         raise ValueError("Invalid course_key")
 
-    return CourseUserGroup.objects.create(
-        course_id=course.id,
-        group_type=CourseUserGroup.COHORT,
-        name=name
-    )
+    cohort, created = _get_or_create_cohort(course.location.course_key, name, auto=False)
+    if not created:
+        raise ValueError("Can't create two cohorts with the same name")
+    return cohort
 
 
 def add_user_to_cohort(cohort, username_or_email):
@@ -280,7 +297,7 @@ def add_user_to_cohort(cohort, username_or_email):
         ValueError if user already present in this cohort.
     """
     user = get_user_by_username_or_email(username_or_email)
-    previous_cohort = None
+    previous_cohort_name = None
 
     course_cohorts = CourseUserGroup.objects.filter(
         course_id=cohort.course_id,
@@ -293,11 +310,20 @@ def add_user_to_cohort(cohort, username_or_email):
                 user.username,
                 cohort.name))
         else:
-            previous_cohort = course_cohorts[0].name
-            course_cohorts[0].users.remove(user)
+            previous_cohort = course_cohorts[0]
+            previous_cohort.users.remove(user)
+            tracker.emit(
+                "edx.cohort.user.removed",
+                {
+                    "user_id": user.id,
+                    "cohort_id": previous_cohort.id,
+                    "cohort_name": previous_cohort.name,
+                }
+            )
+            previous_cohort_name = previous_cohort.name
 
-    cohort.users.add(user)
-    return (user, previous_cohort)
+    _add_user_to_cohort(user, cohort, auto=False)
+    return (user, previous_cohort_name)
 
 
 def delete_empty_cohort(course_key, name):
@@ -311,3 +337,10 @@ def delete_empty_cohort(course_key, name):
                 name, course_key))
 
     cohort.delete()
+    tracker.emit(
+        "edx.cohort.deleted",
+        {
+            "cohort_id": cohort.id,
+            "cohort_name": cohort.name,
+        }
+    )
