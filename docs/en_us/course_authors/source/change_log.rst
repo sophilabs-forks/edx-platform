@@ -24,6 +24,9 @@ September, 2014
      - Added a note about angle bracket characters to the :ref:`Dropdown` topic.
    * - 09/26/14
      - Added :ref:`Molecule Viewer` to :ref:`Create Exercises`
+   * - 09/30/14
+     - Updated :ref:`Set Important Dates for Your Course` to reflect change
+       that course dates now use UTC.
 
 **************
 August, 2014
