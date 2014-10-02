@@ -11,9 +11,7 @@
             "host": [
                 "localhost"
             ],
-            "password": "password",
             "port": 27017,
-            "user": "edxapp"
         },
         "ENGINE": "xmodule.contentstore.mongo.MongoContentStore",
         "OPTIONS": {
@@ -21,9 +19,7 @@
             "host": [
                 "localhost"
             ],
-            "password": "password",
             "port": 27017,
-            "user": "edxapp"
         }
     },
     "DATABASES": {
@@ -60,9 +56,7 @@
                             "host": [
                                 "localhost"
                             ],
-                            "password": "password",
                             "port": 27017,
-                            "user": "edxapp"
                         },
                         "ENGINE": "xmodule.modulestore.mongo.DraftMongoModuleStore",
                         "OPTIONS": {
@@ -73,10 +67,8 @@
                             "host": [
                                 "localhost"
                             ],
-                            "password": "password",
                             "port": 27017,
                             "render_template": "edxmako.shortcuts.render_to_string",
-                            "user": "edxapp"
                         }
                     },
                     {
