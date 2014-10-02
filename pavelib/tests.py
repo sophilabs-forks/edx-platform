@@ -175,8 +175,6 @@ def coverage(options):
     if diff_threshold > -1:
         threshold_string = '--fail-under={0}'.format(diff_threshold)
 
-
-
     for directory in Env.LIB_TEST_DIRS + ['cms', 'lms']:
         report_dir = Env.REPORT_DIR / directory
 
@@ -215,7 +213,7 @@ def coverage(options):
                 compare_branch=compare_branch,
                 diff_html_path=diff_html_path,
                 threshold_string=threshold_string,
-            )
+            ), capture=True
         )
 
         print("\n")

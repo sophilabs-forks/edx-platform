@@ -129,8 +129,8 @@ def run_quality(options):
     Build the html diff quality reports, and print the reports to the console.
     :param: p, diff-quality will fail if the quality percentage calculated is
         below this percentage. For example, if p is set to 80, and diff-quality finds
-        quality of affected has declined to 75%, then this task will fail. This threshold
-        applies to both pep8 and pylint.
+        quality of the commit is less than 75%, then this task will fail. This threshold
+        would be applied to both pep8 and pylint.
     """
 
     # Directory to put the diff reports in.
