@@ -24,7 +24,7 @@ class CourseUpdatesList(generics.ListAPIView):
 
     **Response Values**
 
-        A collection of course updates. Each course update contains:
+        A array of course updates. Each course update contains:
 
             * date: The date of the course update.
 

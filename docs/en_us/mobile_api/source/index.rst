@@ -6,11 +6,6 @@
 edX Mobile API
 ===================================
 
-Contents:
-
-.. this is wildly disorganized, and is basically just a dumping ground for
-    .rst files at the moment.
-
 .. toctree::
     :maxdepth: 2
 
@@ -22,10 +17,4 @@ Contents:
     video_outlines
 
 
-
-Indices and tables
-==================
-
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
