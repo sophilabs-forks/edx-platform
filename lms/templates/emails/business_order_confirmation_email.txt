@@ -1,0 +1,74 @@
+<%! from django.utils.translation import ugettext as _ %>
+${_("Hi {name}").format(name=recipient_name)}
+
+%if recipient_type == 'user':
+${_("Your payment was successful. You will see the charge below on your next credit or debit card statement.")}
+${_("The charge will show up on your statement under the company name {merchant_name}.").format(merchant_name=settings.CC_MERCHANT_NAME)}
+% if marketing_link('FAQ'):
+${_("If you have billing questions, please read the FAQ ({faq_url}) or contact {billing_email}.").format(billing_email=settings.PAYMENT_SUPPORT_EMAIL, faq_url=marketing_link('FAQ'))}
+% else:
+${_("If you have billing questions, please contact {billing_email}.").format(billing_email=settings.PAYMENT_SUPPORT_EMAIL)}
+% endif
+
+%elif recipient_type == 'company_contact':
+
+${_("{order_placed_by} placed an order and mentioned your name as the Organization contact.").format(order_placed_by=order_placed_by)}
+
+%elif recipient_type == 'email_recipient':
+
+${_("{order_placed_by} placed an order and mentioned your name as the additional receipt recipient.").format(order_placed_by=order_placed_by)}
+
+%endif
+
+${_("Your order number is: {order_number}").format(order_number=order.id)}
+
+${_("The items in your order are:")}
+
+${_("Quantity - Description - Price")}
+%for order_item in order_items:
+    ${order_item.qty} - ${order_item.line_desc} - ${"$" if order_item.currency == 'usd' else ""}${order_item.line_cost}
+%endfor
+
+${_("Total billed to credit/debit card: {currency_symbol}{total_cost}").format(total_cost=order.total_cost, currency_symbol=("$" if order.currency == 'usd' else ""))}
+
+% if has_billing_info:
+
+${_('Company Name:')} ${order.company_name}
+${_('Purchase Order Number:')} ${order.customer_reference_number}
+${_('Company Contact Name:')} ${order.company_contact_name}
+${_('Company Contact Email:')} ${order.company_contact_email}
+${_('Recipient Name:')} ${order.recipient_name}
+${_('Recipient Email:')} ${order.recipient_email}
+
+${order.bill_to_cardtype} ${_("#:")} ${order.bill_to_ccnum}
+
+${order.bill_to_first} ${order.bill_to_last}
+${order.bill_to_street1}
+${order.bill_to_street2}
+${order.bill_to_city}, ${order.bill_to_state} ${order.bill_to_postalcode}
+${order.bill_to_country.upper()}
+% endif
+
+
+${_("A CSV file of your registration URLs is attached. please distribute registration URLs to each student planning to enroll using the email template below.")}
+${_("-The {platform_name} Team").format(platform_name=settings.PLATFORM_NAME)}
+
+
+———————————————————————————————————————————
+
+
+Dear [[Name]]:
+
+We have provided an enrollment URL for you. Please follow the instructions below to claim your access.
+
+Your redeem url is: [[Enter Redeem URL here from the attached CSV]]
+
+(1)	Register for an account at [mitprofessionalx.edx.org].
+(2)	Once registered, copy the redeem URL and paste it in your web browser.
+(3)	On the enrollment confirmation page, Click the 'Activate Enrolment Code' button. This will show the enrollment confirmation.
+(4)	You should be able to click on 'view course' button or see your course on your student dashboard at [https://mitprofessionalx.edx.org/dashboard]
+(5)	Course materials will not be available until the course start date.
+
+Sincerely,
+[[Your Signature]]
+

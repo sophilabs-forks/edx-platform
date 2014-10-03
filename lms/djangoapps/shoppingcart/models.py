@@ -6,6 +6,9 @@ from decimal import Decimal
 import pytz
 import logging
 import smtplib
+import StringIO
+import csv
+from courseware.courses import get_course_by_id
 
 from boto.exception import BotoServerError  # this is a super-class of SESError and catches connection errors
 from django.dispatch import receiver
@@ -19,6 +22,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.core.urlresolvers import reverse
 from model_utils.managers import InheritanceManager
+from django.core.mail.message import EmailMessage
 
 from xmodule.modulestore.django import modulestore
 
@@ -228,6 +232,7 @@ class Order(models.Model):
         # this should return all of the objects with the correct types of the
         # subclasses
         orderitems = OrderItem.objects.filter(order=self).select_subclasses()
+        csv_file = None
         if getattr(self, 'order_type') == OrderTypes.BUSINESS:
             for item in orderitems:
                 from instructor.views.api import save_registration_codes
@@ -240,25 +245,29 @@ class Order(models.Model):
                     item.status = 'purchased'
                     item.fulfilled_time = datetime.now(pytz.utc)
                     item.save()
+
+                    csv_file = StringIO.StringIO()
+                    csv_writer = csv.writer(csv_file)
+                    csv_writer.writerow(['Course Name', 'Registration Code', 'URL'])
+                    for registration_code in registration_codes:
+                        course = get_course_by_id(getattr(registration_code, 'course_id'), depth=0)
+                        site_name = microsite.get_value('SITE_NAME', settings.SITE_NAME)
+                        redemption_url = reverse('register_code_redemption', args=[registration_code.code])
+                        url = '{base_url}{redemption_url}'.format(base_url=site_name, redemption_url=redemption_url)
+                        csv_writer.writerow([course.display_name, registration_code.code, url])
         else:
             for item in orderitems:
                 item.purchase_item()
 
         # send confirmation e-mail
-        recipient_list = [getattr(self.user, 'email')]
+        recipient_list = []
+        recipient_list.append((self.user.username, getattr(self.user, 'email'), 'user'))  # pylint: disable=E1101
         if self.company_contact_email:
-            recipient_list.append(self.company_contact_email)
+            recipient_list.append((self.company_contact_name, self.company_contact_email, 'company_contact'))
         if self.recipient_email:
-            recipient_list.append(self.recipient_email)
+            recipient_list.append((self.recipient_name, self.recipient_email, 'email_recipient'))
         subject = _("Order Payment Confirmation")
-        message = render_to_string(
-            'emails/order_confirmation_email.txt',
-            {
-                'order': self,
-                'order_items': orderitems,
-                'has_billing_info': settings.FEATURES['STORE_BILLING_INFO']
-            }
-        )
+
         try:
             from_address = microsite.get_value(
                 'email_from_address',
@@ -266,7 +275,25 @@ class Order(models.Model):
             )
             # send a unique email for each recipient, don't put all email addresses in a single email
             for recipient in recipient_list:
-                send_mail(subject, message, from_address, [recipient])  # pylint: disable=E1101
+                message = render_to_string(
+                    'emails/order_confirmation_email.txt' if self.order_type == OrderTypes.PERSONAL else 'emails/business_order_confirmation_email.txt',
+                    {
+                        'order': self,
+                        'recipient_name': recipient[0],
+                        'recipient_type': recipient[2],
+                        'order_items': orderitems,
+                        'order_placed_by': '{username} ({email})'.format(username=self.user.username, email=getattr(self.user, 'email')),  # pylint: disable=E1101
+                        'has_billing_info': settings.FEATURES['STORE_BILLING_INFO']
+                    }
+                )
+                email = EmailMessage()
+                email.subject = subject
+                email.body = message
+                email.from_email = from_address
+                email.to = [recipient[1]]
+                if csv_file:
+                    email.attach(u'RegistrationCodesRedemptionUrls.csv', csv_file.getvalue(), 'text/csv')
+                email.send()
         except (smtplib.SMTPException, BotoServerError):  # sadly need to handle diff. mail backends individually
             log.error('Failed sending confirmation e-mail for order %d', self.id)  # pylint: disable=E1101
 
