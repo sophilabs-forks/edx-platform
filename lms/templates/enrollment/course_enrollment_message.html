@@ -1,6 +1,10 @@
 <%! from django.utils.translation import ugettext as _ %>
-% for course, enrollment in recent_course_enrollment_pairs:
+% for course_msg in course_enrollment_messages:
     <section class="dashboard-banner">
-        <p class='activation-message'>${_("You have successfully enrolled in {enrolled_course}.").format(enrolled_course=course.display_name)}</p>
+        <p class='activation-message'>${_("You have successfully enrolled in {enrolled_course}.").format(enrolled_course=course_msg["course_name"])}</p>
+
+        % if course_msg["allow_donation"]:
+        <div class="donate-container" data-course="${ course_msg['course_id'] }" />
+        % endif
     </section>
 % endfor

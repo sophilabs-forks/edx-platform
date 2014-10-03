@@ -27,7 +27,7 @@ from shoppingcart.models import (
 from student.tests.factories import UserFactory
 from student.models import CourseEnrollment
 from course_modes.models import CourseMode
-from shoppingcart.exceptions import PurchasedCallbackException
+from shoppingcart.exceptions import PurchasedCallbackException, CourseDoesNotExistException
 
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 
@@ -595,11 +595,6 @@ class DonationTest(ModuleStoreTestCase):
             line_desc=u"Donation for Test Course"
         )
 
-    def test_donate_no_such_course(self):
-        fake_course_id = SlashSeparatedCourseKey("edx", "fake", "course")
-        with self.assertRaises(InvalidCartItem):
-            Donation.add_to_order(self.cart, self.COST, course_id=fake_course_id)
-
     def test_confirmation_email(self):
         # Pay for a donation
         Donation.add_to_order(self.cart, self.COST)
@@ -611,6 +606,11 @@ class DonationTest(ModuleStoreTestCase):
         email = mail.outbox[0]
         self.assertEquals('Order Payment Confirmation', email.subject)
         self.assertIn("tax deductible", email.body)
+
+    def test_donate_no_such_course(self):
+        fake_course_id = SlashSeparatedCourseKey("edx", "fake", "course")
+        with self.assertRaises(CourseDoesNotExistException):
+            Donation.add_to_order(self.cart, self.COST, course_id=fake_course_id)
 
     def _assert_donation(self, donation, donation_type=None, course_id=None, unit_cost=None, line_desc=None):
         """Verify the donation fields and that the donation can be purchased. """
