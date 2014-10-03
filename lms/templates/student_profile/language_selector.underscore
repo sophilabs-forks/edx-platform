@@ -1,0 +1,18 @@
+<div id="language-change-body">
+<form id="language-change-form">
+
+<label for="new-language"><%- gettext("Please choose your preferred language") %></label>
+<select id="new-language" name="language">
+% for language in released_languages:
+% if language.name is preferred_language:
+<option value="${language.code}" selected="selected">${language.name}</option>
+% else:
+<option value="${language.code}">${language.name}</option>
+% endif
+% endfor
+</select>
+
+<div class="submit-button">
+<input type="submit" id="language-change-submit" value="<%- gettext("Change Preferred Language") %>" />
+</div>
+</form>
