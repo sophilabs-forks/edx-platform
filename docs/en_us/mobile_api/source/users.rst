@@ -8,7 +8,8 @@ This page describes how to use the mobile user API to:
 
 * `Get User Details`_
 * `Get a User's Course Enrollments`_
-*
+
+.. _Get User Details:
 
 *******************
 Get User Details
@@ -34,6 +35,7 @@ Get User Details
         "course_enrollments": "http://localhost:8000/api/mobile/v0.5/users/mtwain/course_enrollments/"
     }
 
+.. _Get a User's Course Enrollments:
 
 **************************************
 Get a User's Course Enrollments

@@ -15,6 +15,8 @@ Contents:
     :maxdepth: 2
 
     preface
+    overview
+    authentication
     users
     course_info
     video_outlines

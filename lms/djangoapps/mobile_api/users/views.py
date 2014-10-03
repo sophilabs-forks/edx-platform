@@ -61,7 +61,38 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class UserCourseEnrollmentsList(generics.ListAPIView):
-    """Read-only list of courses that this user is enrolled in."""
+    """
+    **Use Case**
+
+        Get information about the courses the currently logged in user is
+        enrolled in.
+
+    **Example request**:
+
+        GET /api/mobile/v0.5/users/{username}/course_enrollments/
+
+    **Response Values**
+
+        * created: The date the course was created.
+        * mode: The type of certificate registration for this course:  honor or
+          certified.
+        * is_active: Whether the course is currently active; true or false.
+        * course: A collection of data about the course:
+        
+          * course_about: The URI to get the data for the course About page.
+          * course_updates: The URI to get data for course updates.
+          * number: The course number.
+          * org: The organization that created the course.
+          * video_outline: The URI to get the list of all vides the user can
+            access in the course.
+          * id: The unique ID of the course.
+          * latest_updates:  ??
+          * end: ??
+          * name: The name of the course.
+          * course_handouts: The URI to get data for course handouts.
+          * start: The data and time the course starts.
+          * course_image: The path to the course image.
+    """
     authentication_classes = (OAuth2Authentication, SessionAuthentication)
     permission_classes = (permissions.IsAuthenticated, IsUser)
     queryset = CourseEnrollment.objects.all()
