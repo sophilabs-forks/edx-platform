@@ -38,6 +38,9 @@ root = path('../../../..').abspath()
 sys.path.insert(0, root)
 
 sys.path.append(root / "lms/djangoapps/mobile_api")
+sys.path.append(root / "lms/djangoapps/mobile_api/course_info")
+sys.path.append(root / "lms/djangoapps/mobile_api/users")
+sys.path.append(root / "lms/djangoapps/mobile_api/video_outlines")
 
 sys.path.insert(0, os.path.abspath(os.path.normpath(os.path.dirname(__file__)
     + '/../../../')))
