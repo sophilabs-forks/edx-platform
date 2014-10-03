@@ -6,6 +6,8 @@ var edx = edx || {};
     edx.student = edx.student || {};
     edx.student.profile = {};
 
+    var errorMessage = gettext("The data could not be saved.");
+
     edx.student.profile.ProfileModel = Backbone.Model.extend({
         defaults: {
             fullName: ''
@@ -28,8 +30,7 @@ var edx = edx || {};
                 model.trigger('sync');
             })
             .fail(function() {
-                var error = gettext("The data could not be saved.");
-                model.trigger('error', error);
+                model.trigger('error', errorMessage);
             });
         },
 
@@ -45,47 +46,123 @@ var edx = edx || {};
         }
     });
 
+    edx.student.profile.PreferencesModel = Backbone.Model.extend({
+        defaults: {
+            language: 'en'
+        },
+
+        // TODO: This should be made more general, maybe post to "preferences"
+        urlRoot: 'language',
+
+        sync: function(method, model) {
+            var headers = {
+                'X-CSRFToken': $.cookie('csrftoken')
+            };
+
+            $.ajax({
+                url: model.urlRoot,
+                type: 'PUT',
+                data: model.attributes,
+                headers: headers
+            })
+            .done(function() {
+                model.trigger('sync');
+                location.reload();
+            })
+            .fail(function() {
+                model.trigger('error', errorMessage);
+            });
+        },
+
+        validate: function(attrs) {
+            var errors = {};
+            if (attrs.language.length < 1) {
+                errors.language = gettext("Language cannot be blank");
+            }
+
+            if (!$.isEmptyObject(errors)) {
+                return errors;
+            }
+        }
+    });
+
     edx.student.profile.ProfileView = Backbone.View.extend({
 
         events: {
             'submit': 'submit',
             'change': 'change'
+            // 'change:fullName': 'changeProfile'
         },
 
         initialize: function() {
-            _.bindAll(this, 'render', 'change', 'submit', 'invalid', 'error', 'sync', 'clearStatus');
-            this.model = new edx.student.profile.ProfileModel();
-            this.model.on('invalid', this.invalid);
-            this.model.on('error', this.error);
-            this.model.on('sync', this.sync);
+            _.bindAll(this, 'render', 'change', 'submit', 'invalidProfile', 'invalidPreference', 'error', 'sync', 'clearStatus');
+            
+            this.profileModel = new edx.student.profile.ProfileModel();
+            this.profileModel.on('invalid', this.invalidProfile);
+            this.profileModel.on('error', this.error);
+            this.profileModel.on('sync', this.sync);
+
+            this.preferencesModel = new edx.student.profile.PreferencesModel();
+            // TODO: getJSON here to get languageInfo earlier, so we can instantiate the model intelligently
+            // this.preferencesModel = new edx.student.profile.PreferencesModel({language: preferredLanguage});
+            this.preferencesModel.on('invalid', this.invalidPreference);
+            this.preferencesModel.on('error', this.error);
+            this.preferencesModel.on('sync', this.sync);
         },
 
         render: function() {
-            this.$el.html(_.template($('#profile-tpl').html(), {}));
-            this.$nameStatus = $('#profile-name-status', this.$el);
-            this.$nameField = $('#profile-name', this.$el);
-            this.$submitStatus = $('#submit-status', this.$el);
-            return this;
+            var self = this;
+            $.getJSON( 'language/info' )
+                .done(function( json ) {
+                    self.$el.html( _.template( $( '#profile-tpl' ).html(), {languageInfo: json} ) );
+
+                    self.$nameStatus = $('#profile-name-status', self.$el);
+                    self.$nameField = $('#profile-name', self.$el);
+                    
+                    self.$languageStatus = $('#preference-language-status', self.$el);
+                    self.$languageChoice = $('#preference-language', self.$el);
+
+                    self.$submitStatus = $('#submit-status', self.$el);
+
+                    return self;
+                })
+                .fail(function() {
+                    console.log("Request failed")
+                });
         },
 
         change: function() {
-            this.model.set({
+            this.profileModel.set({
                 fullName: this.$nameField.val()
+            });
+
+            this.preferencesModel.set({
+                language: this.$languageChoice.val()
             });
         },
 
         submit: function(event) {
             event.preventDefault();
             this.clearStatus();
-            this.model.save();
+            this.profileModel.save();            
+            this.preferencesModel.save();
         },
 
-        invalid: function(model) {
+        invalidProfile: function(model) {
             var errors = model.validationError;
             if (errors.hasOwnProperty('fullName')) {
                 this.$nameStatus
                     .addClass('validation-error')
                     .text(errors.fullName);
+            }
+        },
+
+        invalidPreference: function(model) {
+            var errors = model.validationError;
+            if (errors.hasOwnProperty('language')) {
+                this.$languageStatus
+                    .addClass('validation-error')
+                    .text(errors.language);
             }
         },
 
@@ -103,6 +180,10 @@ var edx = edx || {};
 
         clearStatus: function() {
             this.$nameStatus
+                .removeClass('validation-error')
+                .text("");
+
+            this.$languageStatus
                 .removeClass('validation-error')
                 .text("");
 

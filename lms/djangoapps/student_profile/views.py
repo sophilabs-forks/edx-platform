@@ -99,8 +99,11 @@ def _update_profile(request):
 
 @login_required
 @require_http_methods(['GET'])
-def get_released_languages(request):
-    """Convert the list of released languages to JSON.
+def language_info(request):
+    """Retrieve information about languages.
+
+    Gets the user's preferred language and the list of released
+    languages, encoding the information as JSON.
 
     Args:
         request (HttpRequest)
@@ -113,11 +116,17 @@ def get_released_languages(request):
 
     Example:
 
-        GET /profile/language/released
+        GET /profile/language/info
 
     """
+    user = request.user
+    preferred_language_code = profile_api.preference_info(user.username).get(LANGUAGE_KEY)
+    preferred_language = language_api.preferred_language(preferred_language_code)
+
     languages = language_api.released_languages()
-    response_data = [{'code': language.code, 'name': language.name} for language in languages]
+
+    response_data = {'preferredLanguage': preferred_language}
+    response_data['languages'] = [{'code': language.code, 'name': language.name} for language in languages]
 
     return HttpResponse(json.dumps(response_data), content_type='application/json')
 
@@ -147,10 +156,10 @@ def language_change_handler(request):
     put = QueryDict(request.body)
 
     username = request.user.username
-    new_language = put.get('new_language')
+    new_language = put.get('language')
 
     if new_language is None:
-        return HttpResponseBadRequest("Missing param 'new_language'")
+        return HttpResponseBadRequest("Missing param 'language'")
 
     # Check that the provided language code corresponds to a released language
     released_languages = language_api.released_languages()
