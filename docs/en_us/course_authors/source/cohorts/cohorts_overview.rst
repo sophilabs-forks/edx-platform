@@ -241,8 +241,13 @@ when they visit the **Discussion** page or a discussion topic in the course
 content.
 
 Students who are assigned to the default cohort group see a cohort name of
-"Default Group" in discussion posts. See :ref:`Read the Cohort Indicator in
-Posts`. If you want students to see a different cohort name, add an auto cohort
+"Default Group" in discussion posts. 
+
+.. image:: ../Images/post_visible_default.png
+ :alt: A discussion topic post with "This post is visible to Default Group" 
+       above the title
+
+If you want students to see a different cohort name, add an auto cohort
 group with the name that you prefer. See :ref:`Define Auto Cohort Groups`.
 
 You can check the :ref:`student profile information report<View and download
