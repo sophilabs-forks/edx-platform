@@ -33,7 +33,8 @@ You complete these procedures in Studio and on the Instructor Dashboard. For an
 optimal student experience, configuration of the cohort feature should be as
 complete as possible prior to the start date of your course. 
 
-.. If you need to make changes to the way you have configured the cohort feature while your course is running, please see :ref:`%%`.
+If you need to make changes to the way you have configured the cohort feature
+while your course is running, please see :ref:`Altering Cohort Configuration`.
 
 .. _Enable Cohorts:
 
@@ -80,12 +81,13 @@ Automated Assignment` or :ref:`Hybrid Assignment`.
 Define the Auto Cohort Groups
 ============================================
 
-.. note:: Students can see the name of the cohort group they are assigned to. 
- The message "This post is visible only to {cohort name}" appears with each
- post in discussion topics that are divided by cohort. See :ref:`Read the
- Cohort Indicator in Posts`.
+Before you define your auto cohort groups, note that students can see the name
+of the cohort group they are assigned to. The message "This post is visible
+only to {cohort name}" appears with each post in discussion topics that are
+divided by cohort. See :ref:`Read the Cohort Indicator in Posts`.
 
-.. note: You cannot delete cohort groups or change their names. If you need to make changes to the way you have configured the cohort feature while your course is running, please see :ref:`%%`.
+.. note:: You cannot delete cohort groups or change their names. If you need 
+ to make changes to the way you have configured the cohort feature while your course is running, please see :ref:`Altering Cohort Configuration`.
 
 #. Open the course in Studio. 
 
@@ -158,8 +160,6 @@ Assignment` or :ref:`Hybrid Assignment`.
 You must :ref:`enable the cohort feature<Enable Cohorts>` for your course
 before you can complete these procedures.
 
-.. note: You cannot delete cohort groups or change their names. If you need to make changes to the way you have configured the cohort feature while your course is running, please see :ref:`%%`.
-
 
 .. _Define the Manual Cohort Groups:
 
@@ -167,10 +167,14 @@ before you can complete these procedures.
 Define the Manual Cohort Groups
 ==========================================
 
-.. note:: Students can see the name of the cohort group they are assigned to. 
- The message "This post is visible only to {cohort name}" appears with each
- post in discussion topics that are divided by cohort. See :ref:`Read the
- Cohort Indicator in Posts`.
+Before you define your manual cohort groups, note that students can see the
+name of the cohort group they are assigned to. The message "This post is
+visible only to {cohort name}" appears with each post in discussion topics that
+are divided by cohort. See :ref:`Read the Cohort Indicator in Posts`.
+
+.. note:: You cannot delete cohort groups or change their names. If you need 
+ to make changes to the way you have configured the cohort feature while your
+ course is running, please see :ref:`Altering Cohort Configuration`.
 
 #. View the live version of your course. For example, in Studio click **View
    Live**.
@@ -192,9 +196,7 @@ Assign Students to Cohort Groups Manually
 
 .. note:: Manual assignments should be as complete as possible before your 
  course starts. If student enrollment continues after your course starts, you
- should continue to assign new students to cohort groups. To review the cohort
- group assignments of every enrolled student, generate the student profile
- information report for your course. See :ref:`View and download student data`.
+ should continue to assign new students to cohort groups. 
 
 #. View the live version of your course. For example, in Studio click **View
    Live**.
@@ -216,10 +218,14 @@ Assign Students to Cohort Groups Manually
    group, the message also indicates the number of students whose assignment to
    another cohort group was changed by this procedure.
 
+For a report that includes the cohort group assignment for every enrolled
+student, review the student profile information for your course. See
+:ref:`View and download student data`.
+
 .. _Identifying Private CourseWide Discussion Topics:
 
 *****************************************************************
-Configuring Course-Wide Discussion Topics To Be Divided
+Configuring Course-Wide Discussion Topics As Divided
 *****************************************************************
 
 When you enable the cohort feature for a course, all of the course-wide
@@ -234,15 +240,16 @@ For more information about content-specific and course-wide discussion topics,
 see :ref:`Organizing_discussions`.
 
 Before you configure course-wide discussion topics to be divided by cohort, you
-add the topics in Studio. See :ref:`Create CourseWide Discussion Topics`. In
-the example given for creating course-wide discussion topics, a single topic,
-Course Q&A, is added to the system-supplied General topic. The steps in the
-following procedure expand on that example: you have now decided to enable the
-cohort feature for your course. The posts that you intend to make to the Course
-Q&A and General topics, and the subjects you expect students to explore there,
-are appropriate for a unified student audience. However, you also want to give
-students some course-wide topics that are divided by cohort. You define two
-more course-wide discussion topics, Announcements and Brainstorming.
+add the topics in Studio. See :ref:`Create CourseWide Discussion Topics`. 
+
+In the example given for creating course-wide discussion topics, a single
+topic, Course Q&A, is added to the system-supplied General topic. The steps in
+the following procedure expand on that example: you have now decided to enable
+the cohort feature for your course. The posts that you intend to make to the
+Course Q&A and General topics, and the subjects you expect students to explore
+there, are appropriate for a unified student audience. However, you also want
+to give students some course-wide topics that are divided by cohort. You define
+two more course-wide discussion topics, Announcements and Brainstorming.
 
 You also decide to apply a naming convention so that students will know 
 the audience for their posts before they add them. See :ref:`Apply Naming
@@ -258,8 +265,9 @@ Conventions to Discussion Topics`.
 Identify Divided Course-Wide Discussion Topics
 ======================================================
 
-In the steps that follow, you configure two topics so that they are divided
-by cohort. On the Studio **Advanced Settings** page, the two topics appear as follows in the **Discussion Topic Mapping** field:
+In the steps that follow, you configure two topics so that they are divided by
+cohort. On the Studio **Advanced Settings** page, the two topics appear as
+follows in the **Discussion Topic Mapping** field:
 
 .. code::
 
@@ -310,3 +318,126 @@ by cohort. On the Studio **Advanced Settings** page, the two topics appear as fo
  .. image:: ../Images/Configure_cohort_topic.png
   :alt: Cohort Configuration dictionary field with the cohorted_discussions key
         defined
+
+.. _Altering Cohort Configuration:
+
+*****************************************************************
+Altering Cohort Configuration in a Running Course
+*****************************************************************
+
+The configuration of the cohort feature should be complete and stable before
+your course begins. Manual cohort assignments should be completed as soon as
+possible after any student enrolls, including any enrollments that occur while
+your course is running. 
+
+If you decide that you must alter cohort configuration after your course starts
+and activity in the course discussion begins, be sure that you understand the
+consequences of these actions:
+
+* :ref:`Changing a student's cohort group assignment<Changing Student Cohort
+  Group Assignments>`
+
+* :ref:`Renaming a cohort group<Renaming a Cohort Group>`
+
+* :ref:`Deleting a cohort group<Deleting a Cohort Group>`
+
+* :ref:`Disabling the cohort feature<Deleting a Cohort Group>`
+
+.. _Changing Student Cohort Group Assignments:
+
+=============================================
+Change Student Cohort Group Assignments
+=============================================
+
+After your course starts and students begin to contribute to the course
+discussion, each post that they add is visible either to everyone or to the
+members of a single cohort group. When you change the cohort group that a
+student is assigned to, there are three results:
+
+* The student continues to see the posts that are visible to everyone.
+
+* The student sees the posts that are visible to his new cohort group.
+
+* The student no longer sees the posts that are visible to his original cohort
+  group.
+
+The visibility of a post and its responses and comments does not change, even
+if the cohort group assignement of its author changes. To a student, it can
+seem that posts have "disappeared".
+
+To verify the cohort group assignments for your students, download the 
+:ref:`student profile report<View and download student data>` for your course. 
+If changes are needed, you can :ref:`assign students<Assign Students to Cohort 
+Groups Manually>` to different cohort groups manually on the **Membership** 
+page of the Instructor Dashboard.
+
+.. _Renaming a Cohort Group:
+
+==========================
+Rename a Cohort Group
+==========================
+
+Name changes for cohort groups are not supported. The **Membership** page of
+the Instructor Dashboard does not offer an option to rename your manual cohort
+groups.
+
+It is possible to save a change to an auto cohort group name value on the
+**Advanced Settings** page in Studio. However, doing so does not result in a
+name change. Instead, changing a value for the ``auto_cohort_groups`` policy
+key has several results.
+
+* The system adds an auto cohort group with the new name that you supplied. 
+
+* The system begins to randomly assign any students who do not have a cohort
+  group assignment to this new cohort group.
+
+* The original cohort group remains in the system. Any students who were
+  assigned to that group remain assigned to it. 
+
+  For the results of assigning any students who remain in the original cohort
+  group to another group, see :ref:`Changing Student Cohort Group Assignments`.
+
+* The original cohort group is converted into a manual cohort group: the system
+  no longer assigns students to it automatically.
+
+* The original cohort group is listed as a manual cohort group on the
+  **Membership** page of the Instructor Dashboard
+
+.. _Deleting a Cohort Group:
+
+==========================
+Delete a Cohort Group
+==========================
+
+Deletion of cohort groups is not supported. The **Membership** page of
+the Instructor Dashboard does not offer an option to delete your manual cohort
+groups.
+
+It is possible to save a change to the list of auto cohort group values on the
+**Advanced Settings** page in Studio. However, removing one of the
+``auto_cohort_groups`` policy key values does not result in the deletion of
+that cohort group. The cohort group remains in the system.
+
+* Any students who were assigned to the group remain assigned to it. 
+  
+  For the results of assigning any students who remain in the group to another
+  group, see :ref:`Changing Student Cohort Group Assignments`.
+
+* The system no longer assigns students to the group automatically. 
+
+* The group is listed as a manual cohort group on the **Membership** page of
+  the Instructor Dashboard, and you can assign students to it manually.
+
+.. _Disable the Cohort Feature:
+
+==============================
+Disable the Cohort Feature
+==============================
+
+You can disable the cohort feature for your course. Follow the instructions for
+:ref:`enabling the cohort feature<Enable Cohorts>`, but set ``"cohorted":
+false``. All discussion posts immediately become visible to all students.
+
+If you do reenable the cohort feature by setting ``"cohorted": true``, all
+previous student cohort assignments are reenabled, and all visibility settings
+for posts are reapplied.
