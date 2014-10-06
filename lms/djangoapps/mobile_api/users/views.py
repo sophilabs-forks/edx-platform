@@ -86,8 +86,8 @@ class UserCourseEnrollmentsList(generics.ListAPIView):
           * video_outline: The URI to get the list of all vides the user can
             access in the course.
           * id: The unique ID of the course.
-          * latest_updates:  ??
-          * end: ??
+          * latest_updates:  Reserved for future use.
+          * end: The end date of the course.
           * name: The name of the course.
           * course_handouts: The URI to get data for course handouts.
           * start: The data and time the course starts.

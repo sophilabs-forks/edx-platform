@@ -23,4 +23,12 @@ With the edX Mobile API, you can:
   Course Updates>`, and :ref:`handouts<Get Course Handouts>` for courses the
   user is enrolled in.
 
-* Get :ref:`videos<Get the Video List>` and :ref:`transcripts<Get a Video Transcript>` for courses the user is enrolled in.
+* Get :ref:`videos<Get the Video List>` and :ref:`transcripts<Get a Video
+  Transcript>` for courses the user is enrolled in.
+
+
+
+
+***************
+edX Support
+***************
