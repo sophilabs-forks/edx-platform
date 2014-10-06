@@ -341,7 +341,7 @@ consequences of these actions:
 
 * :ref:`Deleting a cohort group<Deleting a Cohort Group>`
 
-* :ref:`Disabling the cohort feature<Deleting a Cohort Group>`
+* :ref:`Disabling the cohort feature<Disable the Cohort Feature>`
 
 .. _Changing Student Cohort Group Assignments:
 
@@ -358,8 +358,8 @@ student is assigned to, there are three results:
 
 * The student sees the posts that are visible to his new cohort group.
 
-* The student no longer sees the posts that are visible to his original cohort
-  group.
+* The student no longer sees the posts that are visible only to his original
+  cohort group.
 
 The visibility of a post and its responses and comments does not change, even
 if the cohort group assignement of its author changes. To a student, it can
@@ -381,27 +381,31 @@ Name changes for cohort groups are not supported. The **Membership** page of
 the Instructor Dashboard does not offer an option to rename your manual cohort
 groups.
 
-It is possible to save a change to an auto cohort group name value on the
-**Advanced Settings** page in Studio. However, doing so does not result in a
-name change. Instead, changing a value for the ``auto_cohort_groups`` policy
-key has several results.
+It is possible to change the value for the ``auto_cohort_groups`` policy key on
+the **Advanced Settings** page in Studio. However, changing the names in the
+listed name:value pairs **does not** result in any renamed auto cohort groups.
+Instead, changing the value for the ``auto_cohort_groups`` policy key has these
+results.
 
-* The system adds an auto cohort group with the new name that you supplied. 
+* The system uses the new value that you saved for the ``auto_cohort_groups``
+  policy key to create one or more additional, new auto cohort groups.
 
-* The system begins to randomly assign any students who do not have a cohort
-  group assignment to this new cohort group.
+* The system begins to assign any students who do not have a cohort group
+  assignment randomly to the newly defined cohort group or groups.
 
-* The original cohort group remains in the system. Any students who were
-  assigned to that group remain assigned to it. 
+  The system uniformly distributes students among the auto cohort groups that
+  exist when an assignment is needed. The size of each group is not considered.
+
+* The original cohort group or groups remain in the system. Any students who
+  were assigned to the original groups remain assigned to them.
 
   For the results of assigning any students who remain in the original cohort
-  group to another group, see :ref:`Changing Student Cohort Group Assignments`.
+  groups to other groups, see :ref:`Changing Student Cohort Group Assignments`.
 
-* The original cohort group is converted into a manual cohort group: the system
-  no longer assigns students to it automatically.
-
-* The original cohort group is listed as a manual cohort group on the
-  **Membership** page of the Instructor Dashboard
+* The original cohort group or groups are converted into manual cohort groups:
+  the system no longer assigns students to them automatically. The original
+  cohort groups are listed as manual cohort groups on the **Membership** page
+  of the Instructor Dashboard.
 
 .. _Deleting a Cohort Group:
 
@@ -413,20 +417,24 @@ Deletion of cohort groups is not supported. The **Membership** page of
 the Instructor Dashboard does not offer an option to delete your manual cohort
 groups.
 
-It is possible to save a change to the list of auto cohort group values on the
-**Advanced Settings** page in Studio. However, removing one of the
-``auto_cohort_groups`` policy key values does not result in the deletion of
-that cohort group. The cohort group remains in the system.
+It is possible to change the value for the ``auto_cohort_groups`` policy key on
+the **Advanced Settings** page in Studio. However, removing any of the listed
+name:value pairs **does not** result in the deletion of any cohort groups.
+Instead, changing the value for the ``auto_cohort_groups`` policy key has these
+results.
 
-* Any students who were assigned to the group remain assigned to it. 
+* The cohort groups that you removed from the policy key remain in the system.
+
+* Any students who were assigned to those groups remain assigned to them. 
   
-  For the results of assigning any students who remain in the group to another
-  group, see :ref:`Changing Student Cohort Group Assignments`.
+  For the results of assigning any students to other groups, see :ref:`Changing
+  Student Cohort Group Assignments`.
 
-* The system no longer assigns students to the group automatically. 
+* The system no longer assigns students to the groups automatically. 
 
-* The group is listed as a manual cohort group on the **Membership** page of
-  the Instructor Dashboard, and you can assign students to it manually.
+* The groups are listed as manual cohort groups on the **Membership** page of
+  the Instructor Dashboard, and you can continue to assign students to them
+  manually.
 
 .. _Disable the Cohort Feature:
 
@@ -440,4 +448,5 @@ false``. All discussion posts immediately become visible to all students.
 
 If you do reenable the cohort feature by setting ``"cohorted": true``, all
 previous student cohort assignments are reenabled, and all visibility settings
-for posts are reapplied.
+for posts are reapplied. However, any posts created while the cohort feature
+was disabled will remain visible to all users.
