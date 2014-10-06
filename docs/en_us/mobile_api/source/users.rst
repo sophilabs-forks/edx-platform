@@ -15,7 +15,7 @@ This page describes how to use the mobile user API to:
 Get User Details
 *******************
 
-.. automodule:: users.views
+.. autoclass:: users.views.UserDetail
     :members:
 
 **Example response**
