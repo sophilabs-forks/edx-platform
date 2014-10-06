@@ -126,4 +126,4 @@ Get the Course About Page
                      </article>\n   
                      </section>\n 
                      </section>"
-}
+    }
