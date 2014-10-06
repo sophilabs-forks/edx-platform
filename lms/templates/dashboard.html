@@ -187,7 +187,13 @@
 
 <div class="dashboard-notifications" tabindex="-1">
     % if reverifications["must_reverify"] or reverifications["denied"]:
-        <%include file='dashboard/_dashboard_prompt_midcourse_reverify.html' />
+        <!--
+            Section Element must be outside of the re-verify template. The template is re-used for courseware, and
+            has separate styling.
+         -->
+        <section class="dashboard-banner">
+            <%include file='dashboard/_dashboard_prompt_midcourse_reverify.html' />
+        </section>
     % endif
 
     %if message:

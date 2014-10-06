@@ -1,7 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
-
-<section class="dashboard-banner">
 % if reverifications["must_reverify"]:
   % if len(reverifications["must_reverify"]) > 1:
 
@@ -87,4 +85,3 @@
     </div>
   </div>
 %endif
-</section>
