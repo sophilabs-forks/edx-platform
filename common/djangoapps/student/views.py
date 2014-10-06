@@ -472,6 +472,9 @@ def dashboard(request):
     # enrollments, because it could have been a data push snafu.
     course_enrollment_pairs = list(get_course_enrollment_pairs(user, course_org_filter, org_filter_out_set))
 
+    # sort the enrollment pairs by the enrollment date
+    course_enrollment_pairs.sort(key=lambda x: x[1].created, reverse=True)
+
     # Check to see if the student has recently enrolled in a course. If so, display a notification message confirming
     # the enrollment.
     enrollment_message = _create_recent_enrollment_message(course_enrollment_pairs)
