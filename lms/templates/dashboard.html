@@ -202,7 +202,7 @@
 
     % if duplicate_provider:
         <section class="dashboard-banner third-party-auth">
-            <h2 class="sr">${_("Account Update Error")}</h2>
+            <h2 class="sr">${_("Could Not Link Accounts")}</h2>
             ## Translators: this message is displayed when a user tries to link their account with a third-party authentication provider (for example, Google or LinkedIn) with a given edX account, but their third-party account is already associated with another edX account. provider_name is the name of the third-party authentication provider, and platform_name is the name of the edX deployment.
             <p class="msg">${_("The {provider_name} account you selected is already linked to another {platform_name} account.").format(provider_name='<strong>%s</strong>' % duplicate_provider.NAME, platform_name=platform_name)}</p>
         </section>
