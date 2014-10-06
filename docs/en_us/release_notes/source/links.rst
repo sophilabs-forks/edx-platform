@@ -24,6 +24,7 @@
 
 .. _Building and Running an edX Course: http://edx.readthedocs.org/projects/edx-partner-course-staff/en/latest/
 
+.. _molecule viewer tool: http://edx.readthedocs.org/projects/edx-partner-course-staff/en/latest/exercises_tools/molecule_viewer.html
 
 .. _Using edX Insights: http://edx-insights.readthedocs.org/en/latest/
 
@@ -32,6 +33,8 @@
 .. _Installing the edX Production Stack: http://edx.readthedocs.org/projects/edx-installing-configuring-and-running/en/latest/prodstack/install_prodstack.html
 
 .. _Creating Peer Assessments: http://edx.readthedocs.org/projects/edx-open-response-assessments/en/latest/
+
+.. _EdX Guide for Students: http://edx-guide-for-students.readthedocs.org/en/latest/
 
 .. _edX Research Guide: http://edx.readthedocs.org/projects/devdata/en/latest/
 
@@ -171,6 +174,7 @@
 
 .. _Drag and Drop Problem: http://ca.readthedocs.org/en/latest/exercises_tools/drag_and_drop.html
 
+.. _Creating Exercises and Tools: http://edx.readthedocs.org/projects/edx-partner-course-staff/en/latest/exercises_tools/index.html
 
 .. _Assign Discussion Administration Roles: http://edx.readthedocs.org/projects/edx-partner-course-staff/en/latest/running_course/discussions.html#assigning-discussion-roles
 

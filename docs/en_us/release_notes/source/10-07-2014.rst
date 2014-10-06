@@ -1,0 +1,143 @@
+###################################
+October 7, 2014
+###################################
+
+The following information reflects what is new in the edX Platform as of
+October 7, 2014. See previous pages in this document for a history of changes.
+
+****************************************
+edX Release Announcements Mailing List
+****************************************
+
+These edX Course Staff Release Notes are always available and are updated with
+each release of the edX Platform on `edx.org`_ and `edX Edge`_.
+
+You can also sign up for the `edX Release Announcements mailing list`_ to get
+an email message when we update the edX Course Staff Release Notes.
+
+
+*******************************
+edX Learning Management System
+*******************************
+
+* The cohorts feature has been released! This feature allows course
+  teams and TAs to assign students to different cohorts in class discussions.
+  Students in different cohorts can see the discussions for their
+  individual cohorts, but cannot see discussions for other cohorts. Course
+  teams can also open some course discussions to all students.
+
+* On the Instructor Dashboard, the **Download profile information as a CSV**
+  button has been moved to the **Reports** page. Additionally, the CSV file that
+  users download to find student profile data now contains a **Cohort** column.
+  (TNL-453)
+
+* All course authors can now see a link to edX Insights on the Instructor Dashboard.
+
+* Course discussions have several new features:
+
+  * Students and course authors can now change the topic of a post after they post it.
+
+  * Users no longer have the option to add comments to closed threads. (TNL-150)
+
+  * When a user selects a topic and subtopic for a post, a link to the unit for
+    that topic and subtopic in the courseware now appears immediately when the
+    post is created. (TNL-404)
+
+  * Users who have been added as discussion administrators can now remove their
+    own or other users' discussion administrator status. (TNL-315)
+
+  * For some users, discussion threads did not appear in the left sidebar when
+    the user clicked **Posts I'm Following**. This bug has been fixed. (TNL-469)
+
+  * Pinned threads now always appear at the top of the list of posts, regardless
+    of the way that the posts are sorted. (TNL-90)
+
+* In some browsers, if a student clicked a word in a transcript to move to that
+  point in the video, the video began playing from the correct point, but the
+  transcript stopped following along with the video. This bug has been fixed.
+  (TNL-235)
+
+*************
+edX Studio
+*************
+
+* In HTML text components, the default font now appears as an option in the
+  **Font** menu. (TNL-147)
+
+  .. image:: /images/HTMLDefaultFont.png
+    :width: 300
+    :alt: HTML component editor with Font menu open to show Default option
+
+* When a Problem component contained a custom JavaScript display and grading (JS
+  Input) problem and at least one other problem, the JS Input problem was scored
+  incorrectly. The additional problem in the component could be any type of
+  problem. These problems are now scored correctly. (TNL-269)
+
+* When you exported a course, the setting for **Video Download Allowed** in a
+  Video component changed from **False** to **True** in the exported course.
+  This bug has been fixed. (TNL-324)
+
+**************************
+Coming Soon
+**************************
+
+We're pleased to announce the following upcoming changes:
+
+* The cohorts feature will soon be expanded...
+
+
+**************************
+edX Documentation
+**************************
+
+All guides now include a section that lists browsers supported for use with the
+edX platform.
+
+The following documentation is available:
+
+* `Building and Running an edX Course`_
+
+  Click **Help** in the upper-right corner of any page in the edX Studio
+  user interface to access relevant sections in this guide. You can also
+  download the entire guide as a PDF.
+
+  Recent changes include:
+
+  * Full documentation for the new cohorts feature is available in `reference`_.
+
+  * Documentation for a new `molecule viewer tool` has been added to `Creating
+    Exercises and Tools`_.
+
+    .. image:: /images/MoleculeViewer.png
+       :width: 500
+       :alt: Image of molecule viewer tool showing a ciprofloxacin molecule
+
+* `EdX Guide for Students`_
+
+  This new guide is written specifically to help students get started with edX.
+  This initial release of the guide includes information about certificates,
+  entering formulas into the response field for math and science problems, and
+  open response assessments.
+
+* `Creating Peer Assessments`_
+
+* `edX Research Guide`_
+
+* `edX Developer's Guide`_
+
+* `edX XBlock Documentation`_
+
+* `Installing, Configuring, and Running the edX Platform`_  
+
+**************************
+Other edX Resources
+**************************
+
+You can access the `edX Status`_ page to get an up-to-date status for all
+services on edx.org and edX Edge. The page also includes the Twitter feed for
+@edXstatus, which the edX Operations team uses to post updates.
+
+You can access the public `edX roadmap`_ for details about the currently
+planned product direction.
+
+.. include:: links.rst
