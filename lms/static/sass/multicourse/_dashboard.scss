@@ -1146,13 +1146,13 @@
   }
 
 .dashboard-notifications {
-  background: #383838;
+  background: $dark-gray;
   width: 100%;
 }
 
 .dashboard-banner {
-  background: #383838;
-  padding: 10px 0px 10px 0px;
+  background: $dark-gray;
+  padding: ($baseline/2) 0;
 
   max-width: grid-width(12);
   min-width: 760px;
@@ -1171,7 +1171,7 @@
   .msg {
     @include clearfix();
     font-family: $sans-serif;
-    color: #FFF;
+    color: $white;
 
     &.title {
       @extend %t-title5;
