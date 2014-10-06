@@ -116,16 +116,16 @@ def language_info(request):
 
     Example:
 
-        GET /profile/language/info
+        GET /profile/preferences/languages
 
     """
     user = request.user
+    
     preferred_language_code = profile_api.preference_info(user.username).get(LANGUAGE_KEY)
     preferred_language = language_api.preferred_language(preferred_language_code)
+    response_data = {'preferredLanguage': {'code': preferred_language.code, 'name': preferred_language.name}}
 
     languages = language_api.released_languages()
-
-    response_data = {'preferredLanguage': preferred_language}
     response_data['languages'] = [{'code': language.code, 'name': language.name} for language in languages]
 
     return HttpResponse(json.dumps(response_data), content_type='application/json')
@@ -134,8 +134,11 @@ def language_info(request):
 @login_required
 @require_http_methods(['PUT'])
 @ensure_csrf_cookie
-def language_change_handler(request):
-    """Change the user's language preference.
+def update_preferences(request):
+    """Change the user's preferences.
+
+    At the moment, the only supported preference is the user's
+    language choice.
 
     Args:
         request (HttpRequest)
@@ -150,7 +153,7 @@ def language_change_handler(request):
 
     Example:
 
-        PUT /profile/language_change
+        PUT /profile/preferences
 
     """
     put = QueryDict(request.body)

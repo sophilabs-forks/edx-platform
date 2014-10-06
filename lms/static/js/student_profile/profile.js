@@ -51,8 +51,7 @@ var edx = edx || {};
             language: 'en'
         },
 
-        // TODO: This should be made more general, maybe post to "preferences"
-        urlRoot: 'language',
+        urlRoot: 'preferences',
 
         sync: function(method, model) {
             var headers = {
@@ -91,7 +90,6 @@ var edx = edx || {};
         events: {
             'submit': 'submit',
             'change': 'change'
-            // 'change:fullName': 'changeProfile'
         },
 
         initialize: function() {
@@ -103,17 +101,15 @@ var edx = edx || {};
             this.profileModel.on('sync', this.sync);
 
             this.preferencesModel = new edx.student.profile.PreferencesModel();
-            // TODO: getJSON here to get languageInfo earlier, so we can instantiate the model intelligently
-            // this.preferencesModel = new edx.student.profile.PreferencesModel({language: preferredLanguage});
             this.preferencesModel.on('invalid', this.invalidPreference);
             this.preferencesModel.on('error', this.error);
             this.preferencesModel.on('sync', this.sync);
         },
 
         render: function() {
-            var self = this;
-            $.getJSON( 'language/info' )
-                .done(function( json ) {
+            self = this;
+            $.getJSON( 'preferences/languages' )
+                .done( function( json ) {
                     self.$el.html( _.template( $( '#profile-tpl' ).html(), {languageInfo: json} ) );
 
                     self.$nameStatus = $('#profile-name-status', self.$el);
@@ -126,8 +122,8 @@ var edx = edx || {};
 
                     return self;
                 })
-                .fail(function() {
-                    console.log("Request failed")
+                .fail( function() {
+                    console.log("Request for language information failed.")
                 });
         },
 
