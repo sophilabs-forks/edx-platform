@@ -116,9 +116,10 @@ Choosing the Visibility of a Post
 ***************************************
 
 If you have the discussion admin, discussion moderator, or community TA role,
-you can make posts to divided discussion topics visible to everyone who is enrolled in the course or to the 
-members of a selected cohort group only. When you :ref:`add a post<Add a Post>`,
-the **Visible to** dropdown list appears above the **Title** field.
+you can make posts to divided discussion topics visible to everyone who is
+enrolled in the course or to the members of a selected cohort group only. When
+you :ref:`add a post<Add a Post>`, the **Visible to** dropdown list appears
+above the **Title** field.
 
 This example shows a new post being added to a content-specific
 discussion topic.
