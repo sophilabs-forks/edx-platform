@@ -4,10 +4,21 @@
 Change Log
 ###########
 
-.. **********************
-.. October-December 2014
-.. **********************
+**********************
+October-December 2014
+**********************
 
+.. list-table::
+   :widths: 10 70
+   :header-rows: 1
+
+   * - Date
+     - Change
+   * - 10/16/14
+     - Removed information about XML course formats. See the `edX Open
+       Learning XML Guide <http://edx-open-learning-
+       xml.readthedocs.org/en/latest/index.html>`_ for information about
+       building XML courses.
 
 **********************
 July-September 2014
