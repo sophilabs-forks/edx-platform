@@ -14,9 +14,8 @@ this guide.
 
 Staff members who have the discussion admin, discussion moderator, or community
 TA role see the same indicator of who can read each post. Unlike the students,
-however, the discussion staff members are not divided into cohort groups. They
-can read and contribute to every post, regardless of the cohort group
-assignment of the student who posted it.
+however, the discussion staff members can read and contribute to every post,
+regardless of the cohort group assignment of the student who posted it.
 
 .. note:: Students who have the Community TA role can read and 
  contribute to all posts.
@@ -163,8 +162,6 @@ posts in a course that includes cohorts.
 * All of the responses and comments that are contributed to a post will be
   visible to the same group of people as the post itself. You cannot change the
   visibility of individual responses or comments.
-
-.. Other differences? 
 
 .. _Viewing the Posts of a Cohort Group:
 
