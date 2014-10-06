@@ -247,8 +247,10 @@ Students who are assigned to the default cohort group see a cohort name of
  :alt: A discussion topic post with "This post is visible to Default Group" 
        above the title
 
-If you want students to see a different cohort name, add an auto cohort
-group with the name that you prefer. See :ref:`Define Auto Cohort Groups`.
+If you want students to see a different cohort name when your course starts,
+you can add an auto cohort group with the name that you prefer. See
+:ref:`Define Auto Cohort Groups`. (Adding an auto cohort group to your course 
+for this purpose is not recommended after your course starts.)
 
 You can check the :ref:`student profile information report<View and download
 student data>` for your course to see if any students are assigned to the

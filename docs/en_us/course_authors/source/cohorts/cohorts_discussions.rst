@@ -6,17 +6,19 @@ Managing Discussions in a Course with Student Cohorts
 
 In a course that includes cohorts, every post has an indicator of who can read
 it: either everyone, or only the members of a single cohort group. For
-students, this is the only noticeable difference between discussions in courses that
-include cohorts when compared to courses that don't. You can share the
+students, this is the only noticeable difference between discussions in courses
+that include cohorts when compared to courses that don't. You can share the
 examples in the :ref:`Read the Cohort Indicator in Posts` section with your
-students. along with the options and features that are described in the
-:ref:`Discussions for Students and Staff` section.
+students, along with the :ref:`Discussions for Students and Staff` section of
+this guide.
 
 Staff members who have the discussion admin, discussion moderator, or community
 TA role see the same indicator of who can read each post. Unlike the students,
-however, the discussion staff members can read and contribute to every post.
+however, the discussion staff members are not divided into cohort groups. They
+can read and contribute to every post, regardless of the cohort group
+assignment of the student who posted it.
 
-.. note:: Students who are assigned the Community TA role can read and 
+.. note:: Students who have the Community TA role can read and 
  contribute to all posts.
 
 In courses that enable the cohort feature, members of the discussion staff can
@@ -34,7 +36,7 @@ section are also available to the discussion staff.
 .. _Finding Out Who Can See a Post:
 
 ********************************
-Finding Out Who Can Read a Post
+Identifying Who Can Read a Post
 ********************************
 
 In a course that includes cohorts, all posts include a cohort indicator above
@@ -115,8 +117,8 @@ Choosing the Visibility of a Post
 ***************************************
 
 If you have the discussion admin, discussion moderator, or community TA role,
-you can make your posts visible to everyone who is enrolled in the course or to
-members of a single cohort group only. When you :ref:`add a post<Add a Post>`,
+you can make posts to divided discussion topics visible to everyone who is enrolled in the course or to the 
+members of a selected cohort group only. When you :ref:`add a post<Add a Post>`,
 the **Visible to** dropdown list appears above the **Title** field.
 
 This example shows a new post being added to a content-specific
@@ -127,15 +129,18 @@ discussion topic.
        New Post for a content-specific topic
 
 As a discussion staff member, you can always choose the visibility of your
-posts, regardless of whether the topic is divided by cohort. This means that
-you can add information that you want everyone to see in a single post, rather
-than having to write a separate post for each cohort group. It also means
-that it is possible for you to share information with a different audience than
-you intended.
+posts in topics that are divided by cohort. This means that you can add
+information that you want everyone to see in a single post, rather than having
+to write a separate post for each cohort group. It also means that it is
+possible for you to unintentionally share information with a different audience
+than you intended.
 
 .. note:: Students do not choose the visibility of their posts. The 
  visibility  of student posts is determined by the configuration of the topic
  they post in. See :ref:`Options for Discussion Topics`.
+
+Posts that discussion staff members add to unified discussion topics are always
+visible to all students, regardless of cohort assignment.
 
 .. _Considerations When Editing Posts:
 
@@ -151,9 +156,9 @@ posts in a course that includes cohorts.
   cohort who can read it, edit the content of the post or delete the post.
 
 * If you change the topic that a post appears in, the visibility of the post
-  and its responses and comments does not change. This ensures that students
-  who are following the post, or who have contributed responses or comments to
-  it, will still be able to read it.
+  and its responses and comments **does not change**. This ensures that
+  students who are following the post, or who have contributed responses or
+  comments to it, will still be able to read it.
 
 * All of the responses and comments that are contributed to a post will be
   visible to the same group of people as the post itself. You cannot change the
