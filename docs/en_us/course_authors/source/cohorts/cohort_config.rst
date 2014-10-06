@@ -390,11 +390,14 @@ results.
 * The system uses the new value that you saved for the ``auto_cohort_groups``
   policy key to create one or more additional, new auto cohort groups.
 
-* The system begins to assign any students who do not have a cohort group
-  assignment randomly to the newly defined cohort group or groups.
+* The system begins to assign students who do not have a cohort group
+  assignment to the newly defined cohort group or groups. Students also
+  continue to be assigned to any auto cohort groups that were not affected by
+  your changes.
 
-  The system uniformly distributes students among the auto cohort groups that
-  exist when an assignment is needed. The size of each group is not considered.
+  The system uniformly distributes students among all of the auto cohort groups
+  that exist when an assignment is needed. The size of each group is not
+  considered.
 
 * The original cohort group or groups remain in the system. Any students who
   were assigned to the original groups remain assigned to them.
@@ -402,10 +405,11 @@ results.
   For the results of assigning any students who remain in the original cohort
   groups to other groups, see :ref:`Changing Student Cohort Group Assignments`.
 
-* The original cohort group or groups are converted into manual cohort groups:
-  the system no longer assigns students to them automatically. The original
-  cohort groups are listed as manual cohort groups on the **Membership** page
-  of the Instructor Dashboard.
+* The system converts the auto cohort groups that are no longer listed as
+  values for ``auto_cohort_groups`` to manual cohort groups. The system no
+  longer assigns students to those groups automatically. These cohort groups
+  are listed as manual cohort groups on the **Membership** page of the
+  Instructor Dashboard.
 
 .. _Deleting a Cohort Group:
 
