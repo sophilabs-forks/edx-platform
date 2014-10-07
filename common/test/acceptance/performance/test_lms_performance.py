@@ -13,6 +13,7 @@ from ..fixtures.course import CourseFixture, XBlockFixtureDesc, CourseUpdateDesc
 from ..tests.helpers import UniqueCourseTest, load_data_str
 from nose.plugins.attrib import attr
 
+
 @attr(har_mode='explicit')
 class LMSPagePerformanceTest(UniqueCourseTest):
     """
@@ -58,7 +59,6 @@ class LMSPagePerformanceTest(UniqueCourseTest):
         ).install()
 
         AutoAuthPage(self.browser, username=self.username, email=self.email, course_id=self.course_id).visit()
-
 
     def record_visit_coursware(self):
         """
@@ -116,6 +116,7 @@ class LMSPagePerformanceTest(UniqueCourseTest):
         self.har_capturer.add_page(self.browser, har_name)
         progress_page.visit()
         self.har_capturer.save_har(self.browser, har_name)
+
 
 class LmsPerformanceTest(LMSPagePerformanceTest):
     """
