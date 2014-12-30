@@ -16,5 +16,7 @@ SITE_NAME = LMS_BASE
 PLATFORM_NAME = 'Appsembler Open edX Testdrive'
 DEFAULT_FROM_EMAIL = 'registration@appsembler.com'
 
+GOOGLE_TAG_MANAGER_ID = os.environ.get("GOOGLE_TAG_MANAGER_ID", None)
+
 # Allows putting Intercom env variables passed from Docker into templates
 TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
