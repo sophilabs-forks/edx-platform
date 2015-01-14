@@ -20,3 +20,5 @@ GOOGLE_TAG_MANAGER_ID = os.environ.get("GOOGLE_TAG_MANAGER_ID", None)
 
 # Allows putting Intercom env variables passed from Docker into templates
 TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
+
+INSTALLED_APPS += ('appsembler',)
