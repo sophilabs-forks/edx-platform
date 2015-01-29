@@ -24,3 +24,12 @@ if settings.FEATURES.get('ENABLE_PAYMENT_FAKE'):
         'shoppingcart.tests.payment_fake',
         url(r'^payment_fake', PaymentFakeView.as_view()),
     )
+
+#enabling paypal integration
+urlpatterns += patterns('',
+    url(r'^paypal/payment/$', 'shoppingcart.processors.PayPal.make_payment', name='paypal_payment'),
+    url(r'^paypal_callback/cancel/', 'shoppingcart.views.paypal_cancel', name='paypal_cancel'),
+    url(r'^paypal_callback/(?P<ordernum>[0-9]*)/', 'shoppingcart.views.paypal_callback', name='paypal_callback'),
+
+)
+

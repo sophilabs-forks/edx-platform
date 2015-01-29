@@ -73,7 +73,8 @@ def show_cart(request):
     cart_items = cart.orderitem_set.all()
 
     callback_url = request.build_absolute_uri(
-        reverse("shoppingcart.views.postpay_callback")
+#reverse("shoppingcart.views.postpay_callback")
+        reverse("paypal_callback", args=(cart.id,))
     )
     form_html = render_purchase_form_html(cart, callback_url=callback_url)
     context = {
@@ -82,6 +83,35 @@ def show_cart(request):
         'form_html': form_html,
     }
     return render_to_response("shoppingcart/list.html", context)
+
+def paypal_cancel(request):
+    """
+    Paypal cancel payment
+    :param request: HTTP request
+    :return: template
+    """
+    return render_to_response('shoppingcart/paypal_cancel.html')
+
+
+def paypal_callback(request, ordernum):
+    """
+    Receives the POST-back from processor.
+    Mainly this calls the processor-specific code to check if the payment was accepted, and to record the order
+    if it was, and to generate an error page.
+    If successful this function should have the side effect of changing the "cart" into a full "order" in the DB.
+    The cart can then render a success page which links to receipt pages.
+    If unsuccessful the order will be left untouched and HTML messages giving more detailed error info will be
+    returned.
+    """
+    params = request.GET.dict()
+    params['ordernum'] = ordernum
+    result = process_postpay_callback(params)
+
+    if result['success']:
+        return HttpResponseRedirect(reverse('shoppingcart.views.show_receipt', args=[result['order'].id]))
+    else:
+        return render_to_response('shoppingcart/error.html', {'order': result['order'],
+                                                              'error_html': result['error_html']})
 
 
 @login_required
