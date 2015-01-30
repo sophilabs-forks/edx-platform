@@ -1,0 +1,19 @@
+---
+EDXAPP_FEATURES:
+    ENABLE_SYSADMIN_DASHBOARD: true
+    ENABLE_SHOPPING_CART: true
+    ENABLE_PAID_COURSE_REGISTRATION: true
+
+EDXAPP_CC_PROCESSOR_NAME: "Paypal"
+EDXAPP_CC_PROCESSOR:
+    Paypal:
+        PURCHASE_ENDPOINT: "api.sandbox.paypal.com"
+        CLIENT_ID: "xxxx"
+        CLIENT_SECRET: "xxxx"
+        MODE: "sandbox"
+
+edx_platform_repo: "https://github.com/appsembler/edx-platform.git"
+edx_platform_version: "appsembler/feature/paypal-integration"
+edx_ansible_source_repo: "https://github.com/appsembler/configuration"
+configuration_version: "appsembler/release"
+
