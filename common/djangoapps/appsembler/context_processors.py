@@ -1,6 +1,7 @@
 import hmac
 import hashlib
 import os
+import subprocess
 
 from django.conf import settings
 
@@ -41,3 +42,14 @@ def intercom(request):
     data['intercom_app_id'] = intercom_app_id
 
     return data
+
+
+try:
+    GIT_COMMIT_HASH = subprocess.check_output('git rev-parse HEAD', shell=True).strip()[:10]
+except subprocess.CalledProcessError:
+    GIT_COMMIT_HASH = None
+
+
+def version(request):
+    context_dict = {'git_commit_hash': GIT_COMMIT_HASH}
+    return context_dict
