@@ -14,7 +14,7 @@ urlpatterns = ('',  # nopep8
     # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
     url(r'^request_certificate$', 'certificates.views.request_certificate'),
-    url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
+    url(r'^$', 'student.views.signin_user', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     url(r'^register$', 'student.views.register_user', name="register_user"),
@@ -228,7 +228,7 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
 
-        url(r'^courses/?$', 'branding.views.courses', name="courses"),
+        url(r'^courses/?$', 'student.views.signin_user', name="courses"),
         url(r'^change_enrollment$',
             'student.views.change_enrollment', name="change_enrollment"),
         url(r'^change_email_settings$', 'student.views.change_email_settings', name="change_email_settings"),
