@@ -1,5 +1,5 @@
 import os
-from .appsembler import *
+from .aws_appsembler import *
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.mandrillapp.com"
