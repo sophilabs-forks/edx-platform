@@ -6,11 +6,11 @@ EMAIL_HOST = "smtp.mandrillapp.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "nate@appsembler.com"
-EMAIL_HOST_PASSWORD = os.environ.get("MANDRILL_API_KEY", "")
+EMAIL_HOST_PASSWORD = APPSEMBLER_FEATURES.get("MANDRILL_API_KEY",os.environ.get("MANDRILL_API_KEY", ""))
 
-LMS_BASE = os.environ.get("EDX_LMS_BASE", "")
-CMS_BASE = os.environ.get("EDX_CMS_BASE", "")
-FEATURES.update(PREVIEW_LMS_BASE=os.environ.get("EDX_PREVIEW_LMS_BASE", ""))
+LMS_BASE = ENV_TOKENS.get("LMS_BASE",os.environ.get("EDX_LMS_BASE", ""))
+CMS_BASE = ENV_TOKENS.get("CMS_BASE",os.environ.get("EDX_CMS_BASE", ""))
+FEATURES.update(PREVIEW_LMS_BASE=ENV_FEATURES.get("PREVIEW_LMS_BASE",os.environ.get("EDX_PREVIEW_LMS_BASE", "")))
 
 SITE_NAME = LMS_BASE
 PLATFORM_NAME = 'Appsembler Open edX Testdrive'
