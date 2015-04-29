@@ -12,8 +12,10 @@ LMS_BASE = (ENV_TOKENS.get("LMS_BASE","") or os.environ.get("EDX_LMS_BASE", ""))
 CMS_BASE = (ENV_TOKENS.get("CMS_BASE","") or os.environ.get("EDX_CMS_BASE", ""))
 FEATURES.update(PREVIEW_LMS_BASE=(ENV_FEATURES.get("PREVIEW_LMS_BASE","") or os.environ.get("EDX_PREVIEW_LMS_BASE", "")))
 
-SITE_NAME = CMS_BASE
-DEFAULT_FROM_EMAIL = 'registration@appsembler.com'
+SITE_NAME = ENV_TOKENS.get("LMS_BASE","") or CMS_BASE
+
+default_email = ENV_TOKENS.get("DEFAULT_FROM_EMAIL","")
+DEFAULT_FROM_EMAIL = 'registration@appsembler.com' if default_email == "registration@example.com" else default_email
 
 #can probably be clean up later
 env_platform_name = ENV_TOKENS.get("PLATFORM_NAME","")
