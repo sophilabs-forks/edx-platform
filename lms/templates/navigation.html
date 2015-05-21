@@ -58,19 +58,6 @@ site_status_msg = get_site_status_msg(course_id)
             <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
           </li>
         % endif
-        <li class="nav-global-01">
-          <a class="cta cta-register multiple-enroll" href="">${_("Enroll in all")}</a>
-        </li>
-        <div style="display: none;">
-          <form id="multiple_enroll_form" method="post" data-remote="true" action="${reverse('multiple_enrollment')}">
-            <fieldset class="enroll_fieldset">
-              <input name="courses" type="hidden" value="Appsembler/TEST1/T1;edX/DemoX/Demo_Course">
-            </fieldset>
-            <div class="submit">
-              <input name="submit" type="submit" value="enroll">
-            </div>
-          </form>
-        </div>
       </%block>
     </ol>
     <ol class="user">

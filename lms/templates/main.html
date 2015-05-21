@@ -6,7 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<%! from django.core.urlresolvers import reverse %>
 <%! from django.utils.translation import ugettext as _ %>
 <%! from microsite_configuration import microsite %>
 <%! from microsite_configuration import page_title_breadcrumbs %>
@@ -137,33 +136,6 @@
 
   <%block name="js_extra"/>
 
-  % if user.is_authenticated():
-    <script type="text/javascript">
-    (function() {
-      $(".multiple-enroll").click(function(event) {
-        $("#multiple_enroll_form").submit();
-        event.preventDefault();
-      });
-
-      $('#multiple_enroll_form').on('ajax:complete', function(event, xhr) {
-        if(xhr.status == 200) {
-          if (xhr.responseText == "") {
-            location.href = "${reverse('dashboard')}";
-          }
-          else {
-            location.href = xhr.responseText;
-          }
-        } else if (xhr.status == 403) {
-          location.href = "${reverse('dashboard')}";
-        } else {
-          $('#register_error').html(
-              (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
-          ).css("display", "block");
-        }
-      });
-    })(this)
-    </script>
-  % endif
 
   <%include file="widgets/segment-io.html" />
 </body>
