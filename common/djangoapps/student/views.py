@@ -805,8 +805,8 @@ def multiple_enrollment(request):
     valid_courses = []
     for course_id in courses:
         try:
-            course_id = SlashSeparatedCourseKey.from_deprecated_string(course_id)
-            valid_courses.append(course_id)
+            valid_course_id = SlashSeparatedCourseKey.from_deprecated_string(course_id)
+            valid_courses.append(valid_course_id)
         except InvalidKeyError:
             log.warning("User {username} tried to enroll with invalid course id: {course_id}".format(
                 username=user.username, course_id=course_id
@@ -819,7 +819,6 @@ def multiple_enrollment(request):
         return HttpResponseForbidden()
 
     for course_id in valid_courses:
-        print course_id
         # Make sure the course exists
         try:
             course = modulestore().get_course(course_id)
