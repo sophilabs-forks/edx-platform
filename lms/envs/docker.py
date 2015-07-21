@@ -3,7 +3,7 @@ from .aws_appsembler import *
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.mandrillapp.com"
-EMAIL_PORT = 587
+EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "nate@appsembler.com"
 EMAIL_HOST_PASSWORD = (APPSEMBLER_FEATURES.get("MANDRILL_API_KEY","") or os.environ.get("MANDRILL_API_KEY", ""))
