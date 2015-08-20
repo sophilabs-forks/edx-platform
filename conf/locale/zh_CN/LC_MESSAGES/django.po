@@ -17957,3 +17957,52 @@ msgid ""
 "A new revision was created: Merge between Revision #%(r1)d and Revision "
 "#%(r2)d"
 msgstr "产生新的修订版本：合并修订版本#%(r1)d与#%(r2)d"
+
+###### nyif specific
+#: lms/templates/login-sidebar.html:19
+msgid "Welcome to NYIF"
+msgstr "欢迎来到纽约金融学院"
+
+#: lms/templates/login-sidebar.html:21
+msgid ""
+"This site is dedicated to students registered for specific courses at New "
+"York Institute of Finance. You may login here if you have enrolled in one of"
+" these courses (you would have received notification in email)."
+msgstr "非常感谢您选择纽约金融学院的课程并注册成为我们的学员。如果您已选购了我们的课程（您将收到一封确认通知邮件），请从这里登录。"
+
+#: lms/templates/login-sidebar.html:24
+msgid ""
+"To learn more about the courses on this site, and the wide range of training"
+" available at New York Institute of Finance, please visit our primary site "
+"at {link_start}www.nyif.com{link_end}. If you have questions:"
+msgstr "浏览我们的主页{link_start}www.nyif.com.cn{link_end}以学习更多纽约金融学院的课程，如果您有任何问题，"
+
+#: lms/templates/login-sidebar.html:27
+msgid "Give us a call at +1 212 641 6616 or +1 888 641 6616"
+msgstr "请致电+86 400 998 3300，"
+
+#: lms/templates/login-sidebar.html:28
+msgid "Email us at {link_start}Customerservice@nyif.com{link_end}"
+msgstr "或发送电子邮件到{link_start}Customerservice@nyif.com{link_end}。"
+
+#: lms/templates/register-sidebar.html:32
+msgid ""
+"Registering with New York Institute of Finance is required for participation"
+" in the courses on this site for which you are enrolled. You only need to "
+"register once, then you will have easy access to any NYIF courses for which "
+"you enroll in the future."
+msgstr "请您在本页面完成注册，注册成功后，该注册账户可用于您选购纽约金融学院任何课程。"
+
+#: lms/templates/register-sidebar.html:50
+msgid ""
+"Need help in enrolling in New York Institute of Finance courses? Please "
+"visit our primary website at {link_start}www.NYIF.com{link_end}, or call our"
+" Customer Success team at +1 212 641-6616 or +1 888 641-6616."
+msgstr "如果您需要纽约金融学院提供任何帮助或服务，请浏览我们的主页www.NYIF.com.cn，或请致电客服团队+86 400 998 3300。"
+
+#: lms/templates/theme-footer.html:11
+msgid ""
+"1922-2015 New York Institute of Finance, a Financial Times company. All "
+"rights reserved."
+msgstr "1922–2015 纽约金融学院，金融时报旗下公司 &copy; 版权所有"
+
