@@ -1,1 +1,3 @@
 python-intercom==0.2.13
+#metalogix
+simple-salesforce==0.67.3
