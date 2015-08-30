@@ -29,6 +29,9 @@ from student.roles import (
 from student.models import CourseEnrollment, CourseEnrollmentAllowed
 from opaque_keys.edx.keys import CourseKey, UsageKey
 from util.milestones_helpers import get_pre_requisite_courses_not_completed
+
+from course_access_group.models import CourseAccessGroup
+
 DEBUG_ACCESS = False
 
 log = logging.getLogger(__name__)
@@ -70,6 +73,9 @@ def has_access(user, action, obj, course_key=None):
     Returns a bool.  It is up to the caller to actually deny access in a way
     that makes sense in context.
     """
+    print 'course_key-------'
+    print type(course_key)
+    print course_key
     # Just in case user is passed in as None, make them anonymous
     if not user:
         user = AnonymousUser()
@@ -215,6 +221,10 @@ def _has_access_course_desc(user, action, course):
             debug("Deny: invitation only")
             return False
 
+        #access group check
+        #if False:
+        #    pass
+
         if reg_method_ok and start < now < end:
             debug("Allow: in enrollment period")
             return True
@@ -249,7 +259,8 @@ def _has_access_course_desc(user, action, course):
         """
         return (
             course.catalog_visibility == CATALOG_VISIBILITY_CATALOG_AND_ABOUT or
-            _has_staff_access_to_descriptor(user, course, course.id)
+            _has_staff_access_to_descriptor(user, course, course.id) #and
+            #user_in_course_access_group(user, course.id)
         )
 
     def can_see_about_page():
@@ -673,3 +684,9 @@ def get_user_role(user, course_key):
         return 'staff'
     else:
         return 'student'
+
+def user_in_course_access_group(user, course_key):
+    return True
+#    return False
+    #CourseAccessGroup.objects.all()
+    #pass
