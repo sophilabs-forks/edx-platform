@@ -73,9 +73,6 @@ def has_access(user, action, obj, course_key=None):
     Returns a bool.  It is up to the caller to actually deny access in a way
     that makes sense in context.
     """
-    print 'course_key-------'
-    print type(course_key)
-    print course_key
     # Just in case user is passed in as None, make them anonymous
     if not user:
         user = AnonymousUser()
@@ -222,8 +219,8 @@ def _has_access_course_desc(user, action, course):
             return False
 
         #access group check
-        #if False:
-        #    pass
+        if not is_user_in_course_access_group(user,course.id):
+            return False
 
         if reg_method_ok and start < now < end:
             debug("Allow: in enrollment period")
@@ -249,7 +246,7 @@ def _has_access_course_desc(user, action, course):
                 return True
             return _has_staff_access_to_descriptor(user, course, course.id)
 
-        return can_enroll() or can_load()
+        return can_enroll() and can_load()
 
     def can_see_in_catalog():
         """
@@ -259,8 +256,7 @@ def _has_access_course_desc(user, action, course):
         """
         return (
             course.catalog_visibility == CATALOG_VISIBILITY_CATALOG_AND_ABOUT or
-            _has_staff_access_to_descriptor(user, course, course.id) #and
-            #user_in_course_access_group(user, course.id)
+            _has_staff_access_to_descriptor(user, course, course.id) 
         )
 
     def can_see_about_page():
@@ -685,8 +681,15 @@ def get_user_role(user, course_key):
     else:
         return 'student'
 
-def user_in_course_access_group(user, course_key):
-    return True
-#    return False
-    #CourseAccessGroup.objects.all()
-    #pass
+def is_user_in_course_access_group(user, course_key):
+    if user.is_anonymous():
+        return False
+        
+    #grab CourseAccessGroups associated with user
+    groups = CourseAccessGroup.objects.filter(students__email=user.email)
+
+    for group in groups:
+        if group.courses.filter(course_id=course_key):
+            return True
+
+    return False
