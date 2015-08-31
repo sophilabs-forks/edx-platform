@@ -503,3 +503,7 @@ PDF_RECEIPT_COBRAND_LOGO_HEIGHT_MM = ENV_TOKENS.get(
 
 XBLOCK_SETTINGS = ENV_TOKENS.get('XBLOCK_SETTINGS', {})
 XBLOCK_SETTINGS.setdefault("VideoModule", {})['YOUTUBE_API_KEY'] = AUTH_TOKENS.get('YOUTUBE_API_KEY', YOUTUBE_API_KEY)
+
+#leave this here until there's a better place for it
+#available in both aws_appsembler and devstacK_appsembler
+INSTALLED_APPS += ('course_access_group',)
