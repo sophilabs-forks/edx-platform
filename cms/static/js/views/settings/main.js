@@ -93,7 +93,8 @@ var DetailsView = ValidatingView.extend({
         'course_image_asset_path': 'course-image-url',
         'pre_requisite_courses': 'pre-requisite-course',
         'entrance_exam_enabled': 'entrance-exam-enabled',
-        'entrance_exam_minimum_score_pct': 'entrance-exam-minimum-score-pct'
+        'entrance_exam_minimum_score_pct': 'entrance-exam-minimum-score-pct',
+        'course_access_groups': 'course-access-groups'
     },
 
     updateTime : function(e) {
@@ -209,6 +210,9 @@ var DetailsView = ValidatingView.extend({
                     this.$el.find('.remove-course-introduction-video').hide();
                 }
             }, this), 1000);
+            break;
+        case 'course-access-groups':
+            this.setField(event);
             break;
         default: // Everything else is handled by datepickers and CodeMirror.
             break;

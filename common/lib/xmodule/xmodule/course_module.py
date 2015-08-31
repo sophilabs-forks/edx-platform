@@ -805,6 +805,12 @@ class CourseFields(object):
         scope=Scope.settings,
     )
 
+    course_access_groups = List(display_name=_("Allowed Groups"),
+        help="List of groups that can enroll in the course (empty means only staff).",
+        default=[],
+        scope=Scope.settings
+    )
+
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule

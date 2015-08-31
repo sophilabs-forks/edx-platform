@@ -336,6 +336,34 @@ CMS.URL.UPLOAD_ASSET = '${upload_asset_url}';
               </ol>
             </section>
           % endif
+          <section class="group-settings requirements">
+            <header>
+              <h2 class="title-2">${_("Access")}</h2>
+              <span class="tip">${_("Limit access to specific groups")}</span>
+            </header>
+            <ol class="list-input">
+              <li>
+                <div class="show-data">
+                    <div>
+                        <label for="course-access-groups" style="vertical-align: top;">${_("Associated Course Access Groups")}</label>
+                        <select multiple name="course-access-groups" id="course-access-groups" style="margin-left:10px; padding:5px;">
+                            %for group in course_access_groups:
+                              <option 
+                                  value="${group}"
+                                  %if unicode(group) in context_course.course_access_groups:
+                                    selected
+                                  % endif
+                                >
+                                  ${group}
+                              </option>
+                            %endfor
+                        </select>
+                    </div>
+                    <p><span class="tip tip-inline">${_("CTRL + Click to select multiple groups.")}</span></p>
+                </div>
+              </li>
+            </ol>
+          </section>
       </form>
     </article>
     <aside class="content-supplementary" role="complementary">

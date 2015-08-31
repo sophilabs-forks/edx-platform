@@ -81,6 +81,8 @@ from util.milestones_helpers import (
     is_valid_course_key
 )
 
+from course_access_group.models import CourseAccessGroup
+
 MINIMUM_GROUP_ID = 100
 
 # Note: the following content group configuration strings are not
@@ -822,6 +824,9 @@ def settings_handler(request, course_key_string):
             )
 
             short_description_editable = settings.FEATURES.get('EDITABLE_SHORT_DESCRIPTION', True)
+
+            course_access_groups = CourseAccessGroup.objects.all()
+
             settings_context = {
                 'context_course': course_module,
                 'course_locator': course_key,
@@ -832,6 +837,7 @@ def settings_handler(request, course_key_string):
                 'short_description_editable': short_description_editable,
                 'upload_asset_url': upload_asset_url,
                 'course_handler_url': reverse_course_url('course_handler', course_key),
+                'course_access_groups': course_access_groups,
             }
             if prerequisite_course_enabled:
                 courses, in_process_course_actions = get_courses_accessible_to_user(request)

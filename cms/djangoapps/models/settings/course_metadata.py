@@ -40,6 +40,7 @@ class CourseMetadata(object):
         'entrance_exam_enabled',
         'entrance_exam_minimum_score_pct',
         'entrance_exam_id',
+        'course_access_groups'
     ]
 
     @classmethod
