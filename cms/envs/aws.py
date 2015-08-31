@@ -319,3 +319,4 @@ XBLOCK_SETTINGS.setdefault("VideoModule", {})['YOUTUBE_API_KEY'] = AUTH_TOKENS.g
 #leave this here until there's a better place for it
 #available in both aws_appsembler and devstacK_appsembler
 INSTALLED_APPS += ('course_access_group',)
+INSTALLED_APPS += ('salesforce_registration',)
