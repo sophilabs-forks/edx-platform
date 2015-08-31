@@ -13,6 +13,8 @@ from models.settings import course_grading
 from xmodule.fields import Date
 from xmodule.modulestore.django import modulestore
 
+from course_access_group.models import CourseAccessGroup, CourseStub
+
 # This list represents the attribute keys for a course's 'about' info.
 # Note: The 'video' attribute is intentionally excluded as it must be
 # handled separately; its value maps to an alternate key name.
@@ -179,6 +181,17 @@ class CourseDetails(object):
             descriptor.course_access_groups = jsondict['course_access_groups']
             dirty = True
 
+            #also save to CourseStub object in mysql    
+            course_stub = CourseStub.objects.get(course_id=course_key)
+            if not course_stub:
+                logging.warn('CourseStub does not exist ')
+            else: 
+                #clear all groups, then readd based on jsdisct data
+                course_stub.courseaccessgroup_set.clear()
+                for group in descriptor.course_access_groups:
+                    ca_group = CourseAccessGroup.objects.get(name=group)
+                    course_stub.courseaccessgroup_set.add(ca_group)
+                
         if dirty:
             module_store.update_item(descriptor, user.id)
 
