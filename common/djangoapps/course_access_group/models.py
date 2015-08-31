@@ -13,12 +13,12 @@ class CourseStub(models.Model):
 	course_id = CourseKeyField(default='', max_length=255, unique=True)
 
 	def __str__(self):
-		return self.course_id
+		return str(self.course_id)
 
 class CourseAccessGroup(models.Model):
 	name = models.CharField(default='', max_length=32)
 	#figure out whether to use UserProfile or User object
-	students = models.ManyToManyField(User)
+	students = models.ManyToManyField(User, blank=True)
 	courses = models.ManyToManyField(CourseStub, blank=True)
 
 	def __str__(self):
