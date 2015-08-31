@@ -13,26 +13,38 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         update_count = 0
 
-    username = settings.APPSEMBLER_FEATURES['SALESFORCE_USERNAME']
-    password = settings.APPSEMBLER_FEATURES['SALESFORCE_PASSWORD']
-    token = settings.APPSEMBLER_FEATURES['SALESFORCE_TOKEN']
+        username = settings.APPSEMBLER_FEATURES['SALESFORCE_USERNAME']
+        password = settings.APPSEMBLER_FEATURES['SALESFORCE_PASSWORD']
+        token = settings.APPSEMBLER_FEATURES['SALESFORCE_TOKEN']
 
-    sf = Salesforce(password=password, username=username, security_token=token)
-    
+        sf = Salesforce(password=password, username=username, security_token=token)
+        
 
-    categories = ['Partner', 'Customer']
+        categories = ['Partner', 'Customer']
 
-    for category in categories:
-        query_result = sf.query("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
+        #add employee if it doesn't exist
+        employee = SalesforceDomainEntry.objects.filter(domain='metalogix.com')
+        if not employee:
+            employee = SalesforceDomainEntry(domain='metalogix.com', category='Employee')
+            employee.save()
+            update_count += 1
 
-        records = query_result['records']
-        for record in records:
-            entry = SalesforceDomainEntry.objects.filter(domain=record)
+        #query salesforce
+        for category in categories:
+            query_result = sf.query("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
 
-            if not entry:
-                entry = SalesforceDomainEntry(domain=record, category=category)
-                entry.save()
+            records = query_result['records']
+            for record in records:
+                email_domain = record['Email_Domain__c']
+                if not email_domain:
+                    continue
 
-                update_count += 1
+                entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
+                if not entry:
+                    entry = SalesforceDomainEntry(domain=email_domain, category=category)
+                    entry.save()
 
-    print 'Updated %d Salesforce domain entries' % update_count
+                    update_count += 1
+
+
+        print 'Updated %d Salesforce domain entries' % update_count
