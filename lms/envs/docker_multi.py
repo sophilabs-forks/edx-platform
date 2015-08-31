@@ -6,7 +6,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "celery",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("DB_PORT_11211_TCP_ADDR"), os.environ.get("DB_PORT_11211_TCP_PORT"))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
         ],
         "TIMEOUT": "7200"
     },
@@ -15,7 +15,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "default",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("DB_PORT_11211_TCP_ADDR"), os.environ.get("DB_PORT_11211_TCP_PORT"))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     },
     "general": {
@@ -23,7 +23,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "general",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("DB_PORT_11211_TCP_ADDR"), os.environ.get("DB_PORT_11211_TCP_PORT"))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     },
     "mongo_metadata_inheritance": {
@@ -31,7 +31,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "mongo_metadata_inheritance",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("DB_PORT_11211_TCP_ADDR"), os.environ.get("DB_PORT_11211_TCP_PORT"))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
         ],
         "TIMEOUT": 300
     },
@@ -40,7 +40,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "9818fcbe520e_general",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("DB_PORT_11211_TCP_ADDR"), os.environ.get("DB_PORT_11211_TCP_PORT"))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     }
 }
@@ -51,20 +51,20 @@ CONTENTSTORE = {
         "collection": "modulestore",
         "db": "docker-edxapp",
         "host": [
-            os.environ.get("MONGO_PORT_27017_TCP_ADDR")
+            os.environ.get("MONGO_DNS_HOST", "mongo")
         ],
         "password": "daheiYae2c",
-        "port": int(os.environ.get("MONGO_PORT_27017_TCP_PORT")),
+        "port": int(os.environ.get("MONGO_DNS_PORT", 27017)),
         "user": "edxapp"
     },
     "ENGINE": "xmodule.contentstore.mongo.MongoContentStore",
     "OPTIONS": {
         "db": "docker-edxapp",
         "host": [
-            os.environ.get("MONGO_PORT_27017_TCP_ADDR")
+            os.environ.get("MONGO_DNS_HOST", "mongo")
         ],
         "password": "daheiYae2c",
-        "port": int(os.environ.get("MONGO_PORT_27017_TCP_PORT")),
+        "port": int(os.environ.get("MONGO_DNS_PORT", 27017)),
         "user": "edxapp"
     }
 }
@@ -72,18 +72,18 @@ CONTENTSTORE = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "HOST": os.environ.get("DB_PORT_3306_TCP_ADDR"),
+        "HOST": os.environ.get("DB_DNS_HOST", "db"),
         "NAME": "edxapp",
         "PASSWORD": "password",
-        "PORT": os.environ.get("DB_PORT_3306_TCP_PORT"),
+        "PORT": os.environ.get("DB_DNS_PORT", 3306),
         "USER": "edxapp001"
     },
     "read_replica": {
         "ENGINE": "django.db.backends.mysql",
-        "HOST": os.environ.get("DB_PORT_3306_TCP_ADDR"),
+        "HOST": os.environ.get("DB_DNS_HOST", "db"),
         "NAME": "edxapp",
         "PASSWORD": "password",
-        "PORT": os.environ.get("DB_PORT_3306_TCP_PORT"),
+        "PORT": os.environ.get("DB_DNS_PORT", 3306),
         "USER": "edxapp001"
     }
 }
@@ -92,10 +92,10 @@ DOC_STORE_CONFIG = {
     "collection": "modulestore",
     "db": "docker-edxapp",
     "host": [
-        os.environ.get("MONGO_PORT_27017_TCP_ADDR")
+        os.environ.get("MONGO_DNS_HOST", "mongo")
     ],
     "password": "daheiYae2c",
-    "port": int(os.environ.get("MONGO_PORT_27017_TCP_PORT")),
+    "port": int(os.environ.get("MONGO_DNS_PORT", 27017)),
     "user": "edxapp"
 }
 
@@ -110,10 +110,10 @@ MODULESTORE = {
                         "collection": "modulestore",
                         "db": "edxapp",
                         "host": [
-                            os.environ.get("MONGO_PORT_27017_TCP_ADDR")
+                            os.environ.get("MONGO_DNS_HOST", "mongo")
                         ],
                         "password": "password",
-                        "port": int(os.environ.get("MONGO_PORT_27017_TCP_PORT")),
+                        "port": int(os.environ.get("MONGO_DNS_PORT", 27017)),
                         "user": "edxapp"
                     },
                     "ENGINE": "xmodule.modulestore.mongo.DraftMongoModuleStore",
@@ -137,10 +137,10 @@ MODULESTORE = {
                         "collection": "modulestore",
                         "db": "edxapp",
                         "host": [
-                            os.environ.get("MONGO_PORT_27017_TCP_ADDR")
+                            os.environ.get("MONGO_DNS_HOST", "mongo")
                         ],
                         "password": "password",
-                        "port": int(os.environ.get("MONGO_PORT_27017_TCP_PORT")),
+                        "port": int(os.environ.get("MONGO_DNS_PORT", 27017)),
                         "user": "edxapp"
                     },
                     "ENGINE": "xmodule.modulestore.split_mongo.split_draft.DraftVersioningModuleStore",
