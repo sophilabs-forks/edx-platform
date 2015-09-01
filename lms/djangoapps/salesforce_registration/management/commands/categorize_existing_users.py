@@ -23,7 +23,7 @@ class Command(BaseCommand):
             users = User.objects.all()
 
             for user in users:
-                email_domain = user.email.split('@')[1]
+                email_domain = user.email.split('@')[1].lower()
 
                 salesforce_domain_entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
                 if not salesforce_domain_entry:

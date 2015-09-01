@@ -39,6 +39,7 @@ class Command(BaseCommand):
                 if not email_domain:
                     continue
 
+                email_domain = email_domain.lower()
                 entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
                 if not entry:
                     entry = SalesforceDomainEntry(domain=email_domain, category=category)
