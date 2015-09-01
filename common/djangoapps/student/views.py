@@ -1406,6 +1406,8 @@ def _do_create_account(post_vars, extended_profile=None):
     profile.city = post_vars.get('city')
     profile.country = post_vars.get('country')
     profile.goals = post_vars.get('goals')
+    profile.telephone_number = post_vars.get('telephone_number')
+    profile.job_role = post_vars.get('job_role')
 
     # add any extended profile information in the denormalized 'meta' field in the profile
     if extended_profile:

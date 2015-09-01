@@ -244,6 +244,28 @@
         <h2 class="sr">${_("Additional Personal Information")}</h2>
 
         <ol class="list-input">
+          % if settings.REGISTRATION_EXTRA_FIELDS['job_role'] != 'hidden':
+          <li class="field group">
+            <div class="field ${settings.REGISTRATION_EXTRA_FIELDS['job_role']} select" id="field-job-role">
+              <label for="job_role">${_('Job Role')}</label>
+              <select id="job_role" name="job_role" ${'required aria-required="true"' if settings.REGISTRATION_EXTRA_FIELDS['job_role'] == 'required' else ''}>
+                <option value="">--</option>
+                %for code, job_role in UserProfile.JOB_ROLES:
+                <option value="${code}">${_(job_role)}</option>
+                %endfor
+              </select>
+            </div>
+          </li>
+
+          % endif
+
+          % if settings.REGISTRATION_EXTRA_FIELDS['telephone_number'] != 'hidden':
+          <li class="field ${settings.REGISTRATION_EXTRA_FIELDS['telephone_number']} text" id="field-telephone-number">
+            <label for="telephone_number">${_('Telephone Number')}</label>
+            <input id="telephone_number" type="text" name="telephone_number" value="" placeholder="${_('example: (877)123-4567')}" aria-describedby="phone-tip" ${'required aria-required="true"' if settings.REGISTRATION_EXTRA_FIELDS['telephone_number'] == 'required' else ''} />
+          </li>
+          % endif
+
           % if settings.REGISTRATION_EXTRA_FIELDS['city'] != 'hidden':
           <li class="field ${settings.REGISTRATION_EXTRA_FIELDS['city']} text" id="field-city">
             <label for="city">${_('City')}</label>

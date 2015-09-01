@@ -255,6 +255,18 @@ class UserProfile(models.Model):
     goals = models.TextField(blank=True, null=True)
     allow_certificate = models.BooleanField(default=1)
 
+    telephone_number = models.CharField(blank=True, max_length=15)
+    JOB_ROLES = (
+        (ugettext_noop('SharePoint Administrator'), ugettext_noop('SharePoint Administrator')),
+        (ugettext_noop('SharePoint Architect'), ugettext_noop('SharePoint Architect')),
+        (ugettext_noop('SharePoint Developer'), ugettext_noop('SharePoint Developer')),
+        (ugettext_noop('SharePoint Consultant'), ugettext_noop('SharePoint Consultant')),
+        (ugettext_noop('IT Management'), ugettext_noop('IT Management')),
+        (ugettext_noop('Other'), ugettext_noop('Other'))
+    )
+    job_role = models.CharField(blank=True, null=True, max_length=32, choices=JOB_ROLES)
+
+
     def get_meta(self):  # pylint: disable=missing-docstring
         js_str = self.meta
         if not js_str:
