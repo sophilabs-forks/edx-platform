@@ -1442,8 +1442,6 @@ def _do_create_account(post_vars, extended_profile=None):
             The following user wasn't categorized into any CourseAccessGroup:
             username: {}
             email: {}
-
-            You should be able to find more info on the user by checking out http://academy.metalogix.com/admin
         '''.format(user.username, user.email)
         send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com'], fail_silently=False)
     else:
