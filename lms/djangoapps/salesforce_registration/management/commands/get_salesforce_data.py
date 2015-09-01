@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
         #query salesforce
         for category in categories:
-            query_result = sf.query("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
+            query_result = sf.query_all("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
 
             records = query_result['records']
             for record in records:
