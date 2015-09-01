@@ -112,6 +112,8 @@ from openedx.core.djangoapps.user_api.api import profile as profile_api
 import analytics
 from eventtracking import tracker
 
+from course_access_group.models import CourseAccessGroup
+from salesforce_registration.models import SalesforceDomainEntry
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1426,6 +1428,31 @@ def _do_create_account(post_vars, extended_profile=None):
         raise
 
     UserPreference.set_preference(user, LANGUAGE_KEY, get_language())
+
+    ####classify user into CourseAccessGroup
+    #email validated by Django. assuming it's good
+    email_domain = user.email.split('@')[1].lower()
+    domain_entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
+
+    if not domain_entry:
+        subject = 'Metalogix Academy user not in Salesforce DB'
+        message = '''
+            This is an automated message from the Metalogix Academy Open edX server.
+
+            The following user wasn't categorized into any CourseAccessGroup:
+            username: {}
+            email: {}
+
+            You should be able to find more info on the user by checking out http://academy.metalogix.com/admin
+        '''.format(user.username, user.email)
+        send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com'], fail_silently=False)
+    else:
+        #just take first entry
+        domain_entry = domain_entry[0]
+
+        access_group = CourseAccessGroup.objects.get(name=domain_entry.category)
+        access_group.students.add(user)
+
 
     return (user, profile, registration)
 
