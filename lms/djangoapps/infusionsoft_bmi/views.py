@@ -139,7 +139,11 @@ def endpoint(request):
             message = '''
 Hello {first_name},
 
-We are delighted to have you on board with us as a student at the BodyMind Institute in the {course_name} Course!
+We are delighted to have you on board with us as a student here at the BodyMind Institute.
+
+You have been registered in the following course: 
+
+{course_name}
 
 Here is your login information:
 
