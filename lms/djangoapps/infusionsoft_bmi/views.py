@@ -143,21 +143,21 @@ We are delighted to have you on board with us as a student at the BodyMind Insti
 
 Here is your login information:
 
-Login: http://courses.bodymindinstitute.com
-Email: {email}
-Password: {password}
+ Login: http://courses.bodymindinstitute.com
+ Email: {email}
+ Password: {password}
 
 If you need any assistance, we would love to hear from you at info@bodymindinstitute.com or by phone toll free at 1-888-787-8886 M-F 9-5pm MST.
 
 Again, welcome!
 
 Your BodyMind Team
-www.bodymindinstitute.com
-info@bodymindinstitute.com
-North America: 1-888-787-8886 M-F 9-5pm MST
+ www.bodymindinstitute.com
+ info@bodymindinstitute.com
+ North America: 1-888-787-8886 M-F 9-5pm MST
 
 Join us in the conversation on Facebook where we regularly host free events, special offers and valuable resources all to enhance your learning with BodyMind Institute.
-www.facebook.com/bodymindinstitut
+www.facebook.com/bodymindinstitute
             '''.format(
                     first_name=request.POST.get('FirstName'), 
                     course_name=course.display_name,
