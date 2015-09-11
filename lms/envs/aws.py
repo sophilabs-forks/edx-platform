@@ -131,6 +131,9 @@ if STATIC_URL_BASE:
     if not STATIC_URL.endswith("/"):
         STATIC_URL += "/"
 
+# STATICFILES_STORAGE specifies the storage backend for static files
+STATICFILES_STORAGE = ENV_TOKENS.get('STATICFILES_STORAGE', STATICFILES_STORAGE)
+
 # MEDIA_ROOT specifies the directory where user-uploaded files are stored.
 MEDIA_ROOT = ENV_TOKENS.get('MEDIA_ROOT', MEDIA_ROOT)
 MEDIA_URL = ENV_TOKENS.get('MEDIA_URL', MEDIA_URL)
