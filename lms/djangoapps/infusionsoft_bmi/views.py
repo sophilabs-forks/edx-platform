@@ -94,7 +94,7 @@ def endpoint(request):
             message = '''
                 Account creation failed for the user with email: {}
             '''.format(user_email)
-            send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com','support@appsembler.com'], fail_silently=False)
+            send_mail(subject, message, 'support@appsembler.com', ['info@bodymindinstitute.com','support@appsembler.com'], fail_silently=False)
     
             return HttpResponse(status=400)
 
