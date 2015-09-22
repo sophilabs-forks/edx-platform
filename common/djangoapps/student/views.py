@@ -1442,8 +1442,21 @@ def _do_create_account(post_vars, extended_profile=None):
             The following user wasn't categorized into any CourseAccessGroup:
             username: {}
             email: {}
+
+            The user has been notified of the problem via email.
         '''.format(user.username, user.email)
         send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com'], fail_silently=False)
+
+
+        user_email_subject = 'Metalogix Academy - Action Required'
+        user_email_message = '''
+            Thank you for your interest in Metalogix Academy. Our system is open to customers and partners who register using their corporate email.
+
+            If you are receiving this message you either registered using a personal email or we do not have your company listed as a valid customer/partner. If you registered with a personal email please register using your corporate email. If you are a customer/partner who registered using your corporate email we will register you for access to the LMS and email you confirming you have access to the system.
+
+            If you have any questions please contact academy@metalogix.com.
+        '''
+        send_mail(user_email_subject, user_email_message, 'academy@metalogix.com',[user.email], fail_silently=False)
     else:
         #just take first entry
         domain_entry = domain_entry[0]
