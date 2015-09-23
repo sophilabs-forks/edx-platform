@@ -6,7 +6,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "celery",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "memcached"), os.environ.get("CACHE_DNS_PORT", 11211))
         ],
         "TIMEOUT": "7200"
     },
@@ -15,7 +15,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "default",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "memcached"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     },
     "general": {
@@ -23,7 +23,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "general",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "memcached"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     },
     "mongo_metadata_inheritance": {
@@ -31,7 +31,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "mongo_metadata_inheritance",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "memcached"), os.environ.get("CACHE_DNS_PORT", 11211))
         ],
         "TIMEOUT": 300
     },
@@ -40,7 +40,7 @@ CACHES = {
         "KEY_FUNCTION": "util.memcache.safe_key",
         "KEY_PREFIX": "9818fcbe520e_general",
         "LOCATION": [
-            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "db"), os.environ.get("CACHE_DNS_PORT", 11211))
+            "{}:{}".format(os.environ.get("CACHE_DNS_HOST", "memcached"), os.environ.get("CACHE_DNS_PORT", 11211))
         ]
     }
 }
