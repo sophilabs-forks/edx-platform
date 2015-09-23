@@ -1456,7 +1456,7 @@ def _do_create_account(post_vars, extended_profile=None):
 
             If you have any questions please contact academy@metalogix.com.
         '''
-        send_mail(user_email_subject, user_email_message, 'academy@metalogix.com',[user.email], fail_silently=False)
+        send_mail(user_email_subject, user_email_message, 'academy@metalogix.com',[user.email, 'academy@metalogix.com'], fail_silently=False)
     else:
         #just take first entry
         domain_entry = domain_entry[0]
