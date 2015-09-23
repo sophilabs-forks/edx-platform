@@ -1435,17 +1435,17 @@ def _do_create_account(post_vars, extended_profile=None):
     domain_entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
 
     if not domain_entry:
-        subject = 'Metalogix Academy user not in Salesforce DB'
-        message = '''
-            This is an automated message from the Metalogix Academy Open edX server.
+        # subject = 'Metalogix Academy user not in Salesforce DB'
+        # message = '''
+        #     This is an automated message from the Metalogix Academy Open edX server.
 
-            The following user wasn't categorized into any CourseAccessGroup:
-            username: {}
-            email: {}
+        #     The following user wasn't categorized into any CourseAccessGroup:
+        #     username: {}
+        #     email: {}
 
-            The user has been notified of the problem via email.
-        '''.format(user.username, user.email)
-        send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com'], fail_silently=False)
+        #     The user has been notified of the problem via email.
+        # '''.format(user.username, user.email)
+        # send_mail(subject, message, 'support@appsembler.com', ['academy@metalogix.com'], fail_silently=False)
 
 
         user_email_subject = 'Metalogix Academy - Action Required'
