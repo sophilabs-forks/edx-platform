@@ -102,7 +102,8 @@ OAUTH_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
 FEATURES['ENABLE_MOBILE_REST_API'] = True
 FEATURES['ENABLE_VIDEO_ABSTRACTION_LAYER_API'] = True
 
-FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"] = True  # necessary for iOS app
+FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"] = True   # necessary for iOS app
+OAUTH_ENFORCE_SECURE = False        # necessary for accessing production without ssl cert?
 
 
 ########################## SECURITY #######################
