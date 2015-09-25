@@ -676,3 +676,11 @@ ENV_TOKENS.get('CERTIFICATES_STATIC_VERIFY_URL', CERTIFICATES_STATIC_VERIFY_URL)
 if FEATURES.get('ENABLE_LTI_PROVIDER'):
     INSTALLED_APPS += ('lti_provider',)
     AUTHENTICATION_BACKENDS += ('lti_provider.users.LtiBackend', )
+
+
+
+########################### External REST APIs #################################
+FEATURES['ENABLE_OAUTH2_PROVIDER'] = True
+FEATURES['ENABLE_MOBILE_REST_API'] = True
+FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"] = True   # necessary for iOS app
+OAUTH_ENFORCE_SECURE = None        # necessary for accessing production without ssl cert?
