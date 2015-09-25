@@ -103,7 +103,7 @@ FEATURES['ENABLE_MOBILE_REST_API'] = True
 FEATURES['ENABLE_VIDEO_ABSTRACTION_LAYER_API'] = True
 
 FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"] = True   # necessary for iOS app
-OAUTH_ENFORCE_SECURE = False        # necessary for accessing production without ssl cert?
+OAUTH_ENFORCE_SECURE = None        # necessary for accessing production without ssl cert?
 
 
 ########################## SECURITY #######################
