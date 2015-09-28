@@ -59,6 +59,7 @@ class Command(BaseCommand):
         user_actions = {}
         total_enrollments = 0
         unique_user_enrollments = 0
+        failed_user_enrollments = 0
         for csv_file, course_id_str in course_id_mapping.iteritems():
             #  print csv_file + " - " + course_id
             #email = user_info[2]
@@ -85,13 +86,20 @@ class Command(BaseCommand):
                 for d in data:
                     course_email = d[0]
 
+                    try:
+                        course_email.decode('utf-8')
+                    except UnicodeDecodeError:
+                        print 'could not add user (bad email): %s' % course_email
+                        failed_user_enrollments += 1
+                        continue
+
                     if not course_email in user_actions.keys():
                         user_actions[course_email] = []
                         unique_user_enrollments += 1
 
                     email = course_email #skipping email validation
   
-                    # before, after = enroll_email(course_id, email, auto_enroll, email_students, email_params, language=language)
+                    before, after = enroll_email(course_id, email, auto_enroll, email_students, email_params, language=language)
 
                     #find last completed section
                     indices = [i for i, x in enumerate(d) if x in ["INC", "COMP"] ]
@@ -166,6 +174,7 @@ class Command(BaseCommand):
 
         print 'total enrollments: %d' % total_enrollments
         print 'unique users enrolled: %d' % unique_user_enrollments
+        print 'user enrollment failures: %d' % failed_user_enrollments
 
             # # #workflow from lms/djangoapps/instructor/views/api.py:students_update_enrollmen
             # # #def students_update_enrollment(request, course_id):
