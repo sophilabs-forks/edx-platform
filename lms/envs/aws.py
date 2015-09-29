@@ -679,8 +679,11 @@ if FEATURES.get('ENABLE_LTI_PROVIDER'):
 
 
 
-########################### External REST APIs #################################
+########################### MOBILE #################################
 FEATURES['ENABLE_OAUTH2_PROVIDER'] = True
 FEATURES['ENABLE_MOBILE_REST_API'] = True
 FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"] = True   # necessary for iOS app
 OAUTH_ENFORCE_SECURE = None        # necessary for accessing production without ssl cert?
+
+FEATURES['SEGMENT_IO_LMS'] = True
+SEGMENT_IO_LMS_KEY = 'HMmiq7YqFWegarBgRH59ktCmKWcBzckW'
