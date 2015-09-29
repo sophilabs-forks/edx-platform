@@ -121,7 +121,7 @@ class Command(BaseCommand):
 #1 - last name
 #2 - email
 #3 - city
-        csv_output_data = []
+        json_output_data = []
         with open('/opt/course_export/Student_Activity.csv','rU') as f:
             reader = csv.reader(f)
             data = list(reader)
@@ -155,22 +155,44 @@ class Command(BaseCommand):
                     }
                 }
 
-                csv_output_data.append(output_data)
+                json_output_data.append(output_data)
 
 
             #print json.dumps(output_data, indent=2)
 
-        with open('/tmp/dry_run_enrollment_output','wb') as f:
-            f.write(json.dumps(csv_output_data, indent=2))
+        # with open('/tmp/dry_run_enrollment_output','wb') as f:
+        #     f.write(json.dumps(json_output_data, indent=2))
 
         #write actions to sample csv file
-        #with open('/tmp/course_enrollment_output.txt','wb') as f:
-        #    for user, actions in iter(sorted(user_actions.iteritems())):
-        #        f.write('%s: %s\n' % (user, ', '.join(actions)))
+        output_labels = ['first_name', 'course1', 'course1_section','course2', 'course2_section',
+                        'course3', 'course3_section','course4', 'course4_section',
+                        'course5', 'course5_section','course6', 'course6_section',
+                        'course7', 'course7_section','course8', 'course8_section',
+                        'course9', 'course9_section','registration_url'
+            ]
+        with open('/tmp/dry_run_enrollment_output.csv','wb') as f:
+            f.write('%' + ','.join(output_labels) + '\n')
+            for json_data in json_output_data:
+                # f.write('%s: %s\n' % (user, ', '.join(actions)))
+                user_data = json_data['Student']
+                first_name = user_data['FirstName']
+                registration_url = user_data['RegistrationURL']
 
-        #write to json file
-        #with open('/tmp/dry_run_enrollment_output','wb') as f:
-        #    pass
+                courses = user_data['Courses']
+                course_state_list = []
+                for x in range(9):
+                    if x < len(courses):
+                        c = courses[x]
+                        course_state_list.extend([ c['Course'], c['LastSection'] ]) 
+                    else:
+                        course_state_list.extend([ '', '' ])
+
+                output_row = '{first_name},{course_list},{registration_url}\n'.format(
+                    first_name=first_name,
+                    course_list=','.join(course_state_list),
+                    registration_url=registration_url
+                )
+                f.write(output_row)
 
         print 'total enrollments: %d' % total_enrollments
         print 'unique users enrolled: %d' % unique_user_enrollments
