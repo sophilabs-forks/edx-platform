@@ -144,7 +144,7 @@ class Command(BaseCommand):
                     pass
 
                 registration_url = 'https://thegymnasium.com/register?auto-reg&{query_string}'.format(
-                    query_string=urllib.urlencode({'email': email, 'name': full_name, 'market': market})
+                    query_string=urllib.quote(urllib.urlencode({'email': email, 'name': full_name, 'market': market}),safe='&')
                 )
 
                 output_data = {
