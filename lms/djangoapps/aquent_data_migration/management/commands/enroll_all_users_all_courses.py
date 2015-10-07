@@ -49,6 +49,31 @@ class Command(BaseCommand):
             'Gymnasium/103/0': "UX Fundamentals", #UX FUNDAMENTALS
             'Gymnasium/104/0': "Javascript Foundations" #JAVASCRIPT FOUNDATIONS
             }
+
+        #### getting messy with all of these mappings
+        course_prefix_mapping = { 
+            'Gymnasium/001/0': "DB", #DEFEATING BUSY
+            'Gymnasium/002/0': "NJS", #INTRODUCING NODE.JS
+            'Gymnasium/003/0': "GLB", #GRID LAYOUT IN BOOTSTRAP 3
+            'Gymnasium/004/0': "CWT",  #CREATING A WORDPRESS THEME
+            'Gymnasium/100/0': "CFD", #CODING FOR DESIGNERS
+            'Gymnasium/101/0': "RWD", #RESPONSIVE WEB DESIGN
+            'Gymnasium/102/0': "JBB", #JQUERY BUILDING BLOCKS
+            'Gymnasium/103/0': "UXF", #UX FUNDAMENTALS
+            'Gymnasium/104/0': "JSF" #JAVASCRIPT FOUNDATIONS
+            }
+
+        course_index_mapping = { 
+            'Gymnasium/001/0': 0, #DEFEATING BUSY
+            'Gymnasium/002/0': 1, #INTRODUCING NODE.JS
+            'Gymnasium/003/0': 2, #GRID LAYOUT IN BOOTSTRAP 3
+            'Gymnasium/004/0': 3,  #CREATING A WORDPRESS THEME
+            'Gymnasium/100/0': 4, #CODING FOR DESIGNERS
+            'Gymnasium/101/0': 5, #RESPONSIVE WEB DESIGN
+            'Gymnasium/102/0': 6, #JQUERY BUILDING BLOCKS
+            'Gymnasium/103/0': 7, #UX FUNDAMENTALS
+            'Gymnasium/104/0': 8 #JAVASCRIPT FOUNDATIONS
+            }
         ###probably not needed for this part
         # user_csv = '/opt/course_export/Student_Activity.csv'
         # with open(user_csv,'rU') as f:
@@ -74,6 +99,7 @@ class Command(BaseCommand):
                 #workflow from lms/djangoapps/instructor/views/api.py:students_update_enrollmen
                 #def students_update_enrollment(request, course_id):
                 course_name = course_name_mapping[course_id_str]
+                section_prefix = course_prefix_mapping[course_id_str]
                 course_id = SlashSeparatedCourseKey.from_deprecated_string(course_id_str)
                 action = 'enroll'
                 # identifiers_raw = request.POST.get('identifiers')
@@ -109,10 +135,10 @@ class Command(BaseCommand):
                         #if value not found
                         max_ind = 4
 
-                    last_section = labels[max_ind]
+                    last_section = section_prefix + ' ' + labels[max_ind]
 
 					#record actions
-                    user_actions[course_email].append({'CourseName': course_name, 'LastSection': last_section} )
+                    user_actions[course_email].append({'CourseName': course_name, 'CourseID': course_id_str, 'LastSection': last_section} )
                     total_enrollments += 1
 
             print 'done with: %s' % csv_file
@@ -131,6 +157,8 @@ class Command(BaseCommand):
             #for each datapoint in Student_Activity dump
             for d in data:
                 first_name = d[0]
+                last_name = d[1]
+                email = d[2]
                 full_name = first_name + ' ' + d[1]
                 email = d[2]
                 market = d[3]
@@ -138,18 +166,20 @@ class Command(BaseCommand):
                 course_json = []
                 try: 
                     courses = user_actions[email]
-                    course_json = [ { 'Course': course['CourseName'], 'LastSection': course['LastSection'] } for course in courses ]
+                    course_json = [ { 'Course': course['CourseName'], 'CourseID': course['CourseID'], 'LastSection': course['LastSection'] } for course in courses ]
                 except KeyError:
                     #user not added to any courses
                     pass
 
-                registration_url = 'https://thegymnasium.com/register?auto-reg&{query_string}'.format(
+                registration_url = 'thegymnasium.com/register?auto-reg&{query_string}'.format(
                     query_string=urllib.urlencode({'email': email, 'name': full_name, 'market': market})
                 )
 
                 output_data = {
                     'Student': {
                         'FirstName': first_name,
+                        'LastName': last_name,
+                        'Email': email,
                         'Courses': course_json,
                         'RegistrationURL': registration_url
                     }
@@ -164,11 +194,10 @@ class Command(BaseCommand):
         #     f.write(json.dumps(json_output_data, indent=2))
 
         #write actions to sample csv file
-        output_labels = ['first_name', 'course1', 'course1_section','course2', 'course2_section',
-                        'course3', 'course3_section','course4', 'course4_section',
-                        'course5', 'course5_section','course6', 'course6_section',
-                        'course7', 'course7_section','course8', 'course8_section',
-                        'course9', 'course9_section','registration_url'
+        output_labels = ['first_name', 'last_name', 'email',
+                        'GYM001','GYM002','GYM003','GYM004',
+                        'GYM100','GYM101','GYM102','GYM103',
+                        'GYM104','registration_url'
             ]
         with open('/tmp/dry_run_enrollment_output.csv','wb') as f:
             f.write('%' + ','.join(output_labels) + '\n')
@@ -176,19 +205,27 @@ class Command(BaseCommand):
                 # f.write('%s: %s\n' % (user, ', '.join(actions)))
                 user_data = json_data['Student']
                 first_name = user_data['FirstName']
+                last_name = user_data['LastName']
+                email = user_data['Email']
                 registration_url = user_data['RegistrationURL']
 
                 courses = user_data['Courses']
-                course_state_list = []
-                for x in range(9):
-                    if x < len(courses):
-                        c = courses[x]
-                        course_state_list.extend([ c['Course'], c['LastSection'] ]) 
-                    else:
-                        course_state_list.extend([ '', '' ])
+                # course_state_list = []
+                # for x in range(9):
+                #     if x < len(courses):
+                #         c = courses[x]
+                #         course_state_list.extend([ c['Course'], c['LastSection'] ]) 
+                #     else:
+                #         course_state_list.extend([ '', '' ])
+                course_state_list = [''] * 9
+                for course in courses:
+                    ind = course_index_mapping[course['CourseID']]
+                    course_state_list[ind] = course['LastSection']
 
-                output_row = '{first_name},{course_list},{registration_url}\n'.format(
+                output_row = '{first_name},{last_name},{email},{course_list},{registration_url}\n'.format(
                     first_name=first_name,
+                    last_name=last_name,
+                    email=email,
                     course_list=','.join(course_state_list),
                     registration_url=registration_url
                 )
