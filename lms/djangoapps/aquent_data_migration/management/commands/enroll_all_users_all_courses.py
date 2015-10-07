@@ -171,9 +171,12 @@ class Command(BaseCommand):
                     #user not added to any courses
                     pass
 
-                registration_url = 'thegymnasium.com/register?auto-reg&{query_string}'.format(
-                    query_string=urllib.urlencode({'email': email, 'name': full_name, 'market': market})
-                )
+                formatted_query_string = urllib.quote('email={email}&name={full_name}&market={market}'.format(
+                        email=email,
+                        full_name=full_name,
+                        market=market
+                    ),safe='@=&')
+                registration_url = 'thegymnasium.com/register?auto-reg&' + formatted_query_string
 
                 output_data = {
                     'Student': {
