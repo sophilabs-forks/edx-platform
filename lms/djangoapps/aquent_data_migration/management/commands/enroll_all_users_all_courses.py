@@ -133,9 +133,18 @@ class Command(BaseCommand):
                         max_ind = max(indices)
                     except ValueError:
                         #if value not found
-                        max_ind = 4
+                        #take into account the 100+ level courses have preassessments 
+                        if course_index_mapping[course_id_str] < 3:
+                            max_ind = 4
+                        else:
+                            max_ind = 6
 
                     last_section = section_prefix + ' ' + labels[max_ind]
+
+                    #if course has already been completed hijack last_section
+                    #if there's an entry in the last field (completion date)
+                    if d[-2]:
+                        last_section = 'Certified on ' + d[-2]
 
 					#record actions
                     user_actions[course_email].append({'CourseName': course_name, 'CourseID': course_id_str, 'LastSection': last_section} )
