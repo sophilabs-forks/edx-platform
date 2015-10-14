@@ -17,7 +17,7 @@ class Command(BaseCommand):
         unchanged_count = 0
         not_categorized = 0
 
-        categories = ['Employee', 'Partner', 'Customer']
+        categories = ['Employee', 'Partner', 'Customer', 'Dell']
 
         for category in categories:
             users = User.objects.all()

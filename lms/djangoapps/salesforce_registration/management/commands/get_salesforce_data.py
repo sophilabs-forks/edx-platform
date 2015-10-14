@@ -29,6 +29,13 @@ class Command(BaseCommand):
             employee.save()
             update_count += 1
 
+        #add entry for dell employees
+        dell = SalesforceDomainEntry.objects.filter(domain='software.dell.com')
+        if not dell:
+            dell = SalesforceDomainEntry(domain='software.dell.com', category='Dell')
+            dell.save()
+            update_count += 1
+
         #query salesforce
         for category in categories:
             query_result = sf.query_all("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
