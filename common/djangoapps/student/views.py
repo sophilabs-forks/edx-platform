@@ -1727,9 +1727,12 @@ def create_account(request, post_override=None):  # pylint: disable-msg=too-many
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
-    new_user = authenticate(username=post_vars['username'], password=post_vars['password'])
-    login(request, new_user)
-    request.session.set_expiry(0)
+    
+    ### Don't automatically log user in. Wait for them to activate account.
+    new_user = None
+    # new_user = authenticate(username=post_vars['username'], password=post_vars['password'])
+    # login(request, new_user)
+    # request.session.set_expiry(0)
 
     # TODO: there is no error checking here to see that the user actually logged in successfully,
     # and is not yet an active user.
@@ -1751,6 +1754,8 @@ def create_account(request, post_override=None):  # pylint: disable-msg=too-many
 
     dog_stats_api.increment("common.student.account_created")
     redirect_url = try_change_enrollment(request)
+    # reset redirect_url so newly registered user stays on /register.html and see activation email instructions.
+    redirect_url = None
 
     # Resume the third-party-auth pipeline if necessary.
     if third_party_auth.is_enabled() and pipeline.running(request):
