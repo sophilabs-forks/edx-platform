@@ -3188,7 +3188,7 @@ msgstr "课程信息"
 #: common/lib/xmodule/xmodule/tabs.py
 #: lms/templates/peer_grading/peer_grading.html
 msgid "Progress"
-msgstr "进度"
+msgstr "课程进度"
 
 #. Translators: "Wiki" is the name of the course's wiki page
 #: common/lib/xmodule/xmodule/tabs.py lms/djangoapps/course_wiki/views.py
@@ -7367,7 +7367,7 @@ msgstr "管理员"
 #: lms/templates/courseware/course_navigation.html
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Staff"
-msgstr "教员"
+msgstr "教师"
 
 #: cms/templates/manage_users_lib.html lms/templates/folditchallenge.html
 msgid "User"
@@ -7588,11 +7588,11 @@ msgstr ""
 
 #: lms/templates/dashboard.html lms/templates/dashboard.html
 msgid "Reset Password"
-msgstr "重设密码"
+msgstr "密码重置"
 
 #: lms/templates/dashboard.html
 msgid "Current Courses"
-msgstr ""
+msgstr "现有课程"
 
 #: lms/templates/dashboard.html lms/templates/dashboard.html
 msgid "Looks like you haven't enrolled in any courses yet."
@@ -7644,11 +7644,11 @@ msgstr "请确认您的密码："
 msgid ""
 "We will send a confirmation to both {email} and your new email address as "
 "part of the process."
-msgstr ""
+msgstr "我们将会给您{email}的邮箱和您的新邮箱发送确认信息。"
 
 #: lms/templates/dashboard.html
 msgid "Change your name"
-msgstr "更改您的姓名"
+msgstr "姓名更改"
 
 #. Translators: note that {platform} {cert_name_short} will look something
 #. like: "edX certificate". Please do not change the order of these
@@ -7666,16 +7666,16 @@ msgstr ""
 msgid ""
 "Enter your desired full name, as it will appear on your {platform} "
 "{cert_name_short}:"
-msgstr "输入你期望的全名，其将显示在你的{platform} {cert_name_short}："
+msgstr "输入您期望的全名，其将显示在您纽约金融学院证书课程中，所有更改的名字将会被记录。"
 
 #: lms/templates/dashboard.html
 #: lms/templates/verify_student/_modal_editname.html
 msgid "Reason for name change:"
-msgstr "更改名字原因："
+msgstr "更改原因："
 
 #: lms/templates/dashboard.html
 msgid "Change My Name"
-msgstr "更改我的名字"
+msgstr "确认更改"
 
 #: lms/templates/dashboard.html
 #: lms/templates/dashboard/_dashboard_course_listing.html
@@ -7690,7 +7690,7 @@ msgstr "更改我的名字"
 #: lms/templates/dashboard/_dashboard_course_listing.html
 #: lms/templates/instructor/instructor_dashboard_2/membership.html
 msgid "Unenroll"
-msgstr "未注册"
+msgstr "退出课程"
 
 #: lms/templates/edit_unit_link.html
 msgid "View Unit in Studio"
@@ -7921,7 +7921,7 @@ msgstr "您的邮件地址"
 
 #: lms/templates/forgot_password_modal.html lms/templates/login.html
 msgid "This is the e-mail address you used to register with {platform}"
-msgstr "这个e-mail地址被用于在{platform}注册。"
+msgstr "这个邮件地址被用于在纽约金融学院注册。"
 
 #: lms/templates/forgot_password_modal.html
 msgid "Reset My Password"
@@ -8168,7 +8168,7 @@ msgstr "登录进入您的{platform_name}账户"
 
 #: lms/templates/login.html
 msgid "Log into My {platform_name} Account"
-msgstr "登录我的{platform_name}账户"
+msgstr "登录我的纽约金融学院账户"
 
 #: lms/templates/login.html
 msgid "Access My Courses"
@@ -8181,11 +8181,11 @@ msgstr ""
 
 #: lms/templates/login.html
 msgid "Please log in"
-msgstr "请登录"
+msgstr "欢迎登陆"
 
 #: lms/templates/login.html
 msgid "to access your account and courses"
-msgstr "来访问你的账户和课程"
+msgstr "纽约金融学院"
 
 #: lms/templates/login.html
 msgid "We're Sorry, {platform_name} accounts are unavailable currently"
@@ -8193,11 +8193,11 @@ msgstr "我们很遗憾，{platform_name} 账户现在无法使用"
 
 #: lms/templates/login.html
 msgid "We couldn't log you in."
-msgstr ""
+msgstr "无法登陆，"
 
 #: lms/templates/login.html
 msgid "Your email or password is incorrect"
-msgstr "您的邮箱或密码不正确"
+msgstr "邮件地址或密码错误。"
 
 #: lms/templates/login.html
 msgid ""
@@ -9551,7 +9551,7 @@ msgstr "额外资源"
 
 #: lms/templates/courseware/course_navigation.html
 msgid "View this course as:"
-msgstr ""
+msgstr "登录角色切换"
 
 #: lms/templates/courseware/course_navigation.html
 msgid "Student in {content_group}"
@@ -18006,3 +18006,6 @@ msgid ""
 "rights reserved."
 msgstr "1922–2015 纽约金融学院，金融时报旗下公司 &copy; 版权所有"
 
+#: lms/templates/theme-footer.html
+msgid "Contact us"
+msgstr "联系我们"
