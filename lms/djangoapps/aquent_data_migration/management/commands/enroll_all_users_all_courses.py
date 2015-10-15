@@ -142,9 +142,15 @@ class Command(BaseCommand):
                     last_section = section_prefix + ' ' + labels[max_ind]
 
                     #if course has already been completed hijack last_section
-                    #if there's an entry in the last field (completion date)
-                    if d[-2]:
-                        last_section = 'Certified on ' + d[-2]
+                    #if 'Passed' or 'Failed' in second to last entry
+                    if 'Passed' in d[-3] :
+                        #if it's a gym short, not cetification
+                        if course_index_mapping[course_id_str] < 3:
+                            last_section = 'Completed'
+                        else:
+                            last_section = 'Certified'
+                    if 'Failed' in d[-3]:
+                        last_section = 'Completed'
 
 					#record actions
                     user_actions[course_email].append({'CourseName': course_name, 'CourseID': course_id_str, 'LastSection': last_section} )
