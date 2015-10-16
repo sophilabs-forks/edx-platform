@@ -7657,7 +7657,7 @@ msgstr "姓名更改"
 msgid ""
 "To uphold the credibility of your {platform} {cert_name_short}, all name "
 "changes will be recorded."
-msgstr ""
+msgstr "为了保证纽约金融学院证书的可信度，所有姓名变更都会被记录和保存。"
 
 #. Translators: note that {platform} {cert_name_short} will look something
 #. like: "edX certificate". Please do not change the order of these
