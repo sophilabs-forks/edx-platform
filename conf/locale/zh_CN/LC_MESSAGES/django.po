@@ -8367,7 +8367,7 @@ msgstr "更多选择下拉列表"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 msgid "Sign out"
-msgstr ""
+msgstr "登出"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 msgid "Shopping Cart"
@@ -10463,7 +10463,7 @@ msgstr "过滤主题"
 #: lms/templates/discussion/_filter_dropdown.html
 #: lms/templates/discussion/_thread_list_template.html
 msgid "All Discussions"
-msgstr ""
+msgstr "所有讨论"
 
 #: lms/templates/discussion/_filter_dropdown.html
 msgid "Posts I'm Following"
@@ -10504,13 +10504,13 @@ msgstr ""
 #. Translators: This is a menu option for showing only unread forum threads
 #: lms/templates/discussion/_thread_list_template.html
 msgid "Unread"
-msgstr ""
+msgstr "未读"
 
 #. Translators: This is a menu option for showing only forum threads flagged
 #. for abuse
 #: lms/templates/discussion/_thread_list_template.html
 msgid "Flagged"
-msgstr ""
+msgstr "已标记"
 
 #. Translators: This labels a cohort menu in forum navigation
 #: lms/templates/discussion/_thread_list_template.html
@@ -10529,17 +10529,17 @@ msgstr ""
 #. Translators: This is a menu option for sorting forum threads
 #: lms/templates/discussion/_thread_list_template.html
 msgid "by recent activity"
-msgstr ""
+msgstr "按最近活动排序"
 
 #. Translators: This is a menu option for sorting forum threads
 #: lms/templates/discussion/_thread_list_template.html
 msgid "by most activity"
-msgstr ""
+msgstr "按最多活动排序"
 
 #. Translators: This is a menu option for sorting forum threads
 #: lms/templates/discussion/_thread_list_template.html
 msgid "by most votes"
-msgstr ""
+msgstr "按最多投票排序"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Add A Response"
@@ -10676,7 +10676,7 @@ msgstr "讨论区："
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "How to use {platform_name} discussions"
-msgstr ""
+msgstr "如何使用纽约金融学院讨论区功能"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Find discussions"
@@ -10747,11 +10747,11 @@ msgstr ""
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Add a clear and descriptive title to encourage participation."
-msgstr ""
+msgstr "添加一个清晰明了的标题"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Enter your question or comment"
-msgstr ""
+msgstr "此处输入问题或评论"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "follow this post"
@@ -10767,28 +10767,28 @@ msgstr "向同学匿名发帖"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Add Post"
-msgstr ""
+msgstr "发帖"
 
 #. Translators: This is the label for a control to
 #. select a forum post type
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Post type:"
-msgstr ""
+msgstr "帖子类型"
 
 #. Translators: This is a forum post type
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Question"
-msgstr ""
+msgstr "问题"
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid ""
 "Questions raise issues that need answers. Discussions share ideas and start "
 "conversations."
-msgstr ""
+msgstr "问题是发布需要别人回答的问题. 论坛为分享想法和展开讨论."
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Topic Area:"
-msgstr ""
+msgstr "主题"
 
 #: lms/templates/discussion/_underscore_templates.html
 #: lms/templates/discussion/_underscore_templates.html
@@ -10797,7 +10797,7 @@ msgstr ""
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Add your post to a relevant topic to help others find it."
-msgstr ""
+msgstr "添加新帖到相关主题以便他人搜索."
 
 #: lms/templates/discussion/_underscore_templates.html
 msgid "Endorse"
