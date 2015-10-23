@@ -255,7 +255,7 @@ def _has_access_course_desc(user, action, course):
                 return True
             return _has_staff_access_to_descriptor(user, course, course.id)
 
- |       return can_enroll() and can_load()
+        return can_enroll() and can_load()
 
     def can_see_in_catalog():
         """
