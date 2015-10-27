@@ -93,7 +93,7 @@ urlpatterns = (
     url(r'^api/commerce/', include('commerce.api.urls', namespace='commerce_api')),
 
     # appsembler management console endpoint for student enrollment
-    url(r'^appsembler', include('appsembler.urls')),
+    url(r'^appsembler/', include('appsembler.urls')),
 )
 
 if settings.FEATURES["ENABLE_COMBINED_LOGIN_REGISTRATION"]:
