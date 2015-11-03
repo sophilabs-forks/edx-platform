@@ -24,55 +24,55 @@ class Command(BaseCommand):
         ##### end testing vars
 
         course_id_mapping = { 
-            '/opt/course_export/GYM-001_Course_Progress.csv':'Gymnasium/001/0', #DEFEATING BUSY
-            '/opt/course_export/GYM-002_Course_Progress.csv':'Gymnasium/002/0', #INTRODUCING NODE.JS
-            '/opt/course_export/GYM-003_Course_Progress.csv':'Gymnasium/003/0', #GRID LAYOUT IN BOOTSTRAP 3
-            '/opt/course_export/GYM-004_Course_Progress.csv':'Gymnasium/004/0', #CREATING A WORDPRESS THEME
-            # '':'Gymnasium/005/0', #INTRODUCING SKETCH FOR UX AND UI
-            '/opt/course_export/GYM-100_Course_Progress.csv':'Gymnasium/100/0', #CODING FOR DESIGNERS
-            '/opt/course_export/GYM-101_Course_Progress.csv':'Gymnasium/101/0', #RESPONSIVE WEB DESIGN
-            '/opt/course_export/GYM-102_Course_Progress.csv':'Gymnasium/102/0', #JQUERY BUILDING BLOCKS
-            '/opt/course_export/GYM-103_Course_Progress.csv':'Gymnasium/103/0', #UX FUNDAMENTALS
-            '/opt/course_export/GYM-104_Course_Progress.csv':'Gymnasium/104/0', #JAVASCRIPT FOUNDATIONS
-            # '':'Gymnasium/105/0', #WRITING FOR WEB & MOBILE
-            # '':'Gymnasium/106/0', #INFORMATION DESIGN AND VISUALIZATION FUNDAMENTALS
+            '/opt/course_export/GYM-001_Course_Progress.csv':'GYM/001/0', #DEFEATING BUSY
+            '/opt/course_export/GYM-002_Course_Progress.csv':'GYM/002/0', #INTRODUCING NODE.JS
+            '/opt/course_export/GYM-003_Course_Progress.csv':'GYM/003/0', #GRID LAYOUT IN BOOTSTRAP 3
+            '/opt/course_export/GYM-004_Course_Progress.csv':'GYM/004/0', #CREATING A WORDPRESS THEME
+            # '':'GYM/005/0', #INTRODUCING SKETCH FOR UX AND UI
+            '/opt/course_export/GYM-100_Course_Progress.csv':'GYM/100/0', #CODING FOR DESIGNERS
+            '/opt/course_export/GYM-101_Course_Progress.csv':'GYM/101/0', #RESPONSIVE WEB DESIGN
+            '/opt/course_export/GYM-102_Course_Progress.csv':'GYM/102/0', #JQUERY BUILDING BLOCKS
+            '/opt/course_export/GYM-103_Course_Progress.csv':'GYM/103/0', #UX FUNDAMENTALS
+            '/opt/course_export/GYM-104_Course_Progress.csv':'GYM/104/0', #JAVASCRIPT FOUNDATIONS
+            # '':'GYM/105/0', #WRITING FOR WEB & MOBILE
+            # '':'GYM/106/0', #INFORMATION DESIGN AND VISUALIZATION FUNDAMENTALS
             }
 
         course_name_mapping = { #could have pulled from db, but this is easier
-            'Gymnasium/001/0': "Defeating Busy", #DEFEATING BUSY
-            'Gymnasium/002/0': "Intruducing Node.js", #INTRODUCING NODE.JS
-            'Gymnasium/003/0': "Grid Layout in Bootstrap 3", #GRID LAYOUT IN BOOTSTRAP 3
-            'Gymnasium/004/0': "Creating a Wordpress Theme",  #CREATING A WORDPRESS THEME
-            'Gymnasium/100/0': "Coding for Designers", #CODING FOR DESIGNERS
-            'Gymnasium/101/0': "Responsive Web Design", #RESPONSIVE WEB DESIGN
-            'Gymnasium/102/0': "JQuery Building Blocks", #JQUERY BUILDING BLOCKS
-            'Gymnasium/103/0': "UX Fundamentals", #UX FUNDAMENTALS
-            'Gymnasium/104/0': "Javascript Foundations" #JAVASCRIPT FOUNDATIONS
+            'GYM/001/0': "Defeating Busy", #DEFEATING BUSY
+            'GYM/002/0': "Intruducing Node.js", #INTRODUCING NODE.JS
+            'GYM/003/0': "Grid Layout in Bootstrap 3", #GRID LAYOUT IN BOOTSTRAP 3
+            'GYM/004/0': "Creating a Wordpress Theme",  #CREATING A WORDPRESS THEME
+            'GYM/100/0': "Coding for Designers", #CODING FOR DESIGNERS
+            'GYM/101/0': "Responsive Web Design", #RESPONSIVE WEB DESIGN
+            'GYM/102/0': "JQuery Building Blocks", #JQUERY BUILDING BLOCKS
+            'GYM/103/0': "UX Fundamentals", #UX FUNDAMENTALS
+            'GYM/104/0': "Javascript Foundations" #JAVASCRIPT FOUNDATIONS
             }
 
         #### getting messy with all of these mappings
         course_prefix_mapping = { 
-            'Gymnasium/001/0': "DB", #DEFEATING BUSY
-            'Gymnasium/002/0': "NJS", #INTRODUCING NODE.JS
-            'Gymnasium/003/0': "GLB", #GRID LAYOUT IN BOOTSTRAP 3
-            'Gymnasium/004/0': "CWT",  #CREATING A WORDPRESS THEME
-            'Gymnasium/100/0': "CFD", #CODING FOR DESIGNERS
-            'Gymnasium/101/0': "RWD", #RESPONSIVE WEB DESIGN
-            'Gymnasium/102/0': "JBB", #JQUERY BUILDING BLOCKS
-            'Gymnasium/103/0': "UXF", #UX FUNDAMENTALS
-            'Gymnasium/104/0': "JSF" #JAVASCRIPT FOUNDATIONS
+            'GYM/001/0': "DB", #DEFEATING BUSY
+            'GYM/002/0': "NJS", #INTRODUCING NODE.JS
+            'GYM/003/0': "GLB", #GRID LAYOUT IN BOOTSTRAP 3
+            'GYM/004/0': "CWT",  #CREATING A WORDPRESS THEME
+            'GYM/100/0': "CFD", #CODING FOR DESIGNERS
+            'GYM/101/0': "RWD", #RESPONSIVE WEB DESIGN
+            'GYM/102/0': "JBB", #JQUERY BUILDING BLOCKS
+            'GYM/103/0': "UXF", #UX FUNDAMENTALS
+            'GYM/104/0': "JSF" #JAVASCRIPT FOUNDATIONS
             }
 
         course_index_mapping = { 
-            'Gymnasium/001/0': 0, #DEFEATING BUSY
-            'Gymnasium/002/0': 1, #INTRODUCING NODE.JS
-            'Gymnasium/003/0': 2, #GRID LAYOUT IN BOOTSTRAP 3
-            'Gymnasium/004/0': 3,  #CREATING A WORDPRESS THEME
-            'Gymnasium/100/0': 4, #CODING FOR DESIGNERS
-            'Gymnasium/101/0': 5, #RESPONSIVE WEB DESIGN
-            'Gymnasium/102/0': 6, #JQUERY BUILDING BLOCKS
-            'Gymnasium/103/0': 7, #UX FUNDAMENTALS
-            'Gymnasium/104/0': 8 #JAVASCRIPT FOUNDATIONS
+            'GYM/001/0': 0, #DEFEATING BUSY
+            'GYM/002/0': 1, #INTRODUCING NODE.JS
+            'GYM/003/0': 2, #GRID LAYOUT IN BOOTSTRAP 3
+            'GYM/004/0': 3,  #CREATING A WORDPRESS THEME
+            'GYM/100/0': 4, #CODING FOR DESIGNERS
+            'GYM/101/0': 5, #RESPONSIVE WEB DESIGN
+            'GYM/102/0': 6, #JQUERY BUILDING BLOCKS
+            'GYM/103/0': 7, #UX FUNDAMENTALS
+            'GYM/104/0': 8 #JAVASCRIPT FOUNDATIONS
             }
         ###probably not needed for this part
         # user_csv = '/opt/course_export/Student_Activity.csv'
@@ -94,9 +94,6 @@ class Command(BaseCommand):
                 data = list(reader)
                 #strip off first line column names
                 labels = data[0]
-                #remove quotes from lables
-                labels = labels.replace('\"','')
-
                 data = data[1:]
 
                 #workflow from lms/djangoapps/instructor/views/api.py:students_update_enrollmen
