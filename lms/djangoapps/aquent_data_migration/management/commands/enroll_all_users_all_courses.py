@@ -24,16 +24,16 @@ class Command(BaseCommand):
         ##### end testing vars
 
         course_id_mapping = { 
-            '/opt/course_export/GYM-001-Course_Progress.csv':'Gymnasium/001/0', #DEFEATING BUSY
-            '/opt/course_export/GYM-002-Course_Progress.csv':'Gymnasium/002/0', #INTRODUCING NODE.JS
-            '/opt/course_export/GYM-003-Course_Progress.csv':'Gymnasium/003/0', #GRID LAYOUT IN BOOTSTRAP 3
-            '/opt/course_export/GYM-004-Course_Progress.csv':'Gymnasium/004/0', #CREATING A WORDPRESS THEME
+            '/opt/course_export/GYM-001_Course_Progress.csv':'Gymnasium/001/0', #DEFEATING BUSY
+            '/opt/course_export/GYM-002_Course_Progress.csv':'Gymnasium/002/0', #INTRODUCING NODE.JS
+            '/opt/course_export/GYM-003_Course_Progress.csv':'Gymnasium/003/0', #GRID LAYOUT IN BOOTSTRAP 3
+            '/opt/course_export/GYM-004_Course_Progress.csv':'Gymnasium/004/0', #CREATING A WORDPRESS THEME
             # '':'Gymnasium/005/0', #INTRODUCING SKETCH FOR UX AND UI
-            '/opt/course_export/GYM-100-Course_Progress.csv':'Gymnasium/100/0', #CODING FOR DESIGNERS
-            '/opt/course_export/GYM-101-Course_Progress.csv':'Gymnasium/101/0', #RESPONSIVE WEB DESIGN
-            '/opt/course_export/GYM-102-Course_Progress.csv':'Gymnasium/102/0', #JQUERY BUILDING BLOCKS
-            '/opt/course_export/GYM-103-Course_Progress.csv':'Gymnasium/103/0', #UX FUNDAMENTALS
-            '/opt/course_export/GYM-104-Course_Progress.csv':'Gymnasium/104/0', #JAVASCRIPT FOUNDATIONS
+            '/opt/course_export/GYM-100_Course_Progress.csv':'Gymnasium/100/0', #CODING FOR DESIGNERS
+            '/opt/course_export/GYM-101_Course_Progress.csv':'Gymnasium/101/0', #RESPONSIVE WEB DESIGN
+            '/opt/course_export/GYM-102_Course_Progress.csv':'Gymnasium/102/0', #JQUERY BUILDING BLOCKS
+            '/opt/course_export/GYM-103_Course_Progress.csv':'Gymnasium/103/0', #UX FUNDAMENTALS
+            '/opt/course_export/GYM-104_Course_Progress.csv':'Gymnasium/104/0', #JAVASCRIPT FOUNDATIONS
             # '':'Gymnasium/105/0', #WRITING FOR WEB & MOBILE
             # '':'Gymnasium/106/0', #INFORMATION DESIGN AND VISUALIZATION FUNDAMENTALS
             }
@@ -94,6 +94,9 @@ class Command(BaseCommand):
                 data = list(reader)
                 #strip off first line column names
                 labels = data[0]
+                #remove quotes from lables
+                labels = labels.replace('\"','')
+
                 data = data[1:]
 
                 #workflow from lms/djangoapps/instructor/views/api.py:students_update_enrollmen
