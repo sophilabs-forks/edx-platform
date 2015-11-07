@@ -112,6 +112,8 @@ from openedx.core.djangoapps.user_api.api import profile as profile_api
 import analytics
 from eventtracking import tracker
 
+from aquent_data_migration.utils import generate_student_certificates
+
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1856,6 +1858,9 @@ def activate_account(request, key):
             for cea in ceas:
                 if cea.auto_enroll:
                     CourseEnrollment.enroll(student[0], cea.course_id)
+
+            #call accredible api to generate certs that already exist for user
+            generate_student_certificates(student)
 
         resp = render_to_response(
             "registration/activation_complete.html",
