@@ -58,9 +58,12 @@ def generate_student_certificates(user):
                 cw = CertificateWhitelist(user=user, course_id=course_id, whitelist=True)
                 cw.save()
 
-                cg.add_cert(user,course_id,forced_grade='pass')
-
-                # log.log('added cert for user: %s, course: %s' % (user.username, str(course_id)))
+                try:
+                    cg.add_cert(user,course_id,forced_grade='pass')
+                    # log.log('added cert for user: %s, course: %s' % (user.username, str(course_id)))
+                except:
+                    # log.log('could not create cert for user: %s for course: %s' % (user.username, str(course_id)))
+                    pass
 
 #turn into management cmd at some point
 def generate_certs_existing_students():
