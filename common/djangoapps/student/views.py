@@ -1860,7 +1860,7 @@ def activate_account(request, key):
                     CourseEnrollment.enroll(student[0], cea.course_id)
 
             #call accredible api to generate certs that already exist for user
-            generate_student_certificates(student)
+            generate_student_certificates(student[0])
 
         resp = render_to_response(
             "registration/activation_complete.html",
