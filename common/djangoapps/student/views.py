@@ -112,6 +112,8 @@ from openedx.core.djangoapps.user_api.api import profile as profile_api
 import analytics
 from eventtracking import tracker
 
+from aquent_data_migration.utils import generate_student_certificates
+
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1080,7 +1082,7 @@ def login_user(request, error=""):  # pylint: disable-msg=too-many-statements,un
             })  # TODO: this should be status code 429  # pylint: disable=fixme
 
     # see if the user must reset his/her password due to any policy settings
-    if PasswordHistory.should_user_reset_password_now(user_found_by_email_lookup):
+    if user_found_by_email_lookup and PasswordHistory.should_user_reset_password_now(user_found_by_email_lookup):
         return JsonResponse({
             "success": False,
             "value": _('Your password has expired due to password policy on this account. You must '
@@ -1856,6 +1858,9 @@ def activate_account(request, key):
             for cea in ceas:
                 if cea.auto_enroll:
                     CourseEnrollment.enroll(student[0], cea.course_id)
+
+            #call accredible api to generate certs that already exist for user
+            generate_student_certificates(student[0])
 
         resp = render_to_response(
             "registration/activation_complete.html",
