@@ -299,8 +299,8 @@ class UserProfile(models.Model):
             ('47', ugettext_noop('Vancouver')),
 
         ('XX', ugettext_noop('Europe')),
-            ('29', ugettext_noop('London')),
             ('43', ugettext_noop('Amsterdam')),
+            ('29', ugettext_noop('London')),
             ('35', ugettext_noop('Paris')),
 
         ('XX', ugettext_noop('Australia')),
