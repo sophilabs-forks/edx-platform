@@ -2683,3 +2683,16 @@ DEPRECATED_ADVANCED_COMPONENT_TYPES = []
 # Cutoff date for granting audit certificates
 
 AUDIT_CERT_CUTOFF_DATE = None
+
+#### Registration form extension. ####
+# Only used if combined login/registration is enabled.
+# This can be used to add fields to the registration page.
+# It must be a path to a valid form, in dot-separated syntax.
+# IE: custom_form_app.forms.RegistrationExtensionForm
+# Note: If you want to use a model to store the results of the form, you will
+# need to add the model's app to the ADDL_INSTALLED_APPS array in your
+# lms.env.json file.
+
+REGISTRATION_EXTENSION_FORM = None
+
+
