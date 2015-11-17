@@ -1,1 +1,2 @@
 python-intercom==0.2.13
+-e file:///edx/django-db-multitenant
