@@ -8,6 +8,7 @@ TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
 
 MIDDLEWARE_CLASSES = (
     'db_multitenant.middleware.MultiTenantMiddleware',
+    'threadlocals.middleware.ThreadLocalMiddleware',
     ) + MIDDLEWARE_CLASSES
 
 SOUTH_DATABASE_ADAPTERS = {

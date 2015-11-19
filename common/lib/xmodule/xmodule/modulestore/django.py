@@ -28,6 +28,9 @@ from xmodule.modulestore.mixed import MixedModuleStore
 from xmodule.util.django import get_current_request_hostname
 import xblock.reference.plugins
 
+from db_multitenant import utils
+from threadlocals.threadlocals import get_current_request
+
 
 try:
     # We may not always have the request_cache module available
@@ -128,6 +131,7 @@ def create_modulestore_instance(
         fs_service=None,
         user_service=None,
         signal_handler=None,
+        db=None
 ):
     """
     This will return a new instance of a modulestore given an engine and options
@@ -136,6 +140,11 @@ def create_modulestore_instance(
 
     _options = {}
     _options.update(options)
+
+    if db:
+        _options['db'] = db
+        if 'db' in doc_store_config:
+            doc_store_config['db'] = db
 
     FUNCTION_KEYS = ['render_template']
     for key in FUNCTION_KEYS:
@@ -188,7 +197,7 @@ def create_modulestore_instance(
 
 
 # A singleton instance of the Mixed Modulestore
-_MIXED_MODULESTORE = None
+_MIXED_MODULESTORE = {}
 
 
 def modulestore():
@@ -196,12 +205,16 @@ def modulestore():
     Returns the Mixed modulestore
     """
     global _MIXED_MODULESTORE  # pylint: disable=global-statement
-    if _MIXED_MODULESTORE is None:
-        _MIXED_MODULESTORE = create_modulestore_instance(
+    req = get_current_request()
+    mapper = utils.get_mapper()
+    db = mapper.get_dbname(req)
+    if db not in _MIXED_MODULESTORE:
+        _MIXED_MODULESTORE[db] = create_modulestore_instance(
             settings.MODULESTORE['default']['ENGINE'],
-            contentstore(),
+            contentstore(db),
             settings.MODULESTORE['default'].get('DOC_STORE_CONFIG', {}),
-            settings.MODULESTORE['default'].get('OPTIONS', {})
+            settings.MODULESTORE['default'].get('OPTIONS', {}),
+            db=db
         )
 
         if settings.FEATURES.get('CUSTOM_COURSES_EDX'):
@@ -213,7 +226,7 @@ def modulestore():
             from ccx.modulestore import CCXModulestoreWrapper  # pylint: disable=import-error
             _MIXED_MODULESTORE = CCXModulestoreWrapper(_MIXED_MODULESTORE)
 
-    return _MIXED_MODULESTORE
+    return _MIXED_MODULESTORE[db]
 
 
 def clear_existing_modulestores():

@@ -51,6 +51,9 @@ from xmodule.modulestore.inheritance import InheritanceMixin, inherit_metadata, 
 from xmodule.modulestore.xml import CourseLocationManager
 from xmodule.services import SettingsService
 
+from db_multitenant import utils
+from threadlocals.threadlocals import get_current_request
+
 log = logging.getLogger(__name__)
 
 new_contract('CourseKey', CourseKey)
@@ -560,6 +563,10 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             """
             # Remove the replicaSet parameter.
             kwargs.pop('replicaSet', None)
+
+            req = get_current_request()
+            mapper = utils.get_mapper()
+            db = mapper.get_dbname(req)
 
             self.database = MongoProxy(
                 pymongo.database.Database(

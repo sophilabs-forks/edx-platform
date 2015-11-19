@@ -15,6 +15,8 @@ from bson.son import SON
 from opaque_keys.edx.keys import AssetKey
 from xmodule.modulestore.django import ASSET_IGNORE_REGEX
 
+from db_multitenant import utils
+from threadlocals.threadlocals import get_current_request
 
 class MongoContentStore(ContentStore):
 
@@ -29,6 +31,11 @@ class MongoContentStore(ContentStore):
 
         # Remove the replicaSet parameter.
         kwargs.pop('replicaSet', None)
+
+        req = get_current_request()
+        mapper = utils.get_mapper()
+        db = mapper.get_dbname(req)
+
 
         _db = pymongo.database.Database(
             pymongo.MongoClient(
