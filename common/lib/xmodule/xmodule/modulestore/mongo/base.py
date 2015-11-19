@@ -36,6 +36,8 @@ from opaque_keys.edx.locator import CourseLocator, LibraryLocator
 from xblock.core import XBlock
 from xblock.exceptions import InvalidScopeError
 from xblock.fields import Scope, ScopeIds, Reference, ReferenceList, ReferenceValueDict
+
+from db_multitenant.utils import get_mongo_db_name
 from xblock.runtime import KvsFieldData
 
 from xmodule.assetstore import AssetMetadata, CourseAssetsFromStorage
@@ -50,9 +52,6 @@ from xmodule.modulestore.exceptions import ItemNotFoundError, DuplicateCourseErr
 from xmodule.modulestore.inheritance import InheritanceMixin, inherit_metadata, InheritanceKeyValueStore
 from xmodule.modulestore.xml import CourseLocationManager
 from xmodule.services import SettingsService
-
-from db_multitenant import utils
-from threadlocals.threadlocals import get_current_request
 
 log = logging.getLogger(__name__)
 
@@ -564,9 +563,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             # Remove the replicaSet parameter.
             kwargs.pop('replicaSet', None)
 
-            req = get_current_request()
-            mapper = utils.get_mapper()
-            db = mapper.get_dbname(req)
+            db = get_mongo_db_name()
 
             self.database = MongoProxy(
                 pymongo.database.Database(

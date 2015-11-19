@@ -14,6 +14,8 @@ from django.conf import settings
 
 # This configuration must be executed BEFORE any additional Django imports. Otherwise, the imports may fail due to
 # Django not being configured properly. This mostly applies to tests.
+from db_multitenant.utils import get_mongo_db_name
+
 if not settings.configured:
     settings.configure()
 
@@ -27,9 +29,6 @@ from xmodule.modulestore.draft_and_published import BranchSettingMixin
 from xmodule.modulestore.mixed import MixedModuleStore
 from xmodule.util.django import get_current_request_hostname
 import xblock.reference.plugins
-
-from db_multitenant import utils
-from threadlocals.threadlocals import get_current_request
 
 
 try:
@@ -205,9 +204,7 @@ def modulestore():
     Returns the Mixed modulestore
     """
     global _MIXED_MODULESTORE  # pylint: disable=global-statement
-    req = get_current_request()
-    mapper = utils.get_mapper()
-    db = mapper.get_dbname(req)
+    db = get_mongo_db_name()
     if db not in _MIXED_MODULESTORE:
         _MIXED_MODULESTORE[db] = create_modulestore_instance(
             settings.MODULESTORE['default']['ENGINE'],
