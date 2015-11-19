@@ -221,7 +221,7 @@ def modulestore():
             # wrappers and then uses that setting to wrap the modulestore in
             # appropriate wrappers depending on enabled features.
             from ccx.modulestore import CCXModulestoreWrapper  # pylint: disable=import-error
-            _MIXED_MODULESTORE = CCXModulestoreWrapper(_MIXED_MODULESTORE)
+            _MIXED_MODULESTORE[db] = CCXModulestoreWrapper(_MIXED_MODULESTORE[db])
 
     return _MIXED_MODULESTORE[db]
 
@@ -234,7 +234,7 @@ def clear_existing_modulestores():
     This is useful for flushing state between unit tests.
     """
     global _MIXED_MODULESTORE  # pylint: disable=global-statement
-    _MIXED_MODULESTORE = None
+    _MIXED_MODULESTORE = {}
 
 
 class ModuleI18nService(object):
