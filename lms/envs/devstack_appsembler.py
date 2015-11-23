@@ -16,3 +16,5 @@ SOUTH_DATABASE_ADAPTERS = {
 }
 
 MULTITENANT_MAPPER_CLASS = 'appsembler.mapper.SimpleTenantMapper'
+
+DATABASES['default']['ENGINE'] = 'db_multitenant.db.backends.mysql'
