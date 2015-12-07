@@ -20,3 +20,6 @@ DEFAULT_FROM_EMAIL = 'registration@appsembler.com' if default_email == "registra
 #can probably be clean up later
 env_platform_name = ENV_TOKENS.get("PLATFORM_NAME","")
 PLATFORM_NAME = 'Appsembler Open edX Testdrive' if env_platform_name == "Your Platform Name Here" else env_platform_name
+
+SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
+

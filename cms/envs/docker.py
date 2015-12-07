@@ -23,3 +23,6 @@ PLATFORM_NAME = 'Appsembler Open edX Testdrive' if env_platform_name == "Your Pl
 
 # Needed for the recommender XBlock
 ALLOW_ALL_ADVANCED_COMPONENTS = True
+
+SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
+
