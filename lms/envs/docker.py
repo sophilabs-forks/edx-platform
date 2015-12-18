@@ -23,3 +23,6 @@ PLATFORM_NAME = 'Appsembler Open edX Testdrive' if env_platform_name == "Your Pl
 
 SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
 
+#enable course visibility feature flags
+COURSE_CATALOG_VISIBILITY_PERMISSION = 'see_in_catalog'
+COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
