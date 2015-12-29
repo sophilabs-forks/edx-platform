@@ -80,7 +80,17 @@ def endpoint(request):
                 'country': '',
                 'goals': ''
             }
-            (user, profile, registration) = _do_create_account(post_vars)
+
+            form = AccountCreationForm(
+                data=params,
+                extra_fields=extra_fields,
+                extended_profile_fields=extended_profile_fields,
+                enforce_username_neq_password=True,
+                enforce_password_policy=enforce_password_policy,
+                tos_required=tos_required,
+            )
+
+            (user, profile, registration) = _do_create_account(form)
             create_comments_service_user(user)
 
             user.is_active = True
