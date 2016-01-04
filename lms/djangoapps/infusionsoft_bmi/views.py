@@ -18,7 +18,6 @@ from instructor.utils import DummyRequest
 
 #hijack account creation at time of POST
 from student.views import create_account_with_params
-from student.forms import AccountCreationForm
 
 #for password/username creation
 import random
@@ -68,30 +67,6 @@ def endpoint(request):
             #make sure username is unique
             while User.objects.filter(username=username):
                 username = username + str(random.randint(1,9))
-
-            # post_vars = {
-            #     'username': username,
-            #     'email': user_email,
-            #     'password': password,
-            #     'name': full_name,
-            #     'level_of_education': '',
-            #     'gender': '',
-            #     'mailing_address': '',
-            #     'city': '',
-            #     'country': '',
-            #     'goals': ''
-            # }
-
-            # form = AccountCreationForm(
-            #     data=params,
-            #     extra_fields=extra_fields,
-            #     extended_profile_fields=extended_profile_fields,
-            #     enforce_username_neq_password=True,
-            #     enforce_password_policy=enforce_password_policy,
-            #     tos_required=tos_required,
-            # )
-
-            # (user, profile, registration) = _do_create_account(form)
             
             post_vars = {
                 'username': username,
@@ -101,18 +76,20 @@ def endpoint(request):
                 'password': password,
                 'email': user_email,
             }
-            request = DummyRequest()
+            dummy_request = DummyRequest()
 
-            create_account_with_params(request, post_vars)
+            create_account_with_params(dummy_request, post_vars)
             
             is_account_new = True
-        except: 
+        except Exception as e: 
             logger.error('User {} not correctly created through /infusionsoft'.format(user_email))
-    
+            logger.error(e)
+
             subject = 'Error during account creation process on courses.bodymindinstitute.com'
             message = '''
                 Account creation failed for the user with email: {}
-            '''.format(user_email)
+                Error: {}
+            '''.format(user_email, e)
             send_mail(subject, message, 'support@appsembler.com', ['info@bodymindinstitute.com'], fail_silently=False)
     
             return HttpResponse(status=400)
@@ -148,7 +125,7 @@ def endpoint(request):
         validate_email(email)  # Raises ValidationError if invalid
 
         if action == 'enroll':
-            before, after = enroll_email(
+            enroll_email(
                 course_id, email, auto_enroll, email_students, email_params 
             )
 
