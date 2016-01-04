@@ -14,10 +14,11 @@ from instructor.enrollment import (
     enroll_email,
     get_email_params,
 )
+from instructor.utils import DummyRequest
 
 #hijack account creation at time of POST
-from student.views import _do_create_account
-from student.models import create_comments_service_user
+from student.views import create_account_with_params
+from student.forms import AccountCreationForm
 
 #for password/username creation
 import random
@@ -68,33 +69,41 @@ def endpoint(request):
             while User.objects.filter(username=username):
                 username = username + str(random.randint(1,9))
 
+            # post_vars = {
+            #     'username': username,
+            #     'email': user_email,
+            #     'password': password,
+            #     'name': full_name,
+            #     'level_of_education': '',
+            #     'gender': '',
+            #     'mailing_address': '',
+            #     'city': '',
+            #     'country': '',
+            #     'goals': ''
+            # }
+
+            # form = AccountCreationForm(
+            #     data=params,
+            #     extra_fields=extra_fields,
+            #     extended_profile_fields=extended_profile_fields,
+            #     enforce_username_neq_password=True,
+            #     enforce_password_policy=enforce_password_policy,
+            #     tos_required=tos_required,
+            # )
+
+            # (user, profile, registration) = _do_create_account(form)
+            
             post_vars = {
                 'username': username,
-                'email': user_email,
-                'password': password,
                 'name': full_name,
-                'level_of_education': '',
-                'gender': '',
-                'mailing_address': '',
-                'city': '',
-                'country': '',
-                'goals': ''
+                'terms_of_service': 'true',
+                'csrfmiddlewaretoken': 'fake',
+                'password': password,
+                'email': user_email,
             }
+            request = DummyRequest()
 
-            form = AccountCreationForm(
-                data=params,
-                extra_fields=extra_fields,
-                extended_profile_fields=extended_profile_fields,
-                enforce_username_neq_password=True,
-                enforce_password_policy=enforce_password_policy,
-                tos_required=tos_required,
-            )
-
-            (user, profile, registration) = _do_create_account(form)
-            create_comments_service_user(user)
-
-            user.is_active = True
-            user.save()
+            create_account_with_params(request, post_vars)
             
             is_account_new = True
         except: 
