@@ -14,10 +14,10 @@ from instructor.enrollment import (
     enroll_email,
     get_email_params,
 )
+from instructor.utils import DummyRequest
 
 #hijack account creation at time of POST
-from student.views import _do_create_account
-from student.models import create_comments_service_user
+from student.views import create_account_with_params
 
 #for password/username creation
 import random
@@ -67,34 +67,30 @@ def endpoint(request):
             #make sure username is unique
             while User.objects.filter(username=username):
                 username = username + str(random.randint(1,9))
-
+            
             post_vars = {
                 'username': username,
-                'email': user_email,
-                'password': password,
                 'name': full_name,
-                'level_of_education': '',
-                'gender': '',
-                'mailing_address': '',
-                'city': '',
-                'country': '',
-                'goals': ''
+                'terms_of_service': 'true',
+                'csrfmiddlewaretoken': 'fake',
+                'password': password,
+                'email': user_email,
             }
-            (user, profile, registration) = _do_create_account(post_vars)
-            create_comments_service_user(user)
+            dummy_request = DummyRequest()
 
-            user.is_active = True
-            user.save()
+            create_account_with_params(dummy_request, post_vars)
             
             is_account_new = True
-        except: 
+        except Exception as e: 
             logger.error('User {} not correctly created through /infusionsoft'.format(user_email))
-    
+            logger.error(e)
+
             subject = 'Error during account creation process on courses.bodymindinstitute.com'
             message = '''
                 Account creation failed for the user with email: {}
-            '''.format(user_email)
-            send_mail(subject, message, 'support@appsembler.com', ['info@bodymindinstitute.com','support@appsembler.com'], fail_silently=False)
+                Error: {}
+            '''.format(user_email, e)
+            send_mail(subject, message, 'support@appsembler.com', ['info@bodymindinstitute.com'], fail_silently=False)
     
             return HttpResponse(status=400)
 
@@ -129,7 +125,7 @@ def endpoint(request):
         validate_email(email)  # Raises ValidationError if invalid
 
         if action == 'enroll':
-            before, after = enroll_email(
+            enroll_email(
                 course_id, email, auto_enroll, email_students, email_params 
             )
 
