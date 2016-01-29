@@ -1404,7 +1404,7 @@ def _do_create_account(form, custom_form=None):
     # TODO: Rearrange so that if part of the process fails, the whole process fails.
     # Right now, we can have e.g. no registration e-mail sent out and a zombie account
     try:
-        with transaction.atomic():
+        with transaction.commit_on_success():
             user.save()
             if custom_form:
                 custom_model = custom_form.save(commit=False)
