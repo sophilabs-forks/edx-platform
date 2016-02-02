@@ -1408,7 +1408,7 @@ def _do_create_account(post_vars, extended_profile=None):
     profile.city = post_vars.get('city')
     profile.country = post_vars.get('country')
     profile.goals = post_vars.get('goals')
-    profile.market = post_vars.get('market')   
+    profile.market = post_vars.get('market')
 
     # add any extended profile information in the denormalized 'meta' field in the profile
     if extended_profile:
@@ -1898,6 +1898,9 @@ def password_reset(request):
         # bad user? tick the rate limiter counter
         AUDIT_LOG.info("Bad password_reset user passed in.")
         limiter.tick_bad_request_counter(request)
+        return JsonResponse({
+            'success': False,
+        })
 
     return JsonResponse({
         'success': True,
