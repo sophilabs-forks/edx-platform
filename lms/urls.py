@@ -718,3 +718,9 @@ urlpatterns += (
     url(r'^404$', handler404),
     url(r'^500$', handler500),
 )
+
+
+#Texas Gateway 
+if 'trinityeduedx' in settings.INSTALLED_APPS:
+    from trinityeduedx.urls import urlpatterns as trinity_urlpatterns
+    urlpatterns += (trinity_urlpatterns)
