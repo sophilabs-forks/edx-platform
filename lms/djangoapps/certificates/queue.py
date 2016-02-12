@@ -402,6 +402,7 @@ class XQueueCertInterface(object):
         contents = {
             'action': 'create',
             'course_id': unicode(example_cert.course_key),
+            'course_name': example_cert.full_name,
             'name': example_cert.full_name,
             'template_pdf': example_cert.template,
 
