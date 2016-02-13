@@ -1093,12 +1093,13 @@ def _progress(request, course_key, student_id):
                         )
                     )
                 })
-            else:
-                context.update({
-                    'is_downloadable': False,
-                    'is_generating': True,
-                    'download_url': None
-                })
+        # always show download button if downloadable
+        #     else:
+        #         context.update({
+        #             'is_downloadable': False,
+        #             'is_generating': True,
+        #             'download_url': None
+        #         })
 
     with grades.manual_transaction():
         response = render_to_response('courseware/progress.html', context)
