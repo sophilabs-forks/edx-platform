@@ -394,6 +394,24 @@ FEATURES = {
 
     # Enable LTI Provider feature.
     'ENABLE_LTI_PROVIDER': False,
+
+    # Show Language selector.
+    'SHOW_LANGUAGE_SELECTOR': False,
+
+    # Write new CSM history to the extended table.
+    # This will eventually default to True and may be
+    # removed since all installs should have the separate
+    # extended history table.
+    'ENABLE_CSMH_EXTENDED': False,
+
+    # Read from both the CSMH and CSMHE history tables.
+    # This is the default, but can be disabled if all history
+    # lives in the Extended table, saving the frontend from
+    # making multiple queries.
+    'ENABLE_READING_FROM_MULTIPLE_HISTORY_TABLES': True,
+
+    # Enable Next Button to jump sequences in Sequence Navigation bar.
+    'ENABLE_NEXT_BUTTON_ACROSS_SECTIONS': False,
 }
 
 # Ignore static asset files on import which match this pattern
