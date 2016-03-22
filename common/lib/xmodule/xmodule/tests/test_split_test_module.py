@@ -68,7 +68,7 @@ class SplitTestModuleTest(XModuleXmlImportTest, PartitionTestCase):
             parent=sequence,
             attribs={
                 'user_partition_id': '0',
-                'group_id_to_child': '{"0": "i4x://edX/xml_test_course/html/split_test_cond0", "1": "i4x://edX/xml_test_course/html/split_test_cond1"}'
+                'group_id_to_child': '{"0": "i4x://edX/xml_test_course/html/split_test_cond0", "1": "i4x://edX/xml_test_course/html/split_test_cond1"}'  # pylint: disable=line-too-long
             }
         )
         xml.HtmlFactory(parent=split_test, url_name='split_test_cond0', text='HTML FOR GROUP 0')
@@ -81,6 +81,7 @@ class SplitTestModuleTest(XModuleXmlImportTest, PartitionTestCase):
         self.module_system.descriptor_runtime = self.course._runtime  # pylint: disable=protected-access
         self.course.runtime.export_fs = MemoryFS()
 
+        user = Mock(username='ma', email='ma@edx.org', is_staff=False, is_active=True)
         self.partitions_service = StaticPartitionService(
             [
                 self.user_partition,
@@ -90,14 +91,17 @@ class SplitTestModuleTest(XModuleXmlImportTest, PartitionTestCase):
                     MockUserPartitionScheme()
                 )
             ],
-            user=Mock(username='ma', email='ma@edx.org', is_staff=False, is_active=True),
+            user=user,
             course_id=self.course.id,
             track_function=Mock(name='track_function'),
         )
         self.module_system._services['partitions'] = self.partitions_service  # pylint: disable=protected-access
 
         self.split_test_module = self.course_sequence.get_children()[0]
-        self.split_test_module.bind_for_student(self.module_system, self.split_test_module._field_data)  # pylint: disable=protected-access
+        self.split_test_module.bind_for_student(
+            self.module_system,
+            user.id
+        )
 
 
 @ddt.ddt
@@ -109,13 +113,13 @@ class SplitTestModuleLMSTest(SplitTestModuleTest):
     @ddt.data((0, 'split_test_cond0'), (1, 'split_test_cond1'))
     @ddt.unpack
     def test_child(self, user_tag, child_url_name):
-        self.user_partition.scheme.current_group = self.user_partition.groups[user_tag]    # pylint: disable=no-member
+        self.user_partition.scheme.current_group = self.user_partition.groups[user_tag]
         self.assertEquals(self.split_test_module.child_descriptor.url_name, child_url_name)
 
     @ddt.data((0, 'HTML FOR GROUP 0'), (1, 'HTML FOR GROUP 1'))
     @ddt.unpack
     def test_get_html(self, user_tag, child_content):
-        self.user_partition.scheme.current_group = self.user_partition.groups[user_tag]    # pylint: disable=no-member
+        self.user_partition.scheme.current_group = self.user_partition.groups[user_tag]
         self.assertIn(
             child_content,
             self.module_system.render(self.split_test_module, STUDENT_VIEW).content
@@ -131,7 +135,10 @@ class SplitTestModuleLMSTest(SplitTestModuleTest):
         # If a user_tag has a missing value, a group should be saved/persisted for that user.
         # So, we check that we get the same url_name when we call on the url_name twice.
         # We run the test ten times so that, if our storage is failing, we'll be most likely to notice it.
-        self.assertEquals(self.split_test_module.child_descriptor.url_name, self.split_test_module.child_descriptor.url_name)
+        self.assertEquals(
+            self.split_test_module.child_descriptor.url_name,
+            self.split_test_module.child_descriptor.url_name
+        )
 
     # Patch the definition_to_xml for the html children.
     @patch('xmodule.html_module.HtmlDescriptor.definition_to_xml')

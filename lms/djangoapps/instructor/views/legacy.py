@@ -3,6 +3,7 @@ Instructor Views
 """
 ## NOTE: This is the code for the legacy instructor dashboard
 ## We are no longer supporting this file or accepting changes into it.
+# pylint: disable=line-too-long, missing-docstring
 from contextlib import contextmanager
 import csv
 import json
@@ -19,8 +20,9 @@ from StringIO import StringIO
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import HttpResponse
-from django_future.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.cache import cache_control
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
@@ -46,7 +48,6 @@ from instructor_task.api import (
 from instructor_task.views import get_task_completion_info
 from edxmako.shortcuts import render_to_response, render_to_string
 from class_dashboard import dashboard_data
-from psychometrics import psychoanalyze
 from student.models import (
     CourseEnrollment,
     CourseEnrollmentAllowed,
@@ -56,6 +57,8 @@ from django.utils.translation import ugettext as _
 
 from microsite_configuration import microsite
 from opaque_keys.edx.locations import i4xEncoder
+from openedx.core.djangoapps.course_groups.cohorts import is_course_cohorted
+
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +77,8 @@ def split_by_comma_and_whitespace(a_str):
     return re.split(r'[\s,]', a_str)
 
 
+# Grades can potentially be written - if so, let grading manage the transaction.
+@transaction.non_atomic_requests
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def instructor_dashboard(request, course_id):
@@ -81,7 +86,7 @@ def instructor_dashboard(request, course_id):
     course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
     course = get_course_with_access(request.user, 'staff', course_key, depth=None)
 
-    instructor_access = has_access(request.user, 'instructor', course)   # an instructor can manage staff lists
+    instructor_access = bool(has_access(request.user, 'instructor', course))   # an instructor can manage staff lists
 
     forum_admin_access = has_forum_access(request.user, course_key, FORUM_ROLE_ADMINISTRATOR)
 
@@ -91,7 +96,7 @@ def instructor_dashboard(request, course_id):
     plots = []
     datatable = {}
 
-    # the instructor dashboard page is modal: grades, psychometrics, admin
+    # the instructor dashboard page is modal: grades, admin
     # keep that state in request.session (defaults to grades mode)
     idash_mode = request.POST.get('idash_mode', '')
     idash_mode_key = u'idash_mode:{0}'.format(course_id)
@@ -100,7 +105,7 @@ def instructor_dashboard(request, course_id):
     else:
         idash_mode = request.session.get(idash_mode_key, 'Grades')
 
-    enrollment_number = CourseEnrollment.num_enrolled_in(course_key)
+    enrollment_number = CourseEnrollment.objects.num_enrolled_in(course_key)
 
     # assemble some course statistics for output to instructor
     def get_course_stats_table():
@@ -126,7 +131,7 @@ def instructor_dashboard(request, course_id):
     def return_csv(func, datatable, file_pointer=None):
         """Outputs a CSV file from the contents of a datatable."""
         if file_pointer is None:
-            response = HttpResponse(mimetype='text/csv')
+            response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = (u'attachment; filename={0}'.format(func)).encode('utf-8')
         else:
             response = file_pointer
@@ -153,7 +158,7 @@ def instructor_dashboard(request, course_id):
     if settings.FEATURES['ENABLE_MANUAL_GIT_RELOAD']:
         if 'GIT pull' in action:
             data_dir = course.data_dir
-            log.debug('git pull {0}'.format(data_dir))
+            log.debug('git pull %s', data_dir)
             gdir = settings.DATA_DIR / data_dir
             if not os.path.exists(gdir):
                 msg += "====> ERROR in gitreload - no such directory {0}".format(gdir)
@@ -164,7 +169,7 @@ def instructor_dashboard(request, course_id):
                 track.views.server_track(request, "git-pull", {"directory": data_dir}, page="idashboard")
 
         if 'Reload course' in action:
-            log.debug('reloading {0} ({1})'.format(course_key, course))
+            log.debug('reloading %s (%s)', course_key, course)
             try:
                 data_dir = course.data_dir
                 modulestore().try_load_course(data_dir)
@@ -252,9 +257,11 @@ def instructor_dashboard(request, course_id):
                     try:
                         ddata.append([student.email, student.grades[aidx]])
                     except IndexError:
-                        log.debug('No grade for assignment {idx} ({name}) for student {email}'.format(
-                            idx=aidx, name=aname, email=student.email)
-                        )
+                        log.debug(u'No grade for assignment %(idx)s (%(name)s) for student %(email)s', {
+                            "idx": aidx,
+                            "name": aname,
+                            "email": student.email,
+                        })
                 datatable['data'] = ddata
 
                 datatable['title'] = _('Grades for assignment "{name}"').format(name=aname)
@@ -272,42 +279,7 @@ def instructor_dashboard(request, course_id):
                     msg += msg2
 
     #----------------------------------------
-    # DataDump
-
-    elif 'Download CSV of all responses to problem' in action:
-        problem_to_dump = request.POST.get('problem_to_dump', '')
-
-        if problem_to_dump[-4:] == ".xml":
-            problem_to_dump = problem_to_dump[:-4]
-        try:
-            module_state_key = course_key.make_usage_key_from_deprecated_string(problem_to_dump)
-            smdat = StudentModule.objects.filter(
-                course_id=course_key,
-                module_state_key=module_state_key
-            )
-            smdat = smdat.order_by('student')
-            msg += _("Found {num} records to dump.").format(num=smdat)
-        except Exception as err:  # pylint: disable=broad-except
-            msg += "<font color='red'>{text}</font><pre>{err}</pre>".format(
-                text=_("Couldn't find module with that urlname."),
-                err=escape(err)
-            )
-            smdat = []
-
-        if smdat:
-            datatable = {'header': ['username', 'state']}
-            datatable['data'] = [[x.student.username, x.state] for x in smdat]
-            datatable['title'] = _('Student state for problem {problem}').format(problem=problem_to_dump)
-            return return_csv('student_state_from_{problem}.csv'.format(problem=problem_to_dump), datatable)
-
-    #----------------------------------------
     # enrollment
-
-    elif action == 'List students who may enroll but may not have yet signed up':
-        ceaset = CourseEnrollmentAllowed.objects.filter(course_id=course_key)
-        datatable = {'header': ['StudentEmail']}
-        datatable['data'] = [[x.email] for x in ceaset]
-        datatable['title'] = action
 
     elif action == 'Enroll multiple students':
 
@@ -345,18 +317,6 @@ def instructor_dashboard(request, course_id):
             secure = request.is_secure()
             ret = _do_enroll_students(course, course_key, students, secure=secure, overload=overload)
             datatable = ret['datatable']
-
-    #----------------------------------------
-    # psychometrics
-
-    elif action == 'Generate Histogram and IRT Plot':
-        problem = request.POST['Problem']
-        nmsg, plots = psychoanalyze.generate_plots_for_problem(problem)
-        msg += nmsg
-        track.views.server_track(request, "psychometrics-histogram-generation", {"problem": unicode(problem)}, page="idashboard")
-
-    if idash_mode == 'Psychometrics':
-        problems = psychoanalyze.problems_with_psychometric_data(course_key)
 
     #----------------------------------------
     # analytics
@@ -449,6 +409,7 @@ def instructor_dashboard(request, course_id):
 
     context = {
         'course': course,
+        'course_is_cohorted': is_course_cohorted(course.id),
         'staff_access': True,
         'admin_access': request.user.is_staff,
         'instructor_access': instructor_access,
@@ -461,8 +422,6 @@ def instructor_dashboard(request, course_id):
 
         'show_email_tab': show_email_tab,  # email
 
-        'problems': problems,  # psychometrics
-        'plots': plots,  # psychometrics
         'course_errors': modulestore().get_course_errors(course.id),
         'instructor_tasks': instructor_tasks,
         'offline_grade_log': offline_grades_available(course_key),
@@ -660,17 +619,21 @@ class GradeTable(object):
         self.grades = {}
         self._current_row = {}
 
-    def _add_grade_to_row(self, component, score):
+    def _add_grade_to_row(self, component, score, possible=None):
         """Creates component if needed, and assigns score
 
         Args:
             component (str): Course component being graded
             score (float): Score of student on component
+            possible (float): Max possible score for the component
 
         Returns:
            None
         """
         component_index = self.components.setdefault(component, len(self.components))
+        if possible is not None:
+            # send a tuple instead of a single value
+            score = (score, possible)
         self._current_row[component_index] = score
 
     @contextmanager
@@ -710,7 +673,10 @@ class GradeTable(object):
         return self.components.keys()
 
 
-def get_student_grade_summary_data(request, course, get_grades=True, get_raw_scores=False, use_offline=False):
+def get_student_grade_summary_data(
+        request, course, get_grades=True, get_raw_scores=False,
+        use_offline=False, get_score_max=False
+):
     """
     Return data arrays with student identity and grades for specified course.
 
@@ -726,6 +692,11 @@ def get_student_grade_summary_data(request, course, get_grades=True, get_raw_sco
     data = list (one per student) of lists of data corresponding to the fields
 
     If get_raw_scores=True, then instead of grade summaries, the raw grades for all graded modules are returned.
+
+    If get_score_max is True, two values will be returned for each grade -- the
+    total number of points earned and the total number of points possible. For
+    example, if two points are possible and one is earned, (1, 2) will be
+    returned instead of 0.5 (the default).
     """
     course_key = course.id
     enrolled_students = User.objects.filter(
@@ -749,12 +720,21 @@ def get_student_grade_summary_data(request, course, get_grades=True, get_raw_sco
 
         if get_grades:
             gradeset = student_grades(student, request, course, keep_raw_scores=get_raw_scores, use_offline=use_offline)
-            log.debug('student={0}, gradeset={1}'.format(student, gradeset))
+            log.debug(u'student=%s, gradeset=%s', student, gradeset)
             with gtab.add_row(student.id) as add_grade:
                 if get_raw_scores:
-                    # TODO (ichuang) encode Score as dict instead of as list, so score[0] -> score['earned']
+                    # The following code calls add_grade, which is an alias
+                    # for the add_row method on the GradeTable class. This adds
+                    # a grade for each assignment. Depending on whether
+                    # get_score_max is True, it will return either a single
+                    # value as a float between 0 and 1, or a two-tuple
+                    # containing the earned score and possible score for
+                    # the assignment (see docstring).
                     for score in gradeset['raw_scores']:
-                        add_grade(score.section, getattr(score, 'earned', score[0]))
+                        if get_score_max is True:
+                            add_grade(score.section, score.earned, score.possible)
+                        else:
+                            add_grade(score.section, score.earned)
                 else:
                     for grade_item in gradeset['section_breakdown']:
                         add_grade(grade_item['label'], grade_item['percent'])
@@ -825,7 +805,7 @@ def _do_enroll_students(course, course_key, students, secure=False, overload=Fal
         registration_url = '{proto}://{site}{path}'.format(
             proto=protocol,
             site=stripped_site_name,
-            path=reverse('student.views.register_user')
+            path=reverse('register_user')
         )
         course_url = '{proto}://{site}{path}'.format(
             proto=protocol,
@@ -909,7 +889,7 @@ def _do_enroll_students(course, course_key, students, secure=False, overload=Fal
     datatable['data'] = [[x, status[x]] for x in sorted(status)]
     datatable['title'] = _('Enrollment of students')
 
-    def sf(stat):
+    def sf(stat):  # pylint: disable=invalid-name
         return [x for x in status if status[x] == stat]
 
     data = dict(added=sf('added'), rejected=sf('rejected') + sf('exists'),

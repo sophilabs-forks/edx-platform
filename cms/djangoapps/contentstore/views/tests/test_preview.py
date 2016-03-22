@@ -6,7 +6,6 @@ import ddt
 from mock import Mock
 from xblock.core import XBlock
 
-from django.test import TestCase
 from django.test.client import RequestFactory
 
 from xblock.core import XBlockAside
@@ -18,11 +17,11 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from contentstore.views.preview import get_preview_fragment, _preview_module_system
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.tests.test_asides import AsideTestType
-from cms.djangoapps.xblock_config.models import StudioConfig
+from xblock_config.models import StudioConfig
 from xmodule.modulestore.django import modulestore
 
 
-class GetPreviewHtmlTestCase(TestCase):
+class GetPreviewHtmlTestCase(ModuleStoreTestCase):
     """
     Tests for get_preview_fragment.
 

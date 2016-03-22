@@ -22,8 +22,8 @@ from uuid import uuid4
 from bson.son import SON
 from datetime import datetime
 from fs.osfs import OSFS
-from mongodb_proxy import MongoProxy, autoretry_read
-from path import path
+from mongodb_proxy import autoretry_read
+from path import Path as path
 from pytz import UTC
 from contracts import contract, new_contract
 
@@ -43,12 +43,14 @@ from xmodule.error_module import ErrorDescriptor
 from xmodule.errortracker import null_error_tracker, exc_info_to_str
 from xmodule.exceptions import HeartbeatFailure
 from xmodule.mako_module import MakoDescriptorSystem
+from xmodule.mongo_connection import connect_to_mongodb
 from xmodule.modulestore import ModuleStoreWriteBase, ModuleStoreEnum, BulkOperationsMixin, BulkOpsRecord
 from xmodule.modulestore.draft_and_published import ModuleStoreDraftAndPublished, DIRECT_ONLY_CATEGORIES
 from xmodule.modulestore.edit_info import EditInfoRuntimeMixin
 from xmodule.modulestore.exceptions import ItemNotFoundError, DuplicateCourseError, ReferentialIntegrityError
 from xmodule.modulestore.inheritance import InheritanceMixin, inherit_metadata, InheritanceKeyValueStore
 from xmodule.modulestore.xml import CourseLocationManager
+from xmodule.services import SettingsService
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +75,8 @@ BLOCK_TYPES_WITH_CHILDREN = list(set(
 
 # at module level, cache one instance of OSFS per filesystem root.
 _OSFS_INSTANCE = {}
+
+_DETACHED_CATEGORIES = [name for name, __ in XBlock.load_tagged_classes("detached")]
 
 
 class MongoRevisionKey(object):
@@ -117,7 +121,10 @@ class MongoKeyValueStore(InheritanceKeyValueStore):
         elif key.scope == Scope.content:
             return self._data[key.field_name]
         else:
-            raise InvalidScopeError(key)
+            raise InvalidScopeError(
+                key,
+                (Scope.children, Scope.parent, Scope.settings, Scope.content),
+            )
 
     def set(self, key, value):
         if key.scope == Scope.children:
@@ -127,7 +134,10 @@ class MongoKeyValueStore(InheritanceKeyValueStore):
         elif key.scope == Scope.content:
             self._data[key.field_name] = value
         else:
-            raise InvalidScopeError(key)
+            raise InvalidScopeError(
+                key,
+                (Scope.children, Scope.settings, Scope.content),
+            )
 
     def delete(self, key):
         if key.scope == Scope.children:
@@ -139,7 +149,10 @@ class MongoKeyValueStore(InheritanceKeyValueStore):
             if key.field_name in self._data:
                 del self._data[key.field_name]
         else:
-            raise InvalidScopeError(key)
+            raise InvalidScopeError(
+                key,
+                (Scope.children, Scope.settings, Scope.content),
+            )
 
     def has(self, key):
         if key.scope in (Scope.children, Scope.parent):
@@ -151,12 +164,28 @@ class MongoKeyValueStore(InheritanceKeyValueStore):
         else:
             return False
 
+    def __repr__(self):
+        return "MongoKeyValueStore{!r}<{!r}, {!r}>".format(
+            (self._data, self._parent, self._children, self._metadata),
+            self._fields,
+            self.inherited_settings
+        )
+
 
 class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
     """
     A system that has a cache of module json that it will use to load modules
     from, with a backup of calling to the underlying modulestore for more data
     """
+    def __repr__(self):
+        return "CachingDescriptorSystem{!r}".format((
+            self.modulestore,
+            unicode(self.course_id),
+            [unicode(key) for key in self.module_data.keys()],
+            self.default_class,
+            [unicode(key) for key in self.cached_metadata.keys()],
+        ))
+
     def __init__(self, modulestore, course_key, module_data, default_class, cached_metadata, **kwargs):
         """
         modulestore: the module store that can be used to retrieve additional modules
@@ -195,17 +224,22 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
         self.course_id = course_key
         self.cached_metadata = cached_metadata
 
-    def load_item(self, location):
+    def load_item(self, location, for_parent=None):  # pylint: disable=method-hidden
         """
         Return an XModule instance for the specified location
         """
         assert isinstance(location, UsageKey)
+
+        if location.run is None:
+            # self.module_data is keyed on locations that have full run information.
+            # If the supplied location is missing a run, then we will miss the cache and
+            # incur an additional query.
+            # TODO: make module_data a proper class that can handle this itself.
+            location = location.replace(course_key=self.modulestore.fill_in_run(location.course_key))
+
         json_data = self.module_data.get(location)
         if json_data is None:
-            module = self.modulestore.get_item(location)
-            if module is not None:
-                # update our own cache after going to the DB to get cache miss
-                self.module_data.update(module.runtime.module_data)
+            module = self.modulestore.get_item(location, using_descriptor_system=self)
             return module
         else:
             # load the module and apply the inherited metadata
@@ -233,7 +267,7 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
                         else ModuleStoreEnum.Branch.draft_preferred
                     )
                     if parent_url:
-                        parent = BlockUsageLocator.from_string(parent_url)
+                        parent = self._convert_reference_to_key(parent_url)
                 if not parent and category != 'course':
                     # try looking it up just-in-time (but not if we're working with a root node (course).
                     parent = self.modulestore.get_parent_location(
@@ -259,7 +293,7 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
 
                 field_data = KvsFieldData(kvs)
                 scope_ids = ScopeIds(None, category, location, location)
-                module = self.construct_xblock_from_class(class_, scope_ids, field_data)
+                module = self.construct_xblock_from_class(class_, scope_ids, field_data, for_parent=for_parent)
                 if self.cached_metadata is not None:
                     # parent container pointers don't differentiate between draft and non-draft
                     # so when we do the lookup, we should do so with a non-draft location
@@ -278,7 +312,9 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
                     raw_metadata = json_data.get('metadata', {})
                     # published_on was previously stored as a list of time components instead of a datetime
                     if raw_metadata.get('published_date'):
-                        module._edit_info['published_date'] = datetime(*raw_metadata.get('published_date')[0:6]).replace(tzinfo=UTC)
+                        module._edit_info['published_date'] = datetime(
+                            *raw_metadata.get('published_date')[0:6]
+                        ).replace(tzinfo=UTC)
                     module._edit_info['published_by'] = raw_metadata.get('published_by')
 
                 # decache any computed pending field settings
@@ -297,7 +333,7 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
         """
         Convert a single serialized UsageKey string in a ReferenceField into a UsageKey.
         """
-        key = Location.from_string(ref_string)
+        key = UsageKey.from_string(ref_string)
         return key.replace(run=self.modulestore.fill_in_run(key.course_key).run)
 
     def __setattr__(self, name, value):
@@ -385,6 +421,9 @@ class CachingDescriptorSystem(MakoDescriptorSystem, EditInfoRuntimeMixin):
         return []
 
 
+new_contract('CachingDescriptorSystem', CachingDescriptorSystem)
+
+
 # The only thing using this w/ wildcards is contentstore.mongo for asset retrieval
 def location_to_query(location, wildcard=True, tag='i4x'):
     """
@@ -446,14 +485,17 @@ class MongoBulkOpsMixin(BulkOperationsMixin):
         # ensure it starts clean
         bulk_ops_record.dirty = False
 
-    def _end_outermost_bulk_operation(self, bulk_ops_record, course_id):
+    def _end_outermost_bulk_operation(self, bulk_ops_record, structure_key):
         """
-        Restart updating the meta-data inheritance cache for the given course.
+        Restart updating the meta-data inheritance cache for the given course or library.
         Refresh the meta-data inheritance cache now since it was temporarily disabled.
         """
+        dirty = False
         if bulk_ops_record.dirty:
-            self.refresh_cached_metadata_inheritance_tree(course_id)
+            self.refresh_cached_metadata_inheritance_tree(structure_key)
+            dirty = True
             bulk_ops_record.dirty = False  # brand spanking clean now
+        return dirty
 
     def _is_in_bulk_operation(self, course_id, ignore_case=False):
         """
@@ -502,6 +544,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
                  i18n_service=None,
                  fs_service=None,
                  user_service=None,
+                 signal_handler=None,
                  retry_wait_time=0.1,
                  **kwargs):
         """
@@ -516,19 +559,16 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             """
             Create & open the connection, authenticate, and provide pointers to the collection
             """
-            self.database = MongoProxy(
-                pymongo.database.Database(
-                    pymongo.MongoClient(
-                        host=host,
-                        port=port,
-                        tz_aware=tz_aware,
-                        document_class=dict,
-                        **kwargs
-                    ),
-                    db
-                ),
-                wait_time=retry_wait_time
+            # Set a write concern of 1, which makes writes complete successfully to the primary
+            # only before returning. Also makes pymongo report write errors.
+            kwargs['w'] = 1
+
+            self.database = connect_to_mongodb(
+                db, host,
+                port=port, tz_aware=tz_aware, user=user, password=password,
+                retry_wait_time=retry_wait_time, **kwargs
             )
+
             self.collection = self.database[collection]
 
             # Collection which stores asset metadata.
@@ -536,13 +576,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
                 asset_collection = self.DEFAULT_ASSET_COLLECTION_NAME
             self.asset_collection = self.database[asset_collection]
 
-            if user is not None and password is not None:
-                self.database.authenticate(user, password)
-
         do_connection(**doc_store_config)
-
-        # Force mongo to report errors, at the expense of performance
-        self.collection.write_concern = {'w': 1}
 
         if default_class is not None:
             module_path, _, class_name = default_class.rpartition('.')
@@ -558,6 +592,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         self.user_service = user_service
 
         self._course_run_cache = {}
+        self.signal_handler = signal_handler
 
     def close_connections(self):
         """
@@ -831,9 +866,29 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
 
         return data
 
-    def _load_item(self, course_key, item, data_cache, apply_cached_metadata=True):
+    @contract(
+        course_key=CourseKey,
+        item=dict,
+        apply_cached_metadata=bool,
+        using_descriptor_system="None|CachingDescriptorSystem"
+    )
+    def _load_item(self, course_key, item, data_cache,
+                   apply_cached_metadata=True, using_descriptor_system=None, for_parent=None):
         """
         Load an XModuleDescriptor from item, using the children stored in data_cache
+
+        Arguments:
+            course_key (CourseKey): which course to load from
+            item (dict): A dictionary with the following keys:
+                location: The serialized UsageKey for the item to load
+                data_dir (optional): The directory name to use as the root data directory for this XModule
+            data_cache (dict): A dictionary mapping from UsageKeys to xblock field data
+                (this is the xblock data loaded from the database)
+            apply_cached_metadata (bool): Whether to use the cached metadata for inheritance
+                purposes.
+            using_descriptor_system (CachingDescriptorSystem): The existing CachingDescriptorSystem
+                to add data to, and to load the XBlocks from.
+            for_parent (:class:`XBlock`): The parent of the XBlock being loaded.
         """
         course_key = self.fill_in_run(course_key)
         location = Location._from_deprecated_son(item['location'], course_key.run)
@@ -845,32 +900,43 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         if apply_cached_metadata:
             cached_metadata = self._get_cached_metadata_inheritance_tree(course_key)
 
-        services = {}
-        if self.i18n_service:
-            services["i18n"] = self.i18n_service
+        if using_descriptor_system is None:
+            services = {}
+            if self.i18n_service:
+                services["i18n"] = self.i18n_service
 
-        if self.fs_service:
-            services["fs"] = self.fs_service
+            if self.fs_service:
+                services["fs"] = self.fs_service
 
-        if self.user_service:
-            services["user"] = self.user_service
+            if self.user_service:
+                services["user"] = self.user_service
+            services["settings"] = SettingsService()
 
-        system = CachingDescriptorSystem(
-            modulestore=self,
-            course_key=course_key,
-            module_data=data_cache,
-            default_class=self.default_class,
-            resources_fs=resource_fs,
-            error_tracker=self.error_tracker,
-            render_template=self.render_template,
-            cached_metadata=cached_metadata,
-            mixins=self.xblock_mixins,
-            select=self.xblock_select,
-            services=services,
-        )
-        return system.load_item(location)
+            if self.request_cache:
+                services["request_cache"] = self.request_cache
 
-    def _load_items(self, course_key, items, depth=0):
+            system = CachingDescriptorSystem(
+                modulestore=self,
+                course_key=course_key,
+                module_data=data_cache,
+                default_class=self.default_class,
+                resources_fs=resource_fs,
+                error_tracker=self.error_tracker,
+                render_template=self.render_template,
+                cached_metadata=cached_metadata,
+                mixins=self.xblock_mixins,
+                select=self.xblock_select,
+                disabled_xblock_types=self.disabled_xblock_types,
+                services=services,
+            )
+        else:
+            system = using_descriptor_system
+            system.module_data.update(data_cache)
+            system.cached_metadata.update(cached_metadata)
+
+        return system.load_item(location, for_parent=for_parent)
+
+    def _load_items(self, course_key, items, depth=0, using_descriptor_system=None, for_parent=None):
         """
         Load a list of xmodules from the data in items, with children cached up
         to specified depth
@@ -882,17 +948,40 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         # bother with the metadata inheritance
         return [
             self._load_item(
-                course_key, item, data_cache,
-                apply_cached_metadata=(item['location']['category'] != 'course' or depth != 0)
+                course_key,
+                item,
+                data_cache,
+                using_descriptor_system=using_descriptor_system,
+                apply_cached_metadata=self._should_apply_cached_metadata(item, depth),
+                for_parent=for_parent,
             )
             for item in items
         ]
 
+    def _should_apply_cached_metadata(self, item, depth):
+        """
+        Returns a boolean whether a particular query should trigger an application
+        of inherited metadata onto the item
+        """
+        category = item['location']['category']
+        apply_cached_metadata = category not in _DETACHED_CATEGORIES and \
+            not (category == 'course' and depth == 0)
+        return apply_cached_metadata
+
     @autoretry_read()
     def get_courses(self, **kwargs):
         '''
-        Returns a list of course descriptors.
+        Returns a list of course descriptors. This accepts an optional parameter of 'org' which
+        will apply an efficient filter to only get courses with the specified ORG
         '''
+
+        course_org_filter = kwargs.get('org')
+
+        if course_org_filter:
+            course_records = self.collection.find({'_id.category': 'course', '_id.org': course_org_filter})
+        else:
+            course_records = self.collection.find({'_id.category': 'course'})
+
         base_list = sum(
             [
                 self._load_items(
@@ -902,7 +991,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
                 for course
                 # I tried to add '$and': [{'_id.org': {'$ne': 'edx'}}, {'_id.course': {'$ne': 'templates'}}]
                 # but it didn't do the right thing (it filtered all edx and all templates out)
-                in self.collection.find({'_id.category': 'course'})
+                in course_records
                 if not (  # TODO kill this
                     course['_id']['org'] == 'edx' and
                     course['_id']['course'] == 'templates'
@@ -912,6 +1001,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         )
         return [course for course in base_list if not isinstance(course, ErrorDescriptor)]
 
+    @autoretry_read()
     def _find_one(self, location):
         '''Look for a given location in the collection. If the item is not present, raise
         ItemNotFoundError.
@@ -933,6 +1023,13 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         """
         return CourseLocator(org, course, run, deprecated=True)
 
+    def make_course_usage_key(self, course_key):
+        """
+        Return a valid :class:`~opaque_keys.edx.keys.UsageKey` for this modulestore
+        that matches the supplied course_key.
+        """
+        return BlockUsageLocator(course_key, 'course', course_key.run)
+
     def get_course(self, course_key, depth=0, **kwargs):
         """
         Get the course with the given courseid (org/course/run)
@@ -945,6 +1042,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         except ItemNotFoundError:
             return None
 
+    @autoretry_read()
     def has_course(self, course_key, ignore_case=False, **kwargs):
         """
         Returns the course_id of the course if it was found, else None
@@ -966,7 +1064,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
                     course_query[key] = re.compile(r"(?i)^{}$".format(course_query[key]))
         else:
             course_query = {'_id': location.to_deprecated_son()}
-        course = self.collection.find_one(course_query, fields={'_id': True})
+        course = self.collection.find_one(course_query, projection={'_id': True})
         if course:
             return SlashSeparatedCourseKey(course['_id']['org'], course['_id']['course'], course['_id']['name'])
         else:
@@ -982,7 +1080,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         except ItemNotFoundError:
             return False
 
-    def get_item(self, usage_key, depth=0):
+    def get_item(self, usage_key, depth=0, using_descriptor_system=None, for_parent=None, **kwargs):
         """
         Returns an XModuleDescriptor instance for the item at location.
 
@@ -991,14 +1089,23 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         If no object is found at that location, raises
             xmodule.modulestore.exceptions.ItemNotFoundError
 
-        usage_key: a :class:`.UsageKey` instance
-        depth (int): An argument that some module stores may use to prefetch
-            descendents of the queried modules for more efficient results later
-            in the request. The depth is counted in the number of
-            calls to get_children() to cache. None indicates to cache all descendents.
+        Arguments:
+            usage_key: a :class:`.UsageKey` instance
+            depth (int): An argument that some module stores may use to prefetch
+                descendents of the queried modules for more efficient results later
+                in the request. The depth is counted in the number of
+                calls to get_children() to cache. None indicates to cache all descendents.
+            using_descriptor_system (CachingDescriptorSystem): The existing CachingDescriptorSystem
+                to add data to, and to load the XBlocks from.
         """
         item = self._find_one(usage_key)
-        module = self._load_items(usage_key.course_key, [item], depth)[0]
+        module = self._load_items(
+            usage_key.course_key,
+            [item],
+            depth,
+            using_descriptor_system=using_descriptor_system,
+            for_parent=for_parent,
+        )[0]
         return module
 
     @staticmethod
@@ -1030,6 +1137,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             content=None,
             key_revision=MongoRevisionKey.published,
             qualifiers=None,
+            using_descriptor_system=None,
             **kwargs
     ):
         """
@@ -1061,6 +1169,8 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
                 For this modulestore, ``name`` is a commonly provided key (Location based stores)
                 This modulestore does not allow searching dates by comparison or edited_by, previous_version,
                 update_version info.
+            using_descriptor_system (CachingDescriptorSystem): The existing CachingDescriptorSystem
+                to add data to, and to load the XBlocks from.
         """
         qualifiers = qualifiers.copy() if qualifiers else {}  # copy the qualifiers (destructively manipulated here)
         query = self._course_key_to_son(course_id)
@@ -1082,7 +1192,11 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             sort=[SORT_REVISION_FAVOR_DRAFT],
         )
 
-        modules = self._load_items(course_id, list(items))
+        modules = self._load_items(
+            course_id,
+            list(items),
+            using_descriptor_system=using_descriptor_system
+        )
         return modules
 
     def create_course(self, org, course, run, user_id, fields=None, **kwargs):
@@ -1111,18 +1225,19 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             ('_id.course', re.compile(u'^{}$'.format(course_id.course), re.IGNORECASE)),
             ('_id.category', 'course'),
         ])
-        courses = self.collection.find(course_search_location, fields=('_id'))
+        courses = self.collection.find(course_search_location, projection={'_id': True})
         if courses.count() > 0:
             raise DuplicateCourseError(course_id, courses[0]['_id'])
 
-        xblock = self.create_item(user_id, course_id, 'course', course_id.run, fields=fields, **kwargs)
+        with self.bulk_operations(course_id):
+            xblock = self.create_item(user_id, course_id, 'course', course_id.run, fields=fields, **kwargs)
 
-        # create any other necessary things as a side effect
-        super(MongoModuleStore, self).create_course(
-            org, course, run, user_id, runtime=xblock.runtime, **kwargs
-        )
+            # create any other necessary things as a side effect
+            super(MongoModuleStore, self).create_course(
+                org, course, run, user_id, runtime=xblock.runtime, **kwargs
+            )
 
-        return xblock
+            return xblock
 
     def create_xblock(
         self, runtime, course_key, block_type, block_id=None, fields=None,
@@ -1181,6 +1296,7 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             # so we use the location for both.
             ScopeIds(None, block_type, location, location),
             dbmodel,
+            for_parent=kwargs.get('for_parent'),
         )
         if fields is not None:
             for key, value in fields.iteritems():
@@ -1229,18 +1345,23 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
             block_id: a unique identifier for the new item. If not supplied,
                 a new identifier will be generated
         """
-        xblock = self.create_item(user_id, parent_usage_key.course_key, block_type, block_id=block_id, **kwargs)
         # attach to parent if given
-        if 'detached' not in xblock._class_tags:
-            parent = self.get_item(parent_usage_key)
+        parent = None
 
+        if parent_usage_key is not None:
+            parent = self.get_item(parent_usage_key)
+            kwargs.setdefault('for_parent', parent)
+
+        xblock = self.create_item(user_id, parent_usage_key.course_key, block_type, block_id=block_id, **kwargs)
+
+        if parent is not None and 'detached' not in xblock._class_tags:
             # Originally added to support entrance exams (settings.FEATURES.get('ENTRANCE_EXAMS'))
             if kwargs.get('position') is None:
                 parent.children.append(xblock.location)
             else:
                 parent.children.insert(kwargs.get('position'), xblock.location)
 
-            self.update_item(parent, user_id)
+            self.update_item(parent, user_id, child_update=True)
 
         return xblock
 
@@ -1303,6 +1424,8 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         is_publish_root: when publishing, this indicates whether xblock is the root of the publish and should
           therefore propagate subtree edit info up the tree
         """
+        course_key = xblock.location.course_key
+
         try:
             definition_data = self._serialize_scope(xblock, Scope.content)
             now = datetime.now(UTC)
@@ -1354,8 +1477,8 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         except ItemNotFoundError:
             if not allow_not_found:
                 raise
-            elif not self.has_course(xblock.location.course_key):
-                raise ItemNotFoundError(xblock.location.course_key)
+            elif not self.has_course(course_key):
+                raise ItemNotFoundError(course_key)
 
         return xblock
 
@@ -1752,7 +1875,6 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         )
         return 1
 
-    # pylint: disable=unused-argument
     @contract(course_key='CourseKey', user_id='int|long')
     def delete_all_asset_metadata(self, course_key, user_id):
         """
@@ -1789,18 +1911,44 @@ class MongoModuleStore(ModuleStoreDraftAndPublished, ModuleStoreWriteBase, Mongo
         """
 
         # Because we often query for some subset of the id, we define this index:
-        self.collection.create_index([
-            ('_id.org', pymongo.ASCENDING),
-            ('_id.course', pymongo.ASCENDING),
-            ('_id.category', pymongo.ASCENDING),
-            ('_id.name', pymongo.ASCENDING),
-        ])
+        self.collection.create_index(
+            [
+                ('_id.tag', pymongo.ASCENDING),
+                ('_id.org', pymongo.ASCENDING),
+                ('_id.course', pymongo.ASCENDING),
+                ('_id.category', pymongo.ASCENDING),
+                ('_id.name', pymongo.ASCENDING),
+                ('_id.revision', pymongo.ASCENDING),
+            ],
+            background=True)
 
         # Because we often scan for all category='course' regardless of the value of the other fields:
-        self.collection.create_index('_id.category')
+        self.collection.create_index('_id.category', background=True)
 
         # Because lms calls get_parent_locations frequently (for path generation):
-        self.collection.create_index('definition.children', sparse=True)
+        self.collection.create_index('definition.children', sparse=True, background=True)
 
         # To allow prioritizing draft vs published material
-        self.collection.create_index('_id.revision')
+        self.collection.create_index('_id.revision', background=True)
+
+    # Some overrides that still need to be implemented by subclasses
+    def convert_to_draft(self, location, user_id):
+        raise NotImplementedError()
+
+    def delete_item(self, location, user_id, **kwargs):
+        raise NotImplementedError()
+
+    def has_changes(self, xblock):
+        raise NotImplementedError()
+
+    def has_published_version(self, xblock):
+        raise NotImplementedError()
+
+    def publish(self, location, user_id):
+        raise NotImplementedError()
+
+    def revert_to_published(self, location, user_id):
+        raise NotImplementedError()
+
+    def unpublish(self, location, user_id):
+        raise NotImplementedError()

@@ -1,10 +1,8 @@
 from setuptools import setup, find_packages
 
 XMODULES = [
-    "abtest = xmodule.abtest_module:ABTestDescriptor",
     "book = xmodule.backcompat_module:TranslateCustomTagDescriptor",
     "chapter = xmodule.seq_module:SequenceDescriptor",
-    "combinedopenended = xmodule.combined_open_ended_module:CombinedOpenEndedDescriptor",
     "conditional = xmodule.conditional_module:ConditionalDescriptor",
     "course = xmodule.course_module:CourseDescriptor",
     "customtag = xmodule.template_module:CustomTagDescriptor",
@@ -13,7 +11,6 @@ XMODULES = [
     "image = xmodule.backcompat_module:TranslateCustomTagDescriptor",
     "library_content = xmodule.library_content_module:LibraryContentDescriptor",
     "error = xmodule.error_module:ErrorDescriptor",
-    "peergrading = xmodule.peer_grading_module:PeerGradingDescriptor",
     "poll_question = xmodule.poll_module:PollDescriptor",
     "problem = xmodule.capa_module:CapaDescriptor",
     "problemset = xmodule.seq_module:SequenceDescriptor",
@@ -22,7 +19,6 @@ XMODULES = [
     "section = xmodule.backcompat_module:SemanticSectionDescriptor",
     "sequential = xmodule.seq_module:SequenceDescriptor",
     "slides = xmodule.backcompat_module:TranslateCustomTagDescriptor",
-    "vertical = xmodule.vertical_module:VerticalDescriptor",
     "video = xmodule.video_module:VideoDescriptor",
     "videoalpha = xmodule.video_module:VideoDescriptor",
     "videodev = xmodule.backcompat_module:TranslateCustomTagDescriptor",
@@ -32,13 +28,11 @@ XMODULES = [
     "static_tab = xmodule.html_module:StaticTabDescriptor",
     "custom_tag_template = xmodule.raw_module:RawDescriptor",
     "about = xmodule.html_module:AboutDescriptor",
-    "wrapper = xmodule.wrapper_module:WrapperDescriptor",
     "graphical_slider_tool = xmodule.gst_module:GraphicalSliderToolDescriptor",
     "annotatable = xmodule.annotatable_module:AnnotatableDescriptor",
     "textannotation = xmodule.textannotation_module:TextAnnotationDescriptor",
     "videoannotation = xmodule.videoannotation_module:VideoAnnotationDescriptor",
     "imageannotation = xmodule.imageannotation_module:ImageAnnotationDescriptor",
-    "foldit = xmodule.foldit_module:FolditDescriptor",
     "word_cloud = xmodule.word_cloud_module:WordCloudDescriptor",
     "hidden = xmodule.hidden_module:HiddenDescriptor",
     "raw = xmodule.raw_module:RawDescriptor",
@@ -47,6 +41,8 @@ XMODULES = [
 ]
 XBLOCKS = [
     "library = xmodule.library_root_xblock:LibraryRoot",
+    "vertical = xmodule.vertical_block:VerticalBlock",
+    "wrapper = xmodule.wrapper_module:WrapperBlock",
 ]
 
 setup(
@@ -54,7 +50,7 @@ setup(
     version="0.1",
     packages=find_packages(exclude=["tests"]),
     install_requires=[
-        'distribute',
+        'setuptools',
         'docopt',
         'capa',
         'path.py',

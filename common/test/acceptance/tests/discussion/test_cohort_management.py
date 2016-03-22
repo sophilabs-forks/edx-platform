@@ -5,23 +5,24 @@ End-to-end tests related to the cohort management on the LMS Instructor Dashboar
 
 from datetime import datetime
 
-from pymongo import MongoClient
-
 from pytz import UTC, utc
 from bok_choy.promise import EmptyPromise
+from nose.plugins.attrib import attr
 from .helpers import CohortTestMixin
-from ..helpers import UniqueCourseTest, create_user_partition_json
+from ..helpers import UniqueCourseTest, EventsTestMixin, create_user_partition_json
 from xmodule.partitions.partitions import Group
-from ...fixtures.course import CourseFixture
+from ...fixtures.course import CourseFixture, XBlockFixtureDesc
 from ...pages.lms.auto_auth import AutoAuthPage
 from ...pages.lms.instructor_dashboard import InstructorDashboardPage, DataDownloadPage
-from ...pages.studio.settings_advanced import AdvancedSettingsPage
 from ...pages.studio.settings_group_configurations import GroupConfigurationsPage
 
+import os
+import unicodecsv
 import uuid
 
 
-class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
+@attr('shard_6')
+class CohortConfigurationTest(EventsTestMixin, UniqueCourseTest, CohortTestMixin):
     """
     Tests for cohort management on the LMS Instructor Dashboard
     """
@@ -32,8 +33,6 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         """
         super(CohortConfigurationTest, self).setUp()
 
-        self.event_collection = MongoClient()["test"]["events"]
-
         # create course with cohorts
         self.manual_cohort_name = "ManualCohort1"
         self.auto_cohort_name = "AutoCohort1"
@@ -42,31 +41,31 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         self.manual_cohort_id = self.add_manual_cohort(self.course_fixture, self.manual_cohort_name)
 
         # create a non-instructor who will be registered for the course and in the manual cohort.
-        self.student_name = "student_user"
+        self.student_name, self.student_email = self._generate_unique_user_data()
         self.student_id = AutoAuthPage(
-            self.browser, username=self.student_name, email="student_user@example.com",
+            self.browser, username=self.student_name, email=self.student_email,
             course_id=self.course_id, staff=False
         ).visit().get_user_id()
         self.add_user_to_cohort(self.course_fixture, self.student_name, self.manual_cohort_id)
 
-        # create a user with unicode characters in their username
-        self.unicode_student_id = AutoAuthPage(
-            self.browser, username="Ωπ", email="unicode_student_user@example.com",
+        # create a second student user
+        self.other_student_name, self.other_student_email = self._generate_unique_user_data()
+        self.other_student_id = AutoAuthPage(
+            self.browser, username=self.other_student_name, email=self.other_student_email,
             course_id=self.course_id, staff=False
         ).visit().get_user_id()
 
         # login as an instructor
-        self.instructor_name = "instructor_user"
+        self.instructor_name, self.instructor_email = self._generate_unique_user_data()
         self.instructor_id = AutoAuthPage(
-            self.browser, username=self.instructor_name, email="instructor_user@example.com",
+            self.browser, username=self.instructor_name, email=self.instructor_email,
             course_id=self.course_id, staff=True
         ).visit().get_user_id()
 
         # go to the membership page on the instructor dashboard
         self.instructor_dashboard_page = InstructorDashboardPage(self.browser, self.course_id)
         self.instructor_dashboard_page.visit()
-        membership_page = self.instructor_dashboard_page.select_membership()
-        self.cohort_management_page = membership_page.select_cohort_management_section()
+        self.cohort_management_page = self.instructor_dashboard_page.select_cohort_management()
 
     def verify_cohort_description(self, cohort_name, expected_description):
         """
@@ -124,22 +123,6 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
             self.course_info['run']
         )
         group_settings_page.wait_for_page()
-
-    def test_link_to_studio(self):
-        """
-        Scenario: a link is present from the cohort configuration in the instructor dashboard
-        to the Studio Advanced Settings.
-
-        Given I have a course with a cohort defined
-        When I view the cohort in the LMS instructor dashboard
-        There is a link to take me to the Studio Advanced Settings for the course
-        """
-        self.cohort_management_page.select_cohort(self.manual_cohort_name)
-        self.cohort_management_page.select_edit_settings()
-        advanced_settings_page = AdvancedSettingsPage(
-            self.browser, self.course_info['org'], self.course_info['number'], self.course_info['run']
-        )
-        advanced_settings_page.wait_for_page()
 
     def test_add_students_to_cohort_success(self):
         """
@@ -252,36 +235,47 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
             self.cohort_management_page.get_cohort_student_input_field_value()
         )
 
-    def test_add_new_cohort(self):
-        """
-        Scenario: A new manual cohort can be created, and a student assigned to it.
+    def _verify_cohort_settings(
+            self,
+            cohort_name,
+            assignment_type=None,
+            new_cohort_name=None,
+            new_assignment_type=None,
+            verify_updated=False
+    ):
 
-        Given I have a course with a user in the course
-        When I add a new manual cohort to the course via the LMS instructor dashboard
-        Then the new cohort is displayed and has no users in it
-        And when I add the user to the new cohort
-        Then the cohort has 1 user
-        And appropriate events have been emitted
+        """
+        Create a new cohort and verify the new and existing settings.
         """
         start_time = datetime.now(UTC)
-        new_cohort = str(uuid.uuid4().get_hex()[0:20])
-        self.assertFalse(new_cohort in self.cohort_management_page.get_cohorts())
-        self.cohort_management_page.add_cohort(new_cohort)
+        self.assertFalse(cohort_name in self.cohort_management_page.get_cohorts())
+        self.cohort_management_page.add_cohort(cohort_name, assignment_type=assignment_type)
         # After adding the cohort, it should automatically be selected
         EmptyPromise(
-            lambda: new_cohort == self.cohort_management_page.get_selected_cohort(), "Waiting for new cohort to appear"
+            lambda: cohort_name == self.cohort_management_page.get_selected_cohort(), "Waiting for new cohort to appear"
         ).fulfill()
         self.assertEqual(0, self.cohort_management_page.get_selected_cohort_count())
+        # After adding the cohort, it should automatically be selected and its
+        # assignment_type should be "manual" as this is the default assignment type
+        _assignment_type = assignment_type or 'manual'
+        msg = "Waiting for currently selected cohort assignment type"
+        EmptyPromise(
+            lambda: _assignment_type == self.cohort_management_page.get_cohort_associated_assignment_type(), msg
+        ).fulfill()
+        # Go back to Manage Students Tab
+        self.cohort_management_page.select_manage_settings()
         self.cohort_management_page.add_students_to_selected_cohort([self.instructor_name])
         # Wait for the number of users in the cohort to change, indicating that the add operation is complete.
         EmptyPromise(
             lambda: 1 == self.cohort_management_page.get_selected_cohort_count(), 'Waiting for student to be added'
         ).fulfill()
+        self.assertFalse(self.cohort_management_page.is_assignment_settings_disabled)
+        self.assertEqual('', self.cohort_management_page.assignment_settings_message)
         self.assertEqual(
             self.event_collection.find({
                 "name": "edx.cohort.created",
                 "time": {"$gt": start_time},
-                "event.cohort_name": new_cohort,
+                "event.cohort_name": cohort_name,
             }).count(),
             1
         )
@@ -289,10 +283,196 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
             self.event_collection.find({
                 "name": "edx.cohort.creation_requested",
                 "time": {"$gt": start_time},
-                "event.cohort_name": new_cohort,
+                "event.cohort_name": cohort_name,
             }).count(),
             1
         )
+
+        if verify_updated:
+            self.cohort_management_page.select_cohort(cohort_name)
+            self.cohort_management_page.select_cohort_settings()
+            self.cohort_management_page.set_cohort_name(new_cohort_name)
+            self.cohort_management_page.set_assignment_type(new_assignment_type)
+            self.cohort_management_page.save_cohort_settings()
+
+            # If cohort name is empty, then we should get/see an error message.
+            if not new_cohort_name:
+                confirmation_messages = self.cohort_management_page.get_cohort_settings_messages(type='error')
+                self.assertEqual(
+                    ["The cohort cannot be saved", "You must specify a name for the cohort"],
+                    confirmation_messages
+                )
+            else:
+                confirmation_messages = self.cohort_management_page.get_cohort_settings_messages()
+                self.assertEqual(["Saved cohort"], confirmation_messages)
+                self.assertEqual(new_cohort_name, self.cohort_management_page.cohort_name_in_header)
+                self.assertTrue(new_cohort_name in self.cohort_management_page.get_cohorts())
+                self.assertEqual(1, self.cohort_management_page.get_selected_cohort_count())
+                self.assertEqual(
+                    new_assignment_type,
+                    self.cohort_management_page.get_cohort_associated_assignment_type()
+                )
+
+    def _create_csv_file(self, filename, csv_text_as_lists):
+        """
+        Create a csv file with the provided list of lists.
+
+        :param filename: this is the name that will be used for the csv file. Its location will
+         be under the test upload data directory
+        :param csv_text_as_lists: provide the contents of the csv file int he form of a list of lists
+        """
+        filename = self.instructor_dashboard_page.get_asset_path(filename)
+        with open(filename, 'w+') as csv_file:
+            writer = unicodecsv.writer(csv_file)
+            for line in csv_text_as_lists:
+                writer.writerow(line)
+        self.addCleanup(os.remove, filename)
+
+    def _generate_unique_user_data(self):
+        """
+        Produce unique username and e-mail.
+        """
+        unique_username = 'user' + str(uuid.uuid4().hex)[:12]
+        unique_email = unique_username + "@example.com"
+        return unique_username, unique_email
+
+    def test_add_new_cohort(self):
+        """
+        Scenario: A new manual cohort can be created, and a student assigned to it.
+
+        Given I have a course with a user in the course
+        When I add a new manual cohort to the course via the LMS instructor dashboard
+        Then the new cohort is displayed and has no users in it
+        And assignment type of displayed cohort to "manual" because this is the default
+        And when I add the user to the new cohort
+        Then the cohort has 1 user
+        And appropriate events have been emitted
+        """
+        cohort_name = str(uuid.uuid4().get_hex()[0:20])
+        self._verify_cohort_settings(cohort_name=cohort_name, assignment_type=None)
+
+    def test_add_new_cohort_with_manual_assignment_type(self):
+        """
+        Scenario: A new cohort with manual assignment type can be created, and a student assigned to it.
+
+        Given I have a course with a user in the course
+        When I add a new manual cohort with manual assignment type to the course via the LMS instructor dashboard
+        Then the new cohort is displayed and has no users in it
+        And assignment type of displayed cohort is "manual"
+        And when I add the user to the new cohort
+        Then the cohort has 1 user
+        And appropriate events have been emitted
+        """
+        cohort_name = str(uuid.uuid4().get_hex()[0:20])
+        self._verify_cohort_settings(cohort_name=cohort_name, assignment_type='manual')
+
+    def test_add_new_cohort_with_random_assignment_type(self):
+        """
+        Scenario: A new cohort with random assignment type can be created, and a student assigned to it.
+
+        Given I have a course with a user in the course
+        When I add a new manual cohort with random assignment type to the course via the LMS instructor dashboard
+        Then the new cohort is displayed and has no users in it
+        And assignment type of displayed cohort is "random"
+        And when I add the user to the new cohort
+        Then the cohort has 1 user
+        And appropriate events have been emitted
+        """
+        cohort_name = str(uuid.uuid4().get_hex()[0:20])
+        self._verify_cohort_settings(cohort_name=cohort_name, assignment_type='random')
+
+    def test_update_existing_cohort_settings(self):
+        """
+        Scenario: Update existing cohort settings(cohort name, assignment type)
+
+        Given I have a course with a user in the course
+        When I add a new cohort with random assignment type to the course via the LMS instructor dashboard
+        Then the new cohort is displayed and has no users in it
+        And assignment type of displayed cohort is "random"
+        And when I add the user to the new cohort
+        Then the cohort has 1 user
+        And appropriate events have been emitted
+        Then I select the cohort (that you just created) from existing cohorts
+        Then I change its name and assignment type set to "manual"
+        Then I Save the settings
+        And cohort with new name is present in cohorts dropdown list
+        And cohort assignment type should be "manual"
+        """
+        cohort_name = str(uuid.uuid4().get_hex()[0:20])
+        new_cohort_name = '{old}__NEW'.format(old=cohort_name)
+        self._verify_cohort_settings(
+            cohort_name=cohort_name,
+            assignment_type='random',
+            new_cohort_name=new_cohort_name,
+            new_assignment_type='manual',
+            verify_updated=True
+        )
+
+    def test_update_existing_cohort_settings_with_empty_cohort_name(self):
+        """
+        Scenario: Update existing cohort settings(cohort name, assignment type).
+
+        Given I have a course with a user in the course
+        When I add a new cohort with random assignment type to the course via the LMS instructor dashboard
+        Then the new cohort is displayed and has no users in it
+        And assignment type of displayed cohort is "random"
+        And when I add the user to the new cohort
+        Then the cohort has 1 user
+        And appropriate events have been emitted
+        Then I select a cohort from existing cohorts
+        Then I set its name as empty string and assignment type set to "manual"
+        And I click on Save button
+        Then I should see an error message
+        """
+        cohort_name = str(uuid.uuid4().get_hex()[0:20])
+        new_cohort_name = ''
+        self._verify_cohort_settings(
+            cohort_name=cohort_name,
+            assignment_type='random',
+            new_cohort_name=new_cohort_name,
+            new_assignment_type='manual',
+            verify_updated=True
+        )
+
+    def test_default_cohort_assignment_settings(self):
+        """
+        Scenario: Cohort assignment settings are disabled for default cohort.
+
+        Given I have a course with a user in the course
+        And I have added a manual cohort
+        And I have added a random cohort
+        When I select the random cohort
+        Then cohort assignment settings are disabled
+        """
+        self.cohort_management_page.select_cohort("AutoCohort1")
+        self.cohort_management_page.select_cohort_settings()
+
+        self.assertTrue(self.cohort_management_page.is_assignment_settings_disabled)
+
+        message = "There must be one cohort to which students can automatically be assigned."
+        self.assertEqual(message, self.cohort_management_page.assignment_settings_message)
+
+    def test_cohort_enable_disable(self):
+        """
+        Scenario: Cohort Enable/Disable checkbox related functionality is working as intended.
+
+        Given I have a cohorted course with a user.
+        And I can see the `Enable Cohorts` checkbox is checked.
+        And cohort management controls are visible.
+        When I uncheck the `Enable Cohorts` checkbox.
+        Then cohort management controls are not visible.
+        And When I reload the page.
+        Then I can see the `Enable Cohorts` checkbox is unchecked.
+        And cohort management controls are not visible.
+        """
+        self.assertTrue(self.cohort_management_page.is_cohorted)
+        self.assertTrue(self.cohort_management_page.cohort_management_controls_visible())
+        self.cohort_management_page.is_cohorted = False
+        self.assertFalse(self.cohort_management_page.cohort_management_controls_visible())
+        self.browser.refresh()
+        self.cohort_management_page.wait_for_page()
+        self.assertFalse(self.cohort_management_page.is_cohorted)
+        self.assertFalse(self.cohort_management_page.cohort_management_controls_visible())
 
     def test_link_to_data_download(self):
         """
@@ -317,9 +497,15 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         Then I can download a file with results
         And appropriate events have been emitted
         """
-        # cohort_users_both_columns.csv adds instructor_user to ManualCohort1 via username and
-        # student_user to AutoCohort1 via email
-        self._verify_csv_upload_acceptable_file("cohort_users_both_columns.csv")
+        csv_contents = [
+            ['username', 'email', 'ignored_column', 'cohort'],
+            [self.instructor_name, '', 'June', 'ManualCohort1'],
+            ['', self.student_email, 'Spring', 'AutoCohort1'],
+            [self.other_student_name, '', 'Fall', 'ManualCohort1'],
+        ]
+        filename = "cohort_csv_both_columns_1.csv"
+        self._create_csv_file(filename, csv_contents)
+        self._verify_csv_upload_acceptable_file(filename)
 
     def test_cohort_by_csv_only_email(self):
         """
@@ -331,8 +517,15 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         Then I can download a file with results
         And appropriate events have been emitted
         """
-        # cohort_users_only_email.csv adds instructor_user to ManualCohort1 and student_user to AutoCohort1 via email
-        self._verify_csv_upload_acceptable_file("cohort_users_only_email.csv")
+        csv_contents = [
+            ['email', 'cohort'],
+            [self.instructor_email, 'ManualCohort1'],
+            [self.student_email, 'AutoCohort1'],
+            [self.other_student_email, 'ManualCohort1'],
+        ]
+        filename = "cohort_csv_emails_only.csv"
+        self._create_csv_file(filename, csv_contents)
+        self._verify_csv_upload_acceptable_file(filename)
 
     def test_cohort_by_csv_only_username(self):
         """
@@ -344,13 +537,46 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         Then I can download a file with results
         And appropriate events have been emitted
         """
-        # cohort_users_only_username.csv adds instructor_user to ManualCohort1 and
-        # student_user to AutoCohort1 via username
-        self._verify_csv_upload_acceptable_file("cohort_users_only_username.csv")
+        csv_contents = [
+            ['username', 'cohort'],
+            [self.instructor_name, 'ManualCohort1'],
+            [self.student_name, 'AutoCohort1'],
+            [self.other_student_name, 'ManualCohort1'],
+        ]
+        filename = "cohort_users_only_username1.csv"
+        self._create_csv_file(filename, csv_contents)
+        self._verify_csv_upload_acceptable_file(filename)
 
-    def _verify_csv_upload_acceptable_file(self, filename):
+    def test_cohort_by_csv_unicode(self):
+        """
+        Scenario: the instructor can upload a file with user and cohort assignments, using both emails and usernames.
+
+        Given I have a course with two cohorts defined
+        And I add another cohort with a unicode name
+        When I go to the cohort management section of the instructor dashboard
+        I can upload a CSV file with assignments of users to the unicode cohort via both usernames and emails
+        Then I can download a file with results
+
+        TODO: refactor events verification to handle this scenario. Events verification assumes movements
+        between other cohorts (manual and auto).
+        """
+        unicode_hello_in_korean = u'안녕하세요'
+        self._verify_cohort_settings(cohort_name=unicode_hello_in_korean, assignment_type=None)
+        csv_contents = [
+            ['username', 'email', 'cohort'],
+            [self.instructor_name, '', unicode_hello_in_korean],
+            ['', self.student_email, unicode_hello_in_korean],
+            [self.other_student_name, '', unicode_hello_in_korean]
+        ]
+        filename = "cohort_unicode_name.csv"
+        self._create_csv_file(filename, csv_contents)
+        self._verify_csv_upload_acceptable_file(filename, skip_events=True)
+
+    def _verify_csv_upload_acceptable_file(self, filename, skip_events=None):
         """
         Helper method to verify cohort assignments after a successful CSV upload.
+
+        When skip_events is specified, no assertions are made on events.
         """
         start_time = datetime.now(UTC)
         self.cohort_management_page.upload_cohort_file(filename)
@@ -358,51 +584,50 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
             "Your file '{}' has been uploaded. Allow a few minutes for processing.".format(filename)
         )
 
-        # student_user is moved from manual cohort to auto cohort
-        self.assertEqual(
-            self.event_collection.find({
-                "name": "edx.cohort.user_added",
-                "time": {"$gt": start_time},
-                "event.user_id": {"$in": [int(self.student_id)]},
-                "event.cohort_name": self.auto_cohort_name,
-            }).count(),
-            1
-        )
-        self.assertEqual(
-            self.event_collection.find({
-                "name": "edx.cohort.user_removed",
-                "time": {"$gt": start_time},
-                "event.user_id": int(self.student_id),
-                "event.cohort_name": self.manual_cohort_name,
-            }).count(),
-            1
-        )
-        # instructor_user (previously unassigned) is added to manual cohort
-        self.assertEqual(
-            self.event_collection.find({
-                "name": "edx.cohort.user_added",
-                "time": {"$gt": start_time},
-                "event.user_id": {"$in": [int(self.instructor_id)]},
-                "event.cohort_name": self.manual_cohort_name,
-            }).count(),
-            1
-        )
-        # unicode_student_user (previously unassigned) is added to manual cohort
-        self.assertEqual(
-            self.event_collection.find({
-                "name": "edx.cohort.user_added",
-                "time": {"$gt": start_time},
-                "event.user_id": {"$in": [int(self.unicode_student_id)]},
-                "event.cohort_name": self.manual_cohort_name,
-            }).count(),
-            1
-        )
+        if not skip_events:
+            # student_user is moved from manual cohort to auto cohort
+            self.assertEqual(
+                self.event_collection.find({
+                    "name": "edx.cohort.user_added",
+                    "time": {"$gt": start_time},
+                    "event.user_id": {"$in": [int(self.student_id)]},
+                    "event.cohort_name": self.auto_cohort_name,
+                }).count(),
+                1
+            )
+            self.assertEqual(
+                self.event_collection.find({
+                    "name": "edx.cohort.user_removed",
+                    "time": {"$gt": start_time},
+                    "event.user_id": int(self.student_id),
+                    "event.cohort_name": self.manual_cohort_name,
+                }).count(),
+                1
+            )
+            # instructor_user (previously unassigned) is added to manual cohort
+            self.assertEqual(
+                self.event_collection.find({
+                    "name": "edx.cohort.user_added",
+                    "time": {"$gt": start_time},
+                    "event.user_id": {"$in": [int(self.instructor_id)]},
+                    "event.cohort_name": self.manual_cohort_name,
+                }).count(),
+                1
+            )
+            # other_student_user (previously unassigned) is added to manual cohort
+            self.assertEqual(
+                self.event_collection.find({
+                    "name": "edx.cohort.user_added",
+                    "time": {"$gt": start_time},
+                    "event.user_id": {"$in": [int(self.other_student_id)]},
+                    "event.cohort_name": self.manual_cohort_name,
+                }).count(),
+                1
+            )
 
         # Verify the results can be downloaded.
         data_download = self.instructor_dashboard_page.select_data_download()
-        EmptyPromise(
-            lambda: 1 == len(data_download.get_available_reports_for_download()), 'Waiting for downloadable report'
-        ).fulfill()
+        data_download.wait_for_available_report()
         report = data_download.get_available_reports_for_download()[0]
         base_file_name = "cohort_results_"
         self.assertIn("{}_{}".format(
@@ -464,6 +689,298 @@ class CohortConfigurationTest(UniqueCourseTest, CohortTestMixin):
         self.assertEquals(expected_message, messages[0])
 
 
+@attr('shard_6')
+class CohortDiscussionTopicsTest(UniqueCourseTest, CohortTestMixin):
+    """
+    Tests for cohorting the inline and course-wide discussion topics.
+    """
+    def setUp(self):
+        """
+        Set up a discussion topics
+        """
+        super(CohortDiscussionTopicsTest, self).setUp()
+
+        self.discussion_id = "test_discussion_{}".format(uuid.uuid4().hex)
+        self.course_fixture = CourseFixture(**self.course_info).add_children(
+            XBlockFixtureDesc("chapter", "Test Section").add_children(
+                XBlockFixtureDesc("sequential", "Test Subsection").add_children(
+                    XBlockFixtureDesc("vertical", "Test Unit").add_children(
+                        XBlockFixtureDesc(
+                            "discussion",
+                            "Test Discussion",
+                            metadata={"discussion_id": self.discussion_id}
+                        )
+                    )
+                )
+            )
+        ).install()
+
+        # create course with single cohort and two content groups (user_partition of type "cohort")
+        self.cohort_name = "OnlyCohort"
+        self.setup_cohort_config(self.course_fixture)
+        self.cohort_id = self.add_manual_cohort(self.course_fixture, self.cohort_name)
+
+        # login as an instructor
+        self.instructor_name = "instructor_user"
+        self.instructor_id = AutoAuthPage(
+            self.browser, username=self.instructor_name, email="instructor_user@example.com",
+            course_id=self.course_id, staff=True
+        ).visit().get_user_id()
+
+        # go to the membership page on the instructor dashboard
+        self.instructor_dashboard_page = InstructorDashboardPage(self.browser, self.course_id)
+        self.instructor_dashboard_page.visit()
+        self.cohort_management_page = self.instructor_dashboard_page.select_cohort_management()
+        self.cohort_management_page.wait_for_page()
+
+        self.course_wide_key = 'course-wide'
+        self.inline_key = 'inline'
+
+    def cohort_discussion_topics_are_visible(self):
+        """
+        Assert that discussion topics are visible with appropriate content.
+        """
+        self.cohort_management_page.toggles_showing_of_discussion_topics()
+        self.assertTrue(self.cohort_management_page.discussion_topics_visible())
+
+        self.assertEqual(
+            "Course-Wide Discussion Topics",
+            self.cohort_management_page.cohort_discussion_heading_is_visible(self.course_wide_key)
+        )
+        self.assertTrue(self.cohort_management_page.is_save_button_disabled(self.course_wide_key))
+
+        self.assertEqual(
+            "Content-Specific Discussion Topics",
+            self.cohort_management_page.cohort_discussion_heading_is_visible(self.inline_key)
+        )
+        self.assertTrue(self.cohort_management_page.is_save_button_disabled(self.inline_key))
+
+    def save_and_verify_discussion_topics(self, key):
+        """
+        Saves the discussion topics and the verify the changes.
+        """
+        # click on the inline save button.
+        self.cohort_management_page.save_discussion_topics(key)
+
+        # verifies that changes saved successfully.
+        confirmation_message = self.cohort_management_page.get_cohort_discussions_message(key=key)
+        self.assertEqual("Your changes have been saved.", confirmation_message)
+
+        # save button disabled again.
+        self.assertTrue(self.cohort_management_page.is_save_button_disabled(key))
+
+    def reload_page(self):
+        """
+        Refresh the page.
+        """
+        self.browser.refresh()
+        self.cohort_management_page.wait_for_page()
+
+        self.instructor_dashboard_page.select_cohort_management()
+        self.cohort_management_page.wait_for_page()
+
+        self.cohort_discussion_topics_are_visible()
+
+    def verify_discussion_topics_after_reload(self, key, cohorted_topics):
+        """
+        Verifies the changed topics.
+        """
+        self.reload_page()
+        self.assertEqual(self.cohort_management_page.get_cohorted_topics_count(key), cohorted_topics)
+
+    def test_cohort_course_wide_discussion_topic(self):
+        """
+        Scenario: cohort a course-wide discussion topic.
+
+        Given I have a course with a cohort defined,
+        And a course-wide discussion with disabled Save button.
+        When I click on the course-wide discussion topic
+        Then I see the enabled save button
+        When I click on save button
+        Then I see success message
+        When I reload the page
+        Then I see the discussion topic selected
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        cohorted_topics_before = self.cohort_management_page.get_cohorted_topics_count(self.course_wide_key)
+        self.cohort_management_page.select_discussion_topic(self.course_wide_key)
+
+        self.assertFalse(self.cohort_management_page.is_save_button_disabled(self.course_wide_key))
+
+        self.save_and_verify_discussion_topics(key=self.course_wide_key)
+        cohorted_topics_after = self.cohort_management_page.get_cohorted_topics_count(self.course_wide_key)
+
+        self.assertNotEqual(cohorted_topics_before, cohorted_topics_after)
+
+        self.verify_discussion_topics_after_reload(self.course_wide_key, cohorted_topics_after)
+
+    def test_always_cohort_inline_topic_enabled(self):
+        """
+        Scenario: Select the always_cohort_inline_topics radio button
+
+        Given I have a course with a cohort defined,
+        And a inline discussion topic with disabled Save button.
+        When I click on always_cohort_inline_topics
+        Then I see enabled save button
+        And I see disabled inline discussion topics
+        When I reload the page
+        Then I see the option enabled
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # enable always inline discussion topics.
+        self.cohort_management_page.select_always_inline_discussion()
+
+        self.assertTrue(self.cohort_management_page.inline_discussion_topics_disabled())
+
+        self.reload_page()
+        self.assertIsNotNone(self.cohort_management_page.always_inline_discussion_selected())
+
+    def test_cohort_some_inline_topics_enabled(self):
+        """
+        Scenario: Select the cohort_some_inline_topics radio button
+
+        Given I have a course with a cohort defined,
+        And a inline discussion topic with disabled Save button.
+        When I click on cohort_some_inline_topics
+        Then I see enabled save button
+        And I see enabled inline discussion topics
+        When I reload the page
+        Then I see the option enabled
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # enable some inline discussion topic radio button.
+        self.cohort_management_page.select_cohort_some_inline_discussion()
+        # I see that save button is enabled
+        self.assertFalse(self.cohort_management_page.is_save_button_disabled(self.inline_key))
+        # I see that inline discussion topics are enabled
+        self.assertFalse(self.cohort_management_page.inline_discussion_topics_disabled())
+
+        self.reload_page()
+        self.assertIsNotNone(self.cohort_management_page.cohort_some_inline_discussion_selected())
+
+    def test_cohort_inline_discussion_topic(self):
+        """
+        Scenario: cohort inline discussion topic.
+
+        Given I have a course with a cohort defined,
+        And a inline discussion topic with disabled Save button.
+        When I click on cohort_some_inline_discussion_topics
+        Then I see enabled saved button
+        And When I click on inline discussion topic
+        And I see enabled save button
+        And When i click save button
+        Then I see success message
+        When I reload the page
+        Then I see the discussion topic selected
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # select some inline discussion topics radio button.
+        self.cohort_management_page.select_cohort_some_inline_discussion()
+
+        cohorted_topics_before = self.cohort_management_page.get_cohorted_topics_count(self.inline_key)
+        # check the discussion topic.
+        self.cohort_management_page.select_discussion_topic(self.inline_key)
+
+        # Save button enabled.
+        self.assertFalse(self.cohort_management_page.is_save_button_disabled(self.inline_key))
+
+        # verifies that changes saved successfully.
+        self.save_and_verify_discussion_topics(key=self.inline_key)
+
+        cohorted_topics_after = self.cohort_management_page.get_cohorted_topics_count(self.inline_key)
+        self.assertNotEqual(cohorted_topics_before, cohorted_topics_after)
+
+        self.verify_discussion_topics_after_reload(self.inline_key, cohorted_topics_after)
+
+    def test_verify_that_selecting_the_final_child_selects_category(self):
+        """
+        Scenario: Category should be selected on selecting final child.
+
+        Given I have a course with a cohort defined,
+        And a inline discussion with disabled Save button.
+        When I click on child topics
+        Then I see enabled saved button
+        Then I see parent category to be checked.
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # enable some inline discussion topics.
+        self.cohort_management_page.select_cohort_some_inline_discussion()
+
+        # category should not be selected.
+        self.assertFalse(self.cohort_management_page.is_category_selected())
+
+        # check the discussion topic.
+        self.cohort_management_page.select_discussion_topic(self.inline_key)
+
+        # verify that category is selected.
+        self.assertTrue(self.cohort_management_page.is_category_selected())
+
+    def test_verify_that_deselecting_the_final_child_deselects_category(self):
+        """
+        Scenario: Category should be deselected on deselecting final child.
+
+        Given I have a course with a cohort defined,
+        And a inline discussion with disabled Save button.
+        When I click on final child topics
+        Then I see enabled saved button
+        Then I see parent category to be deselected.
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # enable some inline discussion topics.
+        self.cohort_management_page.select_cohort_some_inline_discussion()
+
+        # category should not be selected.
+        self.assertFalse(self.cohort_management_page.is_category_selected())
+
+        # check the discussion topic.
+        self.cohort_management_page.select_discussion_topic(self.inline_key)
+
+        # verify that category is selected.
+        self.assertTrue(self.cohort_management_page.is_category_selected())
+
+        # un-check the discussion topic.
+        self.cohort_management_page.select_discussion_topic(self.inline_key)
+
+        # category should not be selected.
+        self.assertFalse(self.cohort_management_page.is_category_selected())
+
+    def test_verify_that_correct_subset_of_category_being_selected_after_save(self):
+        """
+        Scenario: Category should be selected on selecting final child.
+
+        Given I have a course with a cohort defined,
+        And a inline discussion with disabled Save button.
+        When I click on child topics
+        Then I see enabled saved button
+        When I select subset of category
+        And I click on save button
+        Then I see success message with
+        same sub-category being selected
+        """
+        self.cohort_discussion_topics_are_visible()
+
+        # enable some inline discussion topics.
+        self.cohort_management_page.select_cohort_some_inline_discussion()
+
+        # category should not be selected.
+        self.assertFalse(self.cohort_management_page.is_category_selected())
+
+        cohorted_topics_after = self.cohort_management_page.get_cohorted_topics_count(self.inline_key)
+
+        # verifies that changes saved successfully.
+        self.save_and_verify_discussion_topics(key=self.inline_key)
+
+        # verify changes after reload.
+        self.verify_discussion_topics_after_reload(self.inline_key, cohorted_topics_after)
+
+
+@attr('shard_6')
 class CohortContentGroupAssociationTest(UniqueCourseTest, CohortTestMixin):
     """
     Tests for linking between content groups and cohort in the instructor dashboard.
@@ -505,8 +1022,7 @@ class CohortContentGroupAssociationTest(UniqueCourseTest, CohortTestMixin):
         # go to the membership page on the instructor dashboard
         self.instructor_dashboard_page = InstructorDashboardPage(self.browser, self.course_id)
         self.instructor_dashboard_page.visit()
-        membership_page = self.instructor_dashboard_page.select_membership()
-        self.cohort_management_page = membership_page.select_cohort_management_section()
+        self.cohort_management_page = self.instructor_dashboard_page.select_cohort_management()
 
     def test_no_content_group_linked(self):
         """

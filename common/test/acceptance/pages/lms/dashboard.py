@@ -2,9 +2,7 @@
 """
 Student dashboard page.
 """
-
 from bok_choy.page_object import PageObject
-from bok_choy.promise import EmptyPromise
 from . import BASE_URL
 
 
@@ -13,32 +11,15 @@ class DashboardPage(PageObject):
     Student dashboard, where the student can view
     courses she/he has registered for.
     """
-    def __init__(self, browser, separate_verified=False):
+    def __init__(self, browser):
         """Initialize the page.
 
         Arguments:
             browser (Browser): The browser instance.
-
-        Keyword Arguments:
-            separate_verified (Boolean): Whether to use the split payment and
-                verification flow.
         """
         super(DashboardPage, self).__init__(browser)
 
-        if separate_verified:
-            self._querystring = "?separate-verified=1"
-        else:
-            self._querystring = "?disable-separate-verified=1"
-
-    @property
-    def url(self):
-        """Return the URL corresponding to the dashboard."""
-        url = "{base}/dashboard{querystring}".format(
-            base=BASE_URL,
-            querystring=self._querystring
-        )
-
-        return url
+    url = "{base}/dashboard".format(base=BASE_URL)
 
     def is_browser_on_page(self):
         return self.q(css='section.my-courses').present
@@ -62,11 +43,20 @@ class DashboardPage(PageObject):
         Return list of the names of available courses (e.g. "999 edX Demonstration Course")
         """
         def _get_course_name(el):
-            # The first component in the link text is the course number
-            _, course_name = el.text.split(' ', 1)
-            return course_name
+            return el.text
 
-        return self.q(css='section.info > hgroup > h3 > a').map(_get_course_name).results
+        return self.q(css='h3.course-title > a').map(_get_course_name).results
+
+    @property
+    def banner_text(self):
+        """
+        Return the text of the banner on top of the page, or None if
+        the banner is not present.
+        """
+        message = self.q(css='div.wrapper-msg')
+        if message.present:
+            return message.text[0]
+        return None
 
     def get_enrollment_mode(self, course_name):
         """Get the enrollment mode for a given course on the dashboard.
@@ -114,8 +104,7 @@ class DashboardPage(PageObject):
             # There should only be one course listing corresponding to the provided course name.
             el = course_listing[0]
 
-            # Expand the upsell copy and click the upgrade button
-            el.find_element_by_css_selector('.message-upsell').click()
+            # Click the upgrade button
             el.find_element_by_css_selector('#upgrade-to-verified').click()
 
             upgrade_page.wait_for_page()
@@ -153,29 +142,53 @@ class DashboardPage(PageObject):
         else:
             return None
 
-    def change_language(self, code):
-        """
-        Change the language on the dashboard to the language corresponding with `code`.
-        """
-        self.q(css=".edit-language").first.click()
-        self.q(css='select[name="language"] option[value="{}"]'.format(code)).first.click()
-        self.q(css="#submit-lang").first.click()
-
-        # Clicking the submit-lang button does a jquery ajax post, so make sure that
-        # has completed before continuing on.
-        self.wait_for_ajax()
-
-        self._changed_lang_promise(code).fulfill()
-
-    def _changed_lang_promise(self, code):
-        def _check_func():
-            language_is_selected = self.q(css='select[name="language"] option[value="{}"]'.format(code)).selected
-            modal_is_visible = self.q(css='section#change_language.modal').visible
-            return (language_is_selected and not modal_is_visible)
-        return EmptyPromise(_check_func, "language changed and modal hidden")
-
     def pre_requisite_message_displayed(self):
         """
         Verify if pre-requisite course messages are being displayed.
         """
-        return self.q(css='section.prerequisites > .tip').visible
+        return self.q(css='li.prerequisites > .tip').visible
+
+    def get_course_listings(self):
+        """Retrieve the list of course DOM elements"""
+        return self.q(css='ul.listing-courses')
+
+    def get_course_social_sharing_widget(self, widget_name):
+        """ Retrieves the specified social sharing widget by its classification """
+        return self.q(css='a.action-{}'.format(widget_name))
+
+    def get_courses(self):
+        """
+        Get all courses shown in the dashboard
+        """
+        return self.q(css='ul.listing-courses .course-item')
+
+    def get_course_date(self):
+        """
+        Get course date of the first course from dashboard
+        """
+        return self.q(css='ul.listing-courses .course-item .info-date-block').first.text[0]
+
+    def click_username_dropdown(self):
+        """
+        Click username dropdown.
+        """
+        self.q(css='.dropdown').first.click()
+
+    @property
+    def username_dropdown_link_text(self):
+        """
+        Return list username dropdown links.
+        """
+        return self.q(css='.dropdown-menu li a').text
+
+    def click_my_profile_link(self):
+        """
+        Click on `Profile` link.
+        """
+        self.q(css='.dropdown-menu li a').nth(1).click()
+
+    def click_account_settings_link(self):
+        """
+        Click on `Account` link.
+        """
+        self.q(css='.dropdown-menu li a').nth(2).click()

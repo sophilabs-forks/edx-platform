@@ -1,7 +1,6 @@
 """
 Models for contentstore
 """
-# pylint: disable=no-member
 
 from django.db.models.fields import TextField
 
@@ -19,3 +18,7 @@ class VideoUploadConfig(ConfigurationModel):
     def get_profile_whitelist(cls):
         """Get the list of profiles to include in the encoding download"""
         return [profile for profile in cls.current().profile_whitelist.split(",") if profile]
+
+
+class PushNotificationConfig(ConfigurationModel):
+    """Configuration for mobile push notifications."""

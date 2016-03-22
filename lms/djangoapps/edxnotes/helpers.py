@@ -1,35 +1,39 @@
 """
 Helper methods related to EdxNotes.
 """
+
 import json
 import logging
-import requests
-from requests.exceptions import RequestException
-from uuid import uuid4
 from json import JSONEncoder
+from uuid import uuid4
+
+import requests
 from datetime import datetime
-from courseware.access import has_access
-from courseware.views import get_current_child
+from dateutil.parser import parse as dateutil_parse
+from opaque_keys.edx.keys import UsageKey
+from requests.exceptions import RequestException
+
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
+from edxnotes.exceptions import EdxNotesParseError, EdxNotesServiceUnavailable
 from capa.util import sanitize_html
+from courseware.views import get_current_child
+from courseware.access import has_access
+from openedx.core.lib.token_utils import get_id_token
 from student.models import anonymous_id_for_user
+from util.date_utils import get_default_time_display
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
-from util.date_utils import get_default_time_display
-from dateutil.parser import parse as dateutil_parse
-from provider.oauth2.models import AccessToken, Client
-import oauth2_provider.oidc as oidc
-from provider.utils import now
-from opaque_keys.edx.keys import UsageKey
-from .exceptions import EdxNotesParseError, EdxNotesServiceUnavailable
+
 
 log = logging.getLogger(__name__)
 HIGHLIGHT_TAG = "span"
 HIGHLIGHT_CLASS = "note-highlight"
+# OAuth2 Client name for edxnotes
+CLIENT_NAME = "edx-notes"
 
 
 class NoteJSONEncoder(JSONEncoder):
@@ -43,27 +47,11 @@ class NoteJSONEncoder(JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def get_id_token(user):
+def get_edxnotes_id_token(user):
     """
-    Generates JWT ID-Token, using or creating user's OAuth access token.
+    Returns generated ID Token for edxnotes.
     """
-    try:
-        client = Client.objects.get(name="edx-notes")
-    except Client.DoesNotExist:
-        raise ImproperlyConfigured("OAuth2 Client with name 'edx-notes' is not present in the DB")
-    try:
-        access_token = AccessToken.objects.get(
-            client=client,
-            user=user,
-            expires__gt=now()
-        )
-    except AccessToken.DoesNotExist:
-        access_token = AccessToken(client=client, user=user)
-        access_token.save()
-
-    id_token = oidc.id_token(access_token)
-    secret = id_token.access_token.client.client_secret
-    return id_token.encode(secret)
+    return get_id_token(user, CLIENT_NAME)
 
 
 def get_token_url(course_id):
@@ -79,7 +67,7 @@ def send_request(user, course_id, path="", query_string=None):
     """
     Sends a request with appropriate parameters and headers.
     """
-    url = get_endpoint(path)
+    url = get_internal_endpoint(path)
     params = {
         "user": anonymous_id_for_user(user, None),
         "course_id": unicode(course_id).encode("utf-8"),
@@ -97,7 +85,7 @@ def send_request(user, course_id, path="", query_string=None):
         response = requests.get(
             url,
             headers={
-                "x-annotator-auth-token": get_id_token(user)
+                "x-annotator-auth-token": get_edxnotes_id_token(user)
             },
             params=params
         )
@@ -139,11 +127,14 @@ def preprocess_collection(user, course, collection):
     cache = {}
     with store.bulk_operations(course.id):
         for model in collection:
-            model.update({
+            update = {
                 u"text": sanitize_html(model["text"]),
                 u"quote": sanitize_html(model["quote"]),
                 u"updated": dateutil_parse(model["updated"]),
-            })
+            }
+            if "tags" in model:
+                update[u"tags"] = [sanitize_html(tag) for tag in model["tags"]]
+            model.update(update)
             usage_id = model["usage_id"]
             if usage_id in cache:
                 model.update(cache[usage_id])
@@ -283,14 +274,19 @@ def get_notes(user, course):
     return json.dumps(preprocess_collection(user, course, collection), cls=NoteJSONEncoder)
 
 
-def get_endpoint(path=""):
+def get_endpoint(api_url, path=""):
     """
     Returns edx-notes-api endpoint.
+
+    Arguments:
+        api_url (str): base url to the notes api
+        path (str): path to the resource
+    Returns:
+        str: full endpoint to the notes api
     """
     try:
-        url = settings.EDXNOTES_INTERFACE['url']
-        if not url.endswith("/"):
-            url += "/"
+        if not api_url.endswith("/"):
+            api_url += "/"
 
         if path:
             if path.startswith("/"):
@@ -298,9 +294,19 @@ def get_endpoint(path=""):
             if not path.endswith("/"):
                 path += "/"
 
-        return url + path
+        return api_url + path
     except (AttributeError, KeyError):
         raise ImproperlyConfigured(_("No endpoint was provided for EdxNotes."))
+
+
+def get_public_endpoint(path=""):
+    """Get the full path to a resource on the public notes API."""
+    return get_endpoint(settings.EDXNOTES_PUBLIC_API, path)
+
+
+def get_internal_endpoint(path=""):
+    """Get the full path to a resource on the private notes API."""
+    return get_endpoint(settings.EDXNOTES_INTERNAL_API, path)
 
 
 def get_course_position(course_module):

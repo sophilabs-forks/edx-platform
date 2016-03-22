@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This config file runs the simplest dev environment using sqlite, and db-based
 sessions. Assumes structure:
@@ -19,10 +20,16 @@ sessions. Assumes structure:
 
 from .common import *
 import os
-from path import path
-from tempfile import mkdtemp
+from path import Path as path
 from uuid import uuid4
 from warnings import filterwarnings, simplefilter
+
+from openedx.core.lib.tempdir import mkdtemp_clean
+
+# This patch disabes the commit_on_success decorator during tests
+# in TestCase subclasses.
+from util.testing import patch_testcase
+patch_testcase()
 
 # Silence noisy logs to make troubleshooting easier when tests fail.
 import logging
@@ -73,6 +80,9 @@ FEATURES['ENABLE_COMBINED_LOGIN_REGISTRATION'] = True
 # Need wiki for courseware views to work. TODO (vshnayder): shouldn't need it.
 WIKI_ENABLED = True
 
+# Enable a parental consent age limit for testing
+PARENTAL_CONSENT_AGE_LIMIT = 13
+
 # Makes the tests run much faster...
 SOUTH_TESTS_MIGRATE = False  # To disable migrations and use syncdb instead
 
@@ -83,9 +93,11 @@ _SYSTEM = 'lms'
 
 _REPORT_DIR = REPO_ROOT / 'reports' / _SYSTEM
 _REPORT_DIR.makedirs_p()
+_NOSEID_DIR = REPO_ROOT / '.testids' / _SYSTEM
+_NOSEID_DIR.makedirs_p()
 
 NOSE_ARGS = [
-    '--id-file', REPO_ROOT / '.testids' / _SYSTEM / 'noseids',
+    '--id-file', _NOSEID_DIR / 'noseids',
     '--xunit-file', _REPORT_DIR / 'nosetests.xml',
 ]
 
@@ -120,6 +132,8 @@ XQUEUE_WAITTIME_BETWEEN_REQUESTS = 5  # seconds
 MOCK_STAFF_GRADING = True
 MOCK_PEER_GRADING = True
 
+############################ STATIC FILES #############################
+
 # TODO (cpennington): We need to figure out how envs/test.py can inject things
 # into common.py so that we don't have to repeat this sort of thing
 STATICFILES_DIRS = [
@@ -137,7 +151,9 @@ STATICFILES_DIRS += [
 # find pipelined assets will raise a ValueError.
 # http://stackoverflow.com/questions/12816941/unit-testing-with-django-pipeline
 STATICFILES_STORAGE = 'pipeline.storage.NonPackagingPipelineStorage'
-PIPELINE_ENABLED = False
+
+# Don't use compression during tests
+PIPELINE_JS_COMPRESSOR = None
 
 update_module_store_settings(
     MODULESTORE,
@@ -145,7 +161,7 @@ update_module_store_settings(
         'fs_root': TEST_ROOT / "data",
     },
     xml_store_options={
-        'data_dir': mkdtemp(dir=TEST_ROOT),  # never inadvertently load all the XML courses
+        'data_dir': mkdtemp_clean(dir=TEST_ROOT),  # never inadvertently load all the XML courses
     },
     doc_store_settings={
         'host': MONGO_HOST,
@@ -167,10 +183,15 @@ CONTENTSTORE = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': TEST_ROOT / 'db' / 'edx.db'
+        'NAME': TEST_ROOT / 'db' / 'edx.db',
+        'ATOMIC_REQUESTS': True,
     },
 
 }
+
+# This hack disables migrations during tests. We want to create tables directly from the models for speed.
+# See https://groups.google.com/d/msg/django-developers/PWPj3etj3-U/kCl6pMsQYYoJ.
+MIGRATION_MODULES = {app: "app.migrations_not_used_in_tests" for app in INSTALLED_APPS}
 
 CACHES = {
     # This is the cache used for most things.
@@ -203,7 +224,17 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'edx_location_mem_cache',
     },
-
+    'course_structure_cache': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    },
+    'block_cache': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'edx_location_block_cache',
+    },
+    'lms.course_blocks': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'edx_location_course_blocks',
+    },
 }
 
 # Dummy secret key for dev
@@ -232,14 +263,21 @@ PASSWORD_COMPLEXITY = {}
 ######### Third-party auth ##########
 FEATURES['ENABLE_THIRD_PARTY_AUTH'] = True
 
-THIRD_PARTY_AUTH = {
-    "Google": {
-        "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY": "test",
-        "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET": "test",
-    },
-    "Facebook": {
-        "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY": "test",
-        "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET": "test",
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.linkedin.LinkedinOAuth2',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'third_party_auth.dummy.DummyBackend',
+    'third_party_auth.saml.SAMLAuthBackend',
+    'third_party_auth.lti.LTIAuthBackend',
+) + AUTHENTICATION_BACKENDS
+
+THIRD_PARTY_AUTH_CUSTOM_AUTH_FORMS = {
+    'custom1': {
+        'secret_key': 'opensesame',
+        'url': '/misc/my-custom-registration-form',
+        'error_url': '/misc/my-custom-sso-error-page'
     },
 }
 
@@ -259,10 +297,14 @@ OPENID_PROVIDER_TRUSTED_ROOTS = ['*']
 
 ############################## OAUTH2 Provider ################################
 FEATURES['ENABLE_OAUTH2_PROVIDER'] = True
+# don't cache courses for testing
+OIDC_COURSE_HANDLER_CACHE_TIMEOUT = 0
 
 ########################### External REST APIs #################################
 FEATURES['ENABLE_MOBILE_REST_API'] = True
+FEATURES['ENABLE_MOBILE_SOCIAL_FACEBOOK_FEATURES'] = True
 FEATURES['ENABLE_VIDEO_ABSTRACTION_LAYER_API'] = True
+FEATURES['ENABLE_COURSE_BLOCKS_NAVIGATION_API'] = True
 
 ###################### Payment ##############################3
 # Enable fake payment processing page
@@ -273,7 +315,7 @@ FEATURES['ENABLE_PAYMENT_FAKE'] = True
 # the same settings, we can generate this randomly and guarantee
 # that they are using the same secret.
 from random import choice
-from string import letters, digits, punctuation  # pylint: disable=deprecated-module
+from string import letters, digits, punctuation
 RANDOM_SHARED_SECRET = ''.join(
     choice(letters + digits + punctuation)
     for x in range(250)
@@ -294,21 +336,20 @@ GIT_REPO_DIR = TEST_ROOT / "course_repos"
 ################################# CELERY ######################################
 
 CELERY_ALWAYS_EAGER = True
-CELERY_RESULT_BACKEND = 'cache'
-BROKER_TRANSPORT = 'memory'
+CELERY_RESULT_BACKEND = 'djcelery.backends.cache:CacheBackend'
 
 ######################### MARKETING SITE ###############################
 
 MKTG_URL_LINK_MAP = {
     'ABOUT': 'about',
     'CONTACT': 'contact',
-    'FAQ': 'help',
+    'HELP_CENTER': 'help-center',
     'COURSES': 'courses',
     'ROOT': 'root',
     'TOS': 'tos',
     'HONOR': 'honor',
     'PRIVACY': 'privacy',
-    'JOBS': 'jobs',
+    'CAREERS': 'careers',
     'NEWS': 'news',
     'PRESS': 'press',
     'BLOG': 'blog',
@@ -318,6 +359,7 @@ MKTG_URL_LINK_MAP = {
     'WHAT_IS_VERIFIED_CERT': 'verified-certificate',
 }
 
+SUPPORT_SITE_LINK = 'https://support.example.com'
 
 ############################ STATIC FILES #############################
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -376,7 +418,7 @@ FEATURES['CLASS_DASHBOARD'] = True
 #   Generated checkid_setup request to http://testserver/openid/provider/login/ with assocication {HMAC-SHA1}{51d49995}{s/kRmA==}
 
 import openid.oidutil
-openid.oidutil.log = lambda message, level = 0: None
+openid.oidutil.log = lambda message, level=0: None
 
 PLATFORM_NAME = "edX"
 SITE_NAME = "edx.org"
@@ -407,6 +449,31 @@ MICROSITE_CONFIGURATION = {
         "ENABLE_PAID_COURSE_REGISTRATION": True,
         "SESSION_COOKIE_DOMAIN": "test_microsite.localhost",
     },
+    "microsite_with_logistration": {
+        "domain_prefix": "logistration",
+        "university": "logistration",
+        "platform_name": "Test logistration",
+        "logo_image_url": "test_microsite/images/header-logo.png",
+        "email_from_address": "test_microsite@edx.org",
+        "payment_support_email": "test_microsite@edx.org",
+        "ENABLE_MKTG_SITE": False,
+        "ENABLE_COMBINED_LOGIN_REGISTRATION": True,
+        "SITE_NAME": "test_microsite.localhost",
+        "course_org_filter": "LogistrationX",
+        "course_about_show_social_links": False,
+        "css_overrides_file": "test_microsite/css/test_microsite.css",
+        "show_partners": False,
+        "show_homepage_promo_video": False,
+        "course_index_overlay_text": "Logistration.",
+        "course_index_overlay_logo_file": "test_microsite/images/header-logo.png",
+        "homepage_overlay_html": "<h1>This is a Logistration HTML</h1>",
+        "ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER": False,
+        "COURSE_CATALOG_VISIBILITY_PERMISSION": "see_in_catalog",
+        "COURSE_ABOUT_VISIBILITY_PERMISSION": "see_about_page",
+        "ENABLE_SHOPPING_CART": True,
+        "ENABLE_PAID_COURSE_REGISTRATION": True,
+        "SESSION_COOKIE_DOMAIN": "test_logistration.localhost",
+    },
     "default": {
         "university": "default_university",
         "domain_prefix": "www",
@@ -414,6 +481,7 @@ MICROSITE_CONFIGURATION = {
 }
 MICROSITE_ROOT_DIR = COMMON_ROOT / 'test' / 'test_microsites'
 MICROSITE_TEST_HOSTNAME = 'testmicrosite.testserver'
+MICROSITE_LOGISTRATION_HOSTNAME = 'logistration.testserver'
 
 FEATURES['USE_MICROSITES'] = True
 
@@ -442,15 +510,50 @@ MONGODB_LOG = {
     'db': 'xlog',
 }
 
-
 # Enable EdxNotes for tests.
 FEATURES['ENABLE_EDXNOTES'] = True
 
-# Add milestones to Installed apps for testing
-INSTALLED_APPS += ('milestones', )
+# Enable teams feature for tests.
+FEATURES['ENABLE_TEAMS'] = True
 
-# MILESTONES
-FEATURES['MILESTONES_APP'] = True
+# Enable courseware search for tests
+FEATURES['ENABLE_COURSEWARE_SEARCH'] = True
 
-# ENTRANCE EXAMS
-FEATURES['ENTRANCE_EXAMS'] = True
+# Enable dashboard search for tests
+FEATURES['ENABLE_DASHBOARD_SEARCH'] = True
+
+# Use MockSearchEngine as the search engine for test scenario
+SEARCH_ENGINE = "search.tests.mock_search_engine.MockSearchEngine"
+
+FACEBOOK_APP_SECRET = "Test"
+FACEBOOK_APP_ID = "Test"
+FACEBOOK_API_VERSION = "v2.2"
+
+######### custom courses #########
+INSTALLED_APPS += ('lms.djangoapps.ccx',)
+FEATURES['CUSTOM_COURSES_EDX'] = True
+
+# Set dummy values for profile image settings.
+PROFILE_IMAGE_BACKEND = {
+    'class': 'storages.backends.overwrite.OverwriteStorage',
+    'options': {
+        'location': MEDIA_ROOT,
+        'base_url': 'http://example-storage.com/profile-images/',
+    },
+}
+PROFILE_IMAGE_DEFAULT_FILENAME = 'default'
+PROFILE_IMAGE_DEFAULT_FILE_EXTENSION = 'png'
+PROFILE_IMAGE_SECRET_KEY = 'secret'
+PROFILE_IMAGE_MAX_BYTES = 1024 * 1024
+PROFILE_IMAGE_MIN_BYTES = 100
+
+# Enable the LTI provider feature for testing
+FEATURES['ENABLE_LTI_PROVIDER'] = True
+INSTALLED_APPS += ('lti_provider',)
+AUTHENTICATION_BACKENDS += ('lti_provider.users.LtiBackend',)
+
+# ORGANIZATIONS
+FEATURES['ORGANIZATIONS_APP'] = True
+
+# Financial assistance page
+FEATURES['ENABLE_FINANCIAL_ASSISTANCE_FORM'] = True

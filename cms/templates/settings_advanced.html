@@ -4,7 +4,7 @@
 <%!
   from django.utils.translation import ugettext as _
   from contentstore import utils
-  from django.utils.html import escapejs
+  from openedx.core.lib.js_utils import escape_json_dumps
 %>
 <%block name="title">${_("Advanced Settings")}</%block>
 <%block name="bodyclass">is-signedin course advanced view-settings</%block>
@@ -19,7 +19,7 @@
 
 <%block name="requirejs">
     require(["js/factories/settings_advanced"], function(SettingsAdvancedFactory) {
-        SettingsAdvancedFactory(${advanced_dict | n}, "${advanced_settings_url}");
+        SettingsAdvancedFactory(${escape_json_dumps(advanced_dict) | n}, "${advanced_settings_url}");
     });
 </%block>
 
@@ -86,7 +86,7 @@
           course_team_url = utils.reverse_course_url('course_team_handler', context_course.id)
         %>
       <h3 class="title-3">${_("Other Course Settings")}</h3>
-        <nav class="nav-related">
+        <nav class="nav-related" aria-label="${_('Other Course Settings')}">
           <ul>
             <li class="nav-item"><a href="${details_url}">${_("Details &amp; Schedule")}</a></li>
             <li class="nav-item"><a href="${grading_url}">${_("Grading")}</a></li>

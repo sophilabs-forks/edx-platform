@@ -23,6 +23,7 @@ from unittest.case import SkipTest, TestCase
 
 from xblock.field_data import DictFieldData
 from xblock.fields import ScopeIds
+from xblock.core import XBlock
 
 from opaque_keys.edx.locations import Location
 
@@ -30,11 +31,9 @@ from xmodule.x_module import ModuleSystem, XModule, XModuleDescriptor, Descripto
 from xmodule.annotatable_module import AnnotatableDescriptor
 from xmodule.capa_module import CapaDescriptor
 from xmodule.course_module import CourseDescriptor
-from xmodule.combined_open_ended_module import CombinedOpenEndedDescriptor
 from xmodule.discussion_module import DiscussionDescriptor
 from xmodule.gst_module import GraphicalSliderToolDescriptor
 from xmodule.html_module import HtmlDescriptor
-from xmodule.peer_grading_module import PeerGradingDescriptor
 from xmodule.poll_module import PollDescriptor
 from xmodule.word_cloud_module import WordCloudDescriptor
 from xmodule.crowdsource_hinter import CrowdsourceHinterDescriptor
@@ -42,8 +41,8 @@ from xmodule.crowdsource_hinter import CrowdsourceHinterDescriptor
 from xmodule.seq_module import SequenceDescriptor
 from xmodule.conditional_module import ConditionalDescriptor
 from xmodule.randomize_module import RandomizeDescriptor
-from xmodule.vertical_module import VerticalDescriptor
-from xmodule.wrapper_module import WrapperDescriptor
+from xmodule.vertical_block import VerticalBlock
+from xmodule.wrapper_module import WrapperBlock
 from xmodule.tests import get_test_descriptor_system, get_test_system
 
 
@@ -53,11 +52,9 @@ from xmodule.tests import get_test_descriptor_system, get_test_system
 LEAF_XMODULES = {
     AnnotatableDescriptor: [{}],
     CapaDescriptor: [{}],
-    CombinedOpenEndedDescriptor: [{}],
     DiscussionDescriptor: [{}],
     GraphicalSliderToolDescriptor: [{}],
     HtmlDescriptor: [{}],
-    PeerGradingDescriptor: [{}],
     PollDescriptor: [{'display_name': 'Poll Display Name'}],
     WordCloudDescriptor: [{}],
     # This is being excluded because it has dependencies on django
@@ -74,8 +71,8 @@ CONTAINER_XMODULES = {
     CrowdsourceHinterDescriptor: [{}],
     RandomizeDescriptor: [{}],
     SequenceDescriptor: [{}],
-    VerticalDescriptor: [{}],
-    WrapperDescriptor: [{}],
+    VerticalBlock: [{}],
+    WrapperBlock: [{}],
 }
 
 # These modules are editable in studio yet
@@ -103,7 +100,8 @@ class ModuleSystemFactory(Factory):
     performed by :func:`xmodule.tests.get_test_system`, so
     arguments for that function are valid factory attributes.
     """
-    FACTORY_FOR = ModuleSystem
+    class Meta(object):
+        model = ModuleSystem
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):  # pylint: disable=unused-argument
@@ -118,7 +116,8 @@ class DescriptorSystemFactory(Factory):
     performed by :func:`xmodule.tests.get_test_descriptor_system`, so
     arguments for that function are valid factory attributes.
     """
-    FACTORY_FOR = DescriptorSystem
+    class Meta(object):
+        model = DescriptorSystem
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):  # pylint: disable=unused-argument
@@ -141,7 +140,10 @@ class ContainerModuleRuntimeFactory(ModuleSystemFactory):
         if depth == 0:
             self.get_module.side_effect = lambda x: LeafModuleFactory(descriptor_cls=HtmlDescriptor)
         else:
-            self.get_module.side_effect = lambda x: ContainerModuleFactory(descriptor_cls=VerticalDescriptor, depth=depth - 1)
+            self.get_module.side_effect = lambda x: ContainerModuleFactory(
+                descriptor_cls=VerticalBlock,
+                depth=depth - 1
+            )
 
     @post_generation
     def position(self, create, position=2, **kwargs):  # pylint: disable=unused-argument, method-hidden
@@ -166,7 +168,10 @@ class ContainerDescriptorRuntimeFactory(DescriptorSystemFactory):
         if depth == 0:
             self.load_item.side_effect = lambda x: LeafModuleFactory(descriptor_cls=HtmlDescriptor)
         else:
-            self.load_item.side_effect = lambda x: ContainerModuleFactory(descriptor_cls=VerticalDescriptor, depth=depth - 1)
+            self.load_item.side_effect = lambda x: ContainerModuleFactory(
+                descriptor_cls=VerticalBlock,
+                depth=depth - 1
+            )
 
     @post_generation
     def position(self, create, position=2, **kwargs):  # pylint: disable=unused-argument, method-hidden
@@ -183,7 +188,8 @@ class LeafDescriptorFactory(Factory):
     """
     # pylint: disable=missing-docstring
 
-    FACTORY_FOR = XModuleDescriptor
+    class Meta(object):
+        model = XModuleDescriptor
 
     runtime = SubFactory(DescriptorSystemFactory)
     url_name = LazyAttributeSequence('{.block_type}_{}'.format)
@@ -323,7 +329,12 @@ class TestStudentView(XBlockWrapperTestMixin, TestCase):
     This tests that student_view and XModule.get_html produce the same results.
     """
     def skip_if_invalid(self, descriptor_cls):
-        if descriptor_cls.module_class.student_view != XModule.student_view:
+        pure_xblock_class = issubclass(descriptor_cls, XBlock) and not issubclass(descriptor_cls, XModuleDescriptor)
+        if pure_xblock_class:
+            student_view = descriptor_cls.student_view
+        else:
+            student_view = descriptor_cls.module_class.student_view
+        if student_view != XModule.student_view:
             raise SkipTest(descriptor_cls.__name__ + " implements student_view")
 
     def check_property(self, descriptor):
@@ -344,7 +355,10 @@ class TestStudioView(XBlockWrapperTestMixin, TestCase):
         if descriptor_cls in NOT_STUDIO_EDITABLE:
             raise SkipTest(descriptor_cls.__name__ + " is not editable in studio")
 
-        if descriptor_cls.studio_view != XModuleDescriptor.studio_view:
+        pure_xblock_class = issubclass(descriptor_cls, XBlock) and not issubclass(descriptor_cls, XModuleDescriptor)
+        if pure_xblock_class:
+            raise SkipTest(descriptor_cls.__name__ + " is a pure XBlock and implements studio_view")
+        elif descriptor_cls.studio_view != XModuleDescriptor.studio_view:
             raise SkipTest(descriptor_cls.__name__ + " implements studio_view")
 
     def check_property(self, descriptor):
@@ -362,6 +376,7 @@ class TestXModuleHandler(TestCase):
     """
 
     def setUp(self):
+        super(TestXModuleHandler, self).setUp()
         self.module = XModule(descriptor=Mock(), field_data=Mock(), runtime=Mock(), scope_ids=Mock())
         self.module.handle_ajax = Mock(return_value='{}')
         self.request = webob.Request({})
@@ -382,7 +397,7 @@ class TestXModuleHandler(TestCase):
 
 class TestXmlExport(XBlockWrapperTestMixin, TestCase):
     """
-    This tests that XModuleDescriptor.export_to_xml and add_xml_to_node produce the same results.
+    This tests that XModuleDescriptor.export_course_to_xml and add_xml_to_node produce the same results.
     """
     def skip_if_invalid(self, descriptor_cls):
         if descriptor_cls.add_xml_to_node != XModuleDescriptor.add_xml_to_node:

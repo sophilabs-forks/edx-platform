@@ -8,12 +8,13 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from mock import patch
+from nose.plugins.attrib import attr
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 
 from course_modes.models import CourseMode
-from xmodule.modulestore.tests.django_utils import (
-    TEST_DATA_MOCK_MODULESTORE, TEST_DATA_MIXED_CLOSED_MODULESTORE
-)
+from track.tests import EventTrackingTestCase
+from xmodule.modulestore.tests.django_utils import TEST_DATA_MIXED_CLOSED_MODULESTORE
+
 from student.models import CourseEnrollment
 from student.tests.factories import UserFactory, CourseEnrollmentAllowedFactory
 from shoppingcart.models import Order, PaidCourseRegistration
@@ -23,6 +24,7 @@ from xmodule.modulestore.tests.factories import CourseFactory, ItemFactory
 from util.milestones_helpers import (
     set_prerequisite_courses,
     seed_milestone_relationship_types,
+    get_prerequisite_courses_display,
 )
 
 from .helpers import LoginEnrollmentTestCase
@@ -32,12 +34,13 @@ REG_STR = "<form id=\"class_enroll_form\" method=\"post\" data-remote=\"true\" a
 SHIB_ERROR_STR = "The currently logged-in user account does not have permission to enroll in this course."
 
 
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
-class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
+@attr('shard_1')
+class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase, EventTrackingTestCase):
     """
     Tests about xblock.
     """
     def setUp(self):
+        super(AboutTestCase, self).setUp()
         self.course = CourseFactory.create()
         self.about = ItemFactory.create(
             category="about", parent_location=self.course.location,
@@ -55,10 +58,12 @@ class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         )
 
         self.purchase_course = CourseFactory.create(org='MITx', number='buyme', display_name='Course To Buy')
-        self.course_mode = CourseMode(course_id=self.purchase_course.id,
-                                      mode_slug="honor",
-                                      mode_display_name="honor cert",
-                                      min_price=10)
+        self.course_mode = CourseMode(
+            course_id=self.purchase_course.id,
+            mode_slug=CourseMode.DEFAULT_MODE_SLUG,
+            mode_display_name=CourseMode.DEFAULT_MODE_SLUG,
+            min_price=10
+        )
         self.course_mode.save()
 
     def test_anonymous_user(self):
@@ -93,7 +98,7 @@ class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("You are registered for this course", resp.content)
+        self.assertIn("You are enrolled in this course", resp.content)
         self.assertIn("View Courseware", resp.content)
 
     @override_settings(COURSE_ABOUT_VISIBILITY_PERMISSION="see_about_page")
@@ -132,9 +137,10 @@ class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[unicode(course.id)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("<span class=\"important-dates-item-text pre-requisite\">{} {}</span>"
-                      .format(pre_requisite_course.display_org_with_default,
-                              pre_requisite_course.display_number_with_default),
+        pre_requisite_courses = get_prerequisite_courses_display(course)
+        pre_requisite_course_about_url = reverse('about_course', args=[unicode(pre_requisite_courses[0]['key'])])
+        self.assertIn("<span class=\"important-dates-item-text pre-requisite\"><a href=\"{}\">{}</a></span>"
+                      .format(pre_requisite_course_about_url, pre_requisite_courses[0]['display']),
                       resp.content.strip('\n'))
 
     @patch.dict(settings.FEATURES, {'ENABLE_PREREQUISITE_COURSES': True, 'MILESTONES_APP': True})
@@ -168,9 +174,10 @@ class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[unicode(course.id)])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("<span class=\"important-dates-item-text pre-requisite\">{} {}</span>"
-                      .format(pre_requisite_course.display_org_with_default,
-                              pre_requisite_course.display_number_with_default),
+        pre_requisite_courses = get_prerequisite_courses_display(course)
+        pre_requisite_course_about_url = reverse('about_course', args=[unicode(pre_requisite_courses[0]['key'])])
+        self.assertIn("<span class=\"important-dates-item-text pre-requisite\"><a href=\"{}\">{}</a></span>"
+                      .format(pre_requisite_course_about_url, pre_requisite_courses[0]['display']),
                       resp.content.strip('\n'))
 
         url = reverse('about_course', args=[unicode(pre_requisite_course.id)])
@@ -178,11 +185,13 @@ class AboutTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-@override_settings(MODULESTORE=TEST_DATA_MIXED_CLOSED_MODULESTORE)
+@attr('shard_1')
 class AboutTestCaseXML(LoginEnrollmentTestCase, ModuleStoreTestCase):
     """
     Tests for the course about page
     """
+    MODULESTORE = TEST_DATA_MIXED_CLOSED_MODULESTORE
+
     # The following XML test course (which lives at common/test/data/2014)
     # is closed; we're testing that an about page still appears when
     # the course is already closed
@@ -208,7 +217,7 @@ class AboutTestCaseXML(LoginEnrollmentTestCase, ModuleStoreTestCase):
         self.assertIn(self.xml_data, resp.content)
 
 
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
+@attr('shard_1')
 class AboutWithCappedEnrollmentsTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
     """
     This test case will check the About page when a course has a capped enrollment
@@ -217,6 +226,7 @@ class AboutWithCappedEnrollmentsTestCase(LoginEnrollmentTestCase, ModuleStoreTes
         """
         Set up the tests
         """
+        super(AboutWithCappedEnrollmentsTestCase, self).setUp()
         self.course = CourseFactory.create(metadata={"max_student_enrollments_allowed": 1})
 
         self.about = ItemFactory.create(
@@ -236,12 +246,11 @@ class AboutWithCappedEnrollmentsTestCase(LoginEnrollmentTestCase, ModuleStoreTes
 
         self.enroll(self.course, verify=True)
 
-        # create a new account since the first account is already registered for the course
+        # create a new account since the first account is already enrolled in the course
         self.email = 'foo_second@test.com'
         self.password = 'bar'
         self.username = 'test_second'
-        self.create_account(self.username,
-                            self.email, self.password)
+        self.create_account(self.username, self.email, self.password)
         self.activate_user(self.email)
         self.login(self.email, self.password)
 
@@ -258,12 +267,13 @@ class AboutWithCappedEnrollmentsTestCase(LoginEnrollmentTestCase, ModuleStoreTes
         self.assertNotIn(REG_STR, resp.content)
 
 
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
+@attr('shard_1')
 class AboutWithInvitationOnly(ModuleStoreTestCase):
     """
     This test case will check the About page when a course is invitation only.
     """
     def setUp(self):
+        super(AboutWithInvitationOnly, self).setUp()
 
         self.course = CourseFactory.create(metadata={"invitation_only": True})
 
@@ -298,19 +308,20 @@ class AboutWithInvitationOnly(ModuleStoreTestCase):
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(u"Register for {}".format(self.course.id.course), resp.content)
+        self.assertIn(u"Enroll in {}".format(self.course.id.course), resp.content.decode('utf-8'))
 
         # Check that registration button is present
         self.assertIn(REG_STR, resp.content)
 
 
+@attr('shard_1')
 @patch.dict(settings.FEATURES, {'RESTRICT_ENROLL_BY_REG_METHOD': True})
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
 class AboutTestCaseShibCourse(LoginEnrollmentTestCase, ModuleStoreTestCase):
     """
     Test cases covering about page behavior for courses that use shib enrollment domain ("shib courses")
     """
     def setUp(self):
+        super(AboutTestCaseShibCourse, self).setUp()
         self.course = CourseFactory.create(enrollment_domain="shib:https://idp.stanford.edu/")
 
         self.about = ItemFactory.create(
@@ -320,31 +331,31 @@ class AboutTestCaseShibCourse(LoginEnrollmentTestCase, ModuleStoreTestCase):
 
     def test_logged_in_shib_course(self):
         """
-        For shib courses, logged in users will see the register button, but get rejected once they click there
+        For shib courses, logged in users will see the enroll button, but get rejected once they click there
         """
         self.setup_user()
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("OOGIE BLOOGIE", resp.content)
-        self.assertIn(u"Register for {}".format(self.course.id.course), resp.content)
+        self.assertIn(u"Enroll in {}".format(self.course.id.course), resp.content.decode('utf-8'))
         self.assertIn(SHIB_ERROR_STR, resp.content)
         self.assertIn(REG_STR, resp.content)
 
     def test_anonymous_user_shib_course(self):
         """
-        For shib courses, anonymous users will also see the register button
+        For shib courses, anonymous users will also see the enroll button
         """
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("OOGIE BLOOGIE", resp.content)
-        self.assertIn(u"Register for {}".format(self.course.id.course), resp.content)
+        self.assertIn(u"Enroll in {}".format(self.course.id.course), resp.content.decode('utf-8'))
         self.assertIn(SHIB_ERROR_STR, resp.content)
         self.assertIn(REG_STR, resp.content)
 
 
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
+@attr('shard_1')
 class AboutWithClosedEnrollment(ModuleStoreTestCase):
     """
     This test case will check the About page for a course that has enrollment start/end
@@ -388,7 +399,7 @@ class AboutWithClosedEnrollment(ModuleStoreTestCase):
         self.assertNotIn('<span class="important-dates-item-text">$10</span>', resp.content)
 
 
-@override_settings(MODULESTORE=TEST_DATA_MOCK_MODULESTORE)
+@attr('shard_1')
 @patch.dict(settings.FEATURES, {'ENABLE_SHOPPING_CART': True})
 @patch.dict(settings.FEATURES, {'ENABLE_PAID_COURSE_REGISTRATION': True})
 class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
@@ -407,8 +418,8 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         """
         course_mode = CourseMode(
             course_id=course.id,
-            mode_slug="honor",
-            mode_display_name="honor cert",
+            mode_slug=CourseMode.DEFAULT_MODE_SLUG,
+            mode_display_name=CourseMode.DEFAULT_MODE_SLUG,
             min_price=10,
         )
         course_mode.save()
@@ -420,7 +431,7 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("Add buyme to Cart ($10)", resp.content)
+        self.assertIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
     def test_logged_in(self):
         """
@@ -430,7 +441,7 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[self.course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("Add buyme to Cart ($10)", resp.content)
+        self.assertIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
     def test_already_in_cart(self):
         """
@@ -445,7 +456,7 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("This course is in your", resp.content)
-        self.assertNotIn("Add buyme to Cart ($10)", resp.content)
+        self.assertNotIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
     def test_already_enrolled(self):
         """
@@ -462,9 +473,9 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
 
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("You are registered for this course", resp.content)
+        self.assertIn("You are enrolled in this course", resp.content)
         self.assertIn("View Courseware", resp.content)
-        self.assertNotIn("Add buyme to Cart ($10)", resp.content)
+        self.assertNotIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
     def test_closed_enrollment(self):
         """
@@ -484,7 +495,7 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Enrollment is Closed", resp.content)
-        self.assertNotIn("Add buyme to Cart ($10)", resp.content)
+        self.assertNotIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
         # course price is visible ihe course_about page when the course
         # mode is set to honor and it's price is set
@@ -521,14 +532,14 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         url = reverse('about_course', args=[course.id.to_deprecated_string()])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn("Add buyme to Cart ($10)", resp.content)
+        self.assertIn("Add buyme to Cart <span>($10 USD)</span>", resp.content)
 
         # note that we can't call self.enroll here since that goes through
         # the Django student views, which doesn't allow for enrollments
         # for paywalled courses
         CourseEnrollment.enroll(self.user, course.id)
 
-        # create a new account since the first account is already registered for the course
+        # create a new account since the first account is already enrolled in the course
         email = 'foo_second@test.com'
         password = 'bar'
         username = 'test_second'
@@ -542,3 +553,17 @@ class AboutPurchaseCourseTestCase(LoginEnrollmentTestCase, ModuleStoreTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Course is full", resp.content)
         self.assertNotIn("Add buyme to Cart ($10)", resp.content)
+
+    def test_free_course_display(self):
+        """
+        Make sure other courses that don't have shopping cart enabled don't display the add-to-cart button
+        and don't display the course_price field if Cosmetic Price is disabled.
+        """
+        course = CourseFactory.create(org='MITx', number='free', display_name='Course For Free')
+        self.setup_user()
+        url = reverse('about_course', args=[course.id.to_deprecated_string()])
+
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn("Add free to Cart (Free)", resp.content)
+        self.assertNotIn('<p class="important-dates-item-title">Price</p>', resp.content)

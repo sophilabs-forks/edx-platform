@@ -6,7 +6,7 @@ from django.core.management import call_command, CommandError
 from django.conf import settings
 from tempfile import mkdtemp
 import shutil
-from path import path
+from path import Path as path
 from contentstore.management.commands.export_convert_format import Command, extract_source
 from xmodule.tests.helpers import directories_equal
 
@@ -20,6 +20,7 @@ class ConvertExportFormat(TestCase):
         super(ConvertExportFormat, self).setUp()
 
         self.temp_dir = mkdtemp(dir=settings.DATA_DIR)
+        self.addCleanup(shutil.rmtree, self.temp_dir)
         self.data_dir = path(__file__).realpath().parent / 'data'
         self.version0 = self.data_dir / "Version0_drafts.tar.gz"
         self.version1 = self.data_dir / "Version1_drafts.tar.gz"

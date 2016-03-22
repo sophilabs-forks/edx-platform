@@ -19,6 +19,8 @@ if Backbone?
           })
           @$el.html(_.template($("#new-post-template").html(), context))
           threadTypeTemplate = _.template($("#thread-type-template").html());
+          if $('.js-group-select').is(':disabled')
+              $('.group-selector-wrapper').addClass('disabled')
           @addField(threadTypeTemplate({form_id: _.uniqueId("form-")}));
           if @isTabMode()
               @topicView = new DiscussionTopicMenuView {
@@ -52,8 +54,10 @@ if Backbone?
       toggleGroupDropdown: ($target) ->
         if $target.data('cohorted')
             $('.js-group-select').prop('disabled', false);
+            $('.group-selector-wrapper').removeClass('disabled')
         else
             $('.js-group-select').val('').prop('disabled', true);
+            $('.group-selector-wrapper').addClass('disabled')
 
       postOptionChange: (event) ->
           $target = $(event.target)
@@ -83,7 +87,6 @@ if Backbone?
               url: url
               type: "POST"
               dataType: 'json'
-              async: false # TODO when the rest of the stuff below is made to work properly..
               data:
                   thread_type: thread_type
                   title: title

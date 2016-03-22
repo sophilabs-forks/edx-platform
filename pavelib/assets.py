@@ -1,35 +1,64 @@
 """
 Asset compilation and collection.
 """
+
 from __future__ import print_function
+
 import argparse
+import glob
+import traceback
+
+from paver import tasks
 from paver.easy import sh, path, task, cmdopts, needs, consume_args, call_task, no_help
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-import glob
-import traceback
-import os
+
 from .utils.envs import Env
 from .utils.cmd import cmd, django_cmd
 
 # setup baseline paths
 
 COFFEE_DIRS = ['lms', 'cms', 'common']
-SASS_LOAD_PATHS = ['./common/static/sass']
-SASS_UPDATE_DIRS = ['*/static']
+# A list of directories.  Each will be paired with a sibling /css directory.
+SASS_DIRS = [
+    path("lms/static/sass"),
+    path("lms/static/themed_sass"),
+    path("cms/static/sass"),
+    path("common/static/sass"),
+    path("lms/static/certificates/sass"),
+]
+SASS_LOAD_PATHS = ['common/static', 'common/static/sass']
 SASS_CACHE_PATH = '/tmp/sass-cache'
 
 
-THEME_COFFEE_PATHS = []
-THEME_SASS_PATHS = []
+def configure_paths():
+    """Configure our paths based on settings.  Called immediately."""
+    edxapp_env = Env()
+    if edxapp_env.feature_flags.get('USE_CUSTOM_THEME', False):
+        theme_name = edxapp_env.env_tokens.get('THEME_NAME', '')
+        parent_dir = path(edxapp_env.REPO_ROOT).abspath().parent
+        theme_root = parent_dir / "themes" / theme_name
+        COFFEE_DIRS.append(theme_root)
+        sass_dir = theme_root / "static" / "sass"
+        css_dir = theme_root / "static" / "css"
+        if sass_dir.isdir():
+            css_dir.mkdir_p()
+            SASS_DIRS.append(sass_dir)
 
-edxapp_env = Env()
-if edxapp_env.feature_flags.get('USE_CUSTOM_THEME', False):
-    theme_name = edxapp_env.env_tokens.get('THEME_NAME', '')
-    parent_dir = path(edxapp_env.REPO_ROOT).abspath().parent
-    theme_root = parent_dir / "themes" / theme_name
-    THEME_COFFEE_PATHS = [theme_root]
-    THEME_SASS_PATHS = [theme_root / "static" / "sass"]
+    if edxapp_env.env_tokens.get("COMPREHENSIVE_THEME_DIR", ""):
+        theme_dir = path(edxapp_env.env_tokens["COMPREHENSIVE_THEME_DIR"])
+        lms_sass = theme_dir / "lms" / "static" / "sass"
+        lms_css = theme_dir / "lms" / "static" / "css"
+        if lms_sass.isdir():
+            lms_css.mkdir_p()
+            SASS_DIRS.append(lms_sass)
+        cms_sass = theme_dir / "cms" / "static" / "sass"
+        cms_css = theme_dir / "cms" / "static" / "css"
+        if cms_sass.isdir():
+            cms_css.mkdir_p()
+            SASS_DIRS.append(cms_sass)
+
+configure_paths()
 
 
 class CoffeeScriptWatcher(PatternMatchingEventHandler):
@@ -69,7 +98,7 @@ class SassWatcher(PatternMatchingEventHandler):
         """
         register files with observer
         """
-        for dirname in SASS_LOAD_PATHS + SASS_UPDATE_DIRS + THEME_SASS_PATHS:
+        for dirname in SASS_LOAD_PATHS + SASS_DIRS:
             paths = []
             if '*' in dirname:
                 paths.extend(glob.glob(dirname))
@@ -81,8 +110,8 @@ class SassWatcher(PatternMatchingEventHandler):
     def on_modified(self, event):
         print('\tCHANGED:', event.src_path)
         try:
-            compile_sass()
-        except Exception:  # pylint: disable=broad-except
+            compile_sass()      # pylint: disable=no-value-for-parameter
+        except Exception:       # pylint: disable=broad-except
             traceback.print_exc()
 
 
@@ -107,11 +136,35 @@ class XModuleSassWatcher(SassWatcher):
             traceback.print_exc()
 
 
+class XModuleAssetsWatcher(PatternMatchingEventHandler):
+    """
+    Watches for css and js file changes
+    """
+    ignore_directories = True
+    patterns = ['*.css', '*.js']
+
+    def register(self, observer):
+        """
+        Register files with observer
+        """
+        observer.schedule(self, 'common/lib/xmodule/', recursive=True)
+
+    def on_modified(self, event):
+        print('\tCHANGED:', event.src_path)
+        try:
+            process_xmodule_assets()
+        except Exception:  # pylint: disable=broad-except
+            traceback.print_exc()
+
+        # To refresh the hash values of static xmodule content
+        restart_django_servers()
+
+
 def coffeescript_files():
     """
     return find command for paths containing coffee files
     """
-    dirs = " ".join(THEME_COFFEE_PATHS + [Env.REPO_ROOT / coffee_dir for coffee_dir in COFFEE_DIRS])
+    dirs = " ".join(Env.REPO_ROOT / coffee_dir for coffee_dir in COFFEE_DIRS)
     return cmd('find', dirs, '-type f', '-name \"*.coffee\"')
 
 
@@ -128,17 +181,41 @@ def compile_coffeescript(*files):
     ))
 
 
-def compile_sass(debug=False):
+@task
+@no_help
+@cmdopts([
+    ('debug', 'd', 'Debug mode'),
+    ('force', '', 'Force full compilation'),
+])
+def compile_sass(options):
     """
     Compile Sass to CSS.
     """
-    sh(cmd(
-        'sass', '' if debug else '--style compressed',
-        "--sourcemap" if debug else '',
-        "--cache-location {cache}".format(cache=SASS_CACHE_PATH),
-        "--load-path", " ".join(SASS_LOAD_PATHS + THEME_SASS_PATHS),
-        "--update", "-E", "utf-8", " ".join(SASS_UPDATE_DIRS + THEME_SASS_PATHS),
-    ))
+    debug = options.get('debug')
+    parts = ["sass"]
+    parts.append("--update")
+    parts.append("--cache-location {cache}".format(cache=SASS_CACHE_PATH))
+    parts.append("--default-encoding utf-8")
+    if debug:
+        parts.append("--sourcemap")
+    else:
+        parts.append("--style compressed --quiet")
+    if options.get('force'):
+        parts.append("--force")
+    parts.append("--load-path .")
+    for load_path in SASS_LOAD_PATHS + SASS_DIRS:
+        parts.append("--load-path {path}".format(path=load_path))
+
+    for sass_dir in SASS_DIRS:
+        css_dir = sass_dir.parent / "css"
+        if css_dir:
+            parts.append("{sass}:{css}".format(sass=sass_dir, css=css_dir))
+        else:
+            parts.append(sass_dir)
+
+    sh(cmd(*parts))
+
+    print("\t\tFinished compiling sass.")
 
 
 def compile_templated_sass(systems, settings):
@@ -148,7 +225,14 @@ def compile_templated_sass(systems, settings):
     `settings` is the Django settings module to use.
     """
     for sys in systems:
-        sh(django_cmd(sys, settings, 'preprocess_assets'))
+        if sys == "studio":
+            sys = "cms"
+        sh(django_cmd(
+            sys, settings, 'preprocess_assets',
+            '{sys}/static/sass/*.scss'.format(sys=sys),
+            '{sys}/static/themed_sass'.format(sys=sys)
+        ))
+        print("\t\tFinished preprocessing {} assets.".format(sys))
 
 
 def process_xmodule_assets():
@@ -156,6 +240,19 @@ def process_xmodule_assets():
     Process XModule static assets.
     """
     sh('xmodule_assets common/static/xmodule')
+    print("\t\tFinished processing xmodule assets.")
+
+
+def restart_django_servers():
+    """
+    Restart the django server.
+
+    `$ touch` makes the Django file watcher thinks that something has changed, therefore
+    it restarts the server.
+    """
+    sh(cmd(
+        "touch", 'lms/urls.py', 'cms/urls.py',
+    ))
 
 
 def collect_assets(systems, settings):
@@ -166,6 +263,7 @@ def collect_assets(systems, settings):
     """
     for sys in systems:
         sh(django_cmd(sys, settings, "collectstatic --noinput > /dev/null"))
+        print("\t\tFinished collecting {} assets.".format(sys))
 
 
 @task
@@ -174,11 +272,16 @@ def watch_assets(options):
     """
     Watch for changes to asset files, and regenerate js/css
     """
+    # Don't watch assets when performing a dry run
+    if tasks.environment.dry_run:
+        return
+
     observer = Observer()
 
     CoffeeScriptWatcher().register(observer)
     SassWatcher().register(observer)
     XModuleSassWatcher().register(observer)
+    XModuleAssetsWatcher().register(observer)
 
     print("Starting asset watcher...")
     observer.start()
@@ -229,10 +332,10 @@ def update_assets(args):
     compile_templated_sass(args.system, args.settings)
     process_xmodule_assets()
     compile_coffeescript()
-    compile_sass(args.debug)
+    call_task('pavelib.assets.compile_sass', options={'debug': args.debug})
 
     if args.collect:
         collect_assets(args.system, args.settings)
 
     if args.watch:
-        call_task('watch_assets', options={'background': not args.debug})
+        call_task('pavelib.assets.watch_assets', options={'background': not args.debug})

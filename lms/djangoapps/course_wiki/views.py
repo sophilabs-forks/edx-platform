@@ -58,7 +58,7 @@ def course_wiki_redirect(request, course_id):  # pylint: disable=unused-argument
         new_site.domain = settings.SITE_NAME
         new_site.name = "edX"
         new_site.save()
-        site_id = str(new_site.id)  # pylint: disable=no-member
+        site_id = str(new_site.id)
         if site_id != str(settings.SITE_ID):
             raise ImproperlyConfigured("No site object was created and the SITE_ID doesn't match the newly created one. {} != {}".format(site_id, settings.SITE_ID))
 
@@ -125,7 +125,7 @@ def get_or_create_root():
         pass
 
     starting_content = "\n".join((
-        _("Welcome to the edX Wiki"),
+        _("Welcome to the {platform_name} Wiki").format(platform_name=settings.PLATFORM_NAME),
         "===",
         _("Visit a course wiki to add an article."),
     ))

@@ -15,12 +15,13 @@ from courseware.module_render import get_module_for_descriptor
 from util.json_request import JsonResponse, JsonResponseBadRequest
 from edxnotes.exceptions import EdxNotesParseError, EdxNotesServiceUnavailable
 from edxnotes.helpers import (
+    get_edxnotes_id_token,
     get_notes,
-    get_id_token,
     is_feature_enabled,
     search,
     get_course_position,
 )
+
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +54,9 @@ def edxnotes(request, course_id):
         field_data_cache = FieldDataCache.cache_for_descriptor_descendents(
             course.id, request.user, course, depth=2
         )
-        course_module = get_module_for_descriptor(request.user, request, course, field_data_cache, course_key)
+        course_module = get_module_for_descriptor(
+            request.user, request, course, field_data_cache, course_key, course=course
+        )
         position = get_course_position(course_module)
         if position:
             context.update({
@@ -92,7 +95,7 @@ def get_token(request, course_id):
     """
     Get JWT ID-Token, in case you need new one.
     """
-    return HttpResponse(get_id_token(request.user), content_type='text/plain')
+    return HttpResponse(get_edxnotes_id_token(request.user), content_type='text/plain')
 
 
 @login_required
@@ -103,7 +106,9 @@ def edxnotes_visibility(request, course_id):
     course_key = CourseKey.from_string(course_id)
     course = get_course_with_access(request.user, "load", course_key)
     field_data_cache = FieldDataCache([course], course_key, request.user)
-    course_module = get_module_for_descriptor(request.user, request, course, field_data_cache, course_key)
+    course_module = get_module_for_descriptor(
+        request.user, request, course, field_data_cache, course_key, course=course
+    )
 
     if not is_feature_enabled(course):
         raise Http404
