@@ -24,7 +24,7 @@ if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',
 
-    url(r'^$', 'student.views.signin_user', name="root"),   # Main marketing page, or redirect to courseware
+    url(r'^$', 'student_account.views.login_and_registration_form', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^login_ajax$', 'student.views.login_user', name="login"),
     url(r'^login_ajax/(?P<error>[^/]*)$', 'student.views.login_user'),
@@ -331,7 +331,7 @@ urlpatterns += (
     # TODO: These views need to be updated before they work
     url(r'^calculate$', 'util.views.calculate'),
 
-    url(r'^courses/?$', 'student.views.signin_user', name="courses"),
+    url(r'^courses/?$', 'student_account.views.login_and_registration_form', name="courses"),
     url(
         r'^change_enrollment$',
         'student.views.change_enrollment',
