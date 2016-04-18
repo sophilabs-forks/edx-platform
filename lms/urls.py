@@ -247,6 +247,7 @@ if settings.COURSEWARE_ENABLED:
 
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
         url(r'^catalog/?', RedirectView.as_view(url='/courses', permanent=True)),
+        url(r'^course_catalog/?', RedirectView.as_view(url='/courses', permanent=True)),
         url(r'^change_enrollment$',
             'student.views.change_enrollment', name="change_enrollment"),
         url(r'^change_email_settings$', 'student.views.change_email_settings', name="change_email_settings"),
