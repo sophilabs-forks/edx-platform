@@ -7,14 +7,13 @@ from rest_framework import status
 
 from cms.djangoapps.contentstore.utils import reverse_course_url
 from cms.djangoapps.contentstore.views.course import create_new_course_in_store
-from contentstore.utils import add_instructor
 # from enrollment.api import add_enrollment
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.response import Response
 from student.models import CourseEnrollment
+from student.roles import CourseInstructorRole, CourseStaffRole
 from xmodule.modulestore.django import modulestore
-from xmodule.modulestore import ModuleStoreEnum
 
 from appsembler_lms.models import Organization
 from appsembler_lms.permissions import SecretKeyPermission
@@ -55,6 +54,9 @@ class CreateCourseAPIView(GenericAPIView):
                                                             dest_course_id=destination_course_key,
                                                             user_id=user.username,
                                                             fields=fields)
+                    CourseInstructorRole(new_course.id).add_users(user)
+                    CourseStaffRole(new_course.id).add_users(user)
+
                 except Exception as e:
                     message = "Unable to clone course {}. {}".format(course_id, e)
                     logger.error(message)
@@ -74,7 +76,6 @@ class CreateCourseAPIView(GenericAPIView):
                     return Response(status=status.HTTP_400_BAD_REQUEST)
             ## TODO: this must be removed before pushing to production
             ## requesting_user should be set to a valid academy.appsembler.com staff email address
-            add_instructor(destination_course_key, user, user)
             CourseEnrollment.enroll(user, destination_course_key, mode='honor')
             new_course_url = reverse_course_url('course_handler', destination_course_key)
             response_data = {
