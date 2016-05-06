@@ -3,7 +3,7 @@ Functions for accessing and displaying courses within the
 courseware.
 """
 from datetime import datetime
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from fs.errors import ResourceNotFoundError
 import logging
 
@@ -360,12 +360,50 @@ def get_course_syllabus_section(course, section_key):
     raise KeyError("Invalid about key " + str(section_key))
 
 
-def get_courses(user, org=None, filter_=None):
-    """
-    Returns a list of courses available, sorted by course.number and optionally
-    filtered by org code (case-insensitive).
-    """
-    courses = branding.get_visible_courses(org=org, filter_=filter_)
+def get_courses_by_custom_grouping(user, domain=None):
+    '''
+    Returns dict of lists of courses available, keyed by a custom course group name.
+    Visible courses not found in a specified group on the microsite will be returned
+    in a list keyed by 'ungrouped'.
+    '''
+    # TODO: Clean up how 'error' is done.
+    # filter out any courses that errored.
+
+    visible_courses = get_courses(user, domain)
+    grouping_map = configuration_helpers.get_value("custom_course_group_map", None)
+    if not grouping_map:
+        return {'': visible_courses}
+
+    # we use the order in which the keys are specified in site configuration
+    items = OrderedDict(dict.fromkeys(grouping_map.keys(), [])).items()
+    items.reverse()
+    course_groups = OrderedDict(items)
+
+    course_groups['ungrouped'] = []
+
+    for course in visible_courses:
+        found = False
+        for group in grouping_map:
+            if course.id.to_deprecated_string() in grouping_map[group]:
+                # can't use append here with OrderedDict
+                course_groups[group] = course_groups[group] + [course]
+                found = True
+                break
+        if not found:
+            course_groups['ungrouped'] = course_groups['ungrouped'] + [course]
+
+    for group in course_groups.keys():
+        if len(course_groups[group]) == 0:
+            del course_groups[group]
+
+    return course_groups
+
+
+def get_courses(user, domain=None):
+    '''
+    Returns a list of courses available, sorted by course.number
+    '''
+    courses = branding.get_visible_courses()
 
     permission_name = configuration_helpers.get_value(
         'COURSE_CATALOG_VISIBILITY_PERMISSION',

@@ -55,6 +55,7 @@ from courseware.access_response import StartDateError
 from courseware.access_utils import in_preview_mode
 from courseware.courses import (
     get_courses,
+    get_courses_by_custom_grouping,
     get_course,
     get_course_by_id,
     get_permission_for_course_about,
@@ -143,15 +144,20 @@ def courses(request):
     """
     courses_list = []
     programs_list = []
+    use_custom_course_grouping = False
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
-        courses_list = get_courses(request.user)
-
-        if configuration_helpers.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
-                                           settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):
-            courses_list = sort_by_start_date(courses_list)
+        if settings.APPSEMBLER_FEATURES.get("ENABLE_COURSE_SORTING_BY_CUSTOM_GROUP", False) and \
+            configuration_helpers.get_value("custom_course_group_map", None):
+            courses_list = get_courses_by_custom_grouping(request.user, request.META.get('HTTP_HOST'))
+            use_custom_course_grouping = True
         else:
-            courses_list = sort_by_announcement(courses_list)
+            courses_list = get_courses(request.user)
+            if configuration_helpers.get_value("ENABLE_COURSE_SORTING_BY_START_DATE",
+                                               settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"]):
+                courses_list = sort_by_start_date(courses_list)
+            else:
+                courses_list = sort_by_announcement(courses_list)
 
     # Getting all the programs from course-catalog service. The programs_list is being added to the context but it's
     # not being used currently in courseware/courses.html. To use this list, you need to create a custom theme that
@@ -166,7 +172,8 @@ def courses(request):
         {
             'courses': courses_list,
             'course_discovery_meanings': course_discovery_meanings,
-            'programs_list': programs_list
+            'programs_list': programs_list,
+            'use_custom_course_grouping': use_custom_course_grouping
         }
     )
 
