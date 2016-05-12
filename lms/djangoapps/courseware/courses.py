@@ -380,7 +380,7 @@ def get_courses(user, domain=None):
     Returns a list of courses available, sorted by course.number
     '''
     if settings.FEATURES.get('SHOW_ONLY_APPSEMBLER_AND_OWNED_COURSES', False):
-        organizations = ['edX']
+        organizations = ['edX', 'Appsembler']
         if user.is_authenticated():
             user_organizations = user.organizations.values_list('key', flat=True)
             organizations.extend(user_organizations)
