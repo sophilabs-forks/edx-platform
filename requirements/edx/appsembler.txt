@@ -1,1 +1,3 @@
 python-intercom==0.2.13
+git+https://github.com/appsembler/edx-organizations.git@appsembler/nyif/cca#egg=edx-organizations==0.2.0
+django-model-utils==2.3.1 # need to reinstall this because edx-organizations installs the wrong version
