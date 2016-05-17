@@ -3,7 +3,10 @@
 from .aws import *
 from .appsembler import *
 
-INSTALLED_APPS += ('appsembler',)
+INSTALLED_APPS += (
+    'appsembler.intercom_integration',
+    'appsembler.enrollment',
+)
 TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
 
 SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
