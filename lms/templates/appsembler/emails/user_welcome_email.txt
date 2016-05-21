@@ -3,7 +3,9 @@ Hello {{ name }},
 We are delighted to have you on board with us at Appsembler Academy{% if course_name %} in the {{ course_name }} Course{% endif %}!
 
 Here is your login information:
-Login: http://academy.appsembler.com
+LMS URL: https://academy.appsembler.com
+Studio URL: https://academy-studio.appsembler.com
+
 Email: {{ email }}
 Password: {{ password }}
 
