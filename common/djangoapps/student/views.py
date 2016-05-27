@@ -1699,9 +1699,12 @@ def create_account_with_params(request, params):
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
-    new_user = authenticate(username=user.username, password=params['password'])
-    login(request, new_user)
-    request.session.set_expiry(0)
+
+    # prevent user on academy.metalogix from logging into account until email verified
+    new_user = None
+    # new_user = authenticate(username=user.username, password=params['password'])
+    # login(request, new_user)
+    # request.session.set_expiry(0)
 
     # TODO: there is no error checking here to see that the user actually logged in successfully,
     # and is not yet an active user.
