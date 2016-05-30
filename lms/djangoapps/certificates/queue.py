@@ -258,7 +258,9 @@ class XQueueCertInterface(object):
                 cert_mode = GeneratedCertificate.MODES.honor
             else:
                 # honor code and audit students
-                template_pdf = "certificate-template-{id.org}-{id.course}.pdf".format(id=course_id)
+                # template_pdf = "certificate-template-{id.org}-{id.course}.pdf".format(id=course_id)
+                template_pdf = "certificate-template-v1-metalogix.pdf"
+
             if forced_grade:
                 grade['grade'] = forced_grade
 

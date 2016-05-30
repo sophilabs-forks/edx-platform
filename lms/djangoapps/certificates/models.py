@@ -306,7 +306,8 @@ class ExampleCertificateSet(TimeStampedModel):
         return (
             u"certificate-template-{key.org}-{key.course}-verified.pdf".format(key=course_key)
             if mode_slug == 'verified'
-            else u"certificate-template-{key.org}-{key.course}.pdf".format(key=course_key)
+            else u"certificate-template-v1-metalogix.pdf"
+            #else u"certificate-template-{key.org}-{key.course}.pdf".format(key=course_key)
         )
 
 
