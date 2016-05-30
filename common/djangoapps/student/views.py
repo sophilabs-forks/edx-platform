@@ -1701,8 +1701,7 @@ def create_account_with_params(request, params):
     # the activation link from the email.
 
     # prevent user on academy.metalogix from logging into account until email verified
-    new_user = None
-    # new_user = authenticate(username=user.username, password=params['password'])
+    new_user = authenticate(username=user.username, password=params['password'])
     # login(request, new_user)
     # request.session.set_expiry(0)
 
