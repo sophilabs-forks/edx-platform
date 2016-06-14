@@ -1,20 +1,24 @@
 import logging
 
-from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.http import (HttpResponse, HttpResponseBadRequest, HttpResponseForbidden)
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseBadRequest, Http404
-
-from django.views.generic.base import TemplateView
-
-from microsite_configuration import microsite
-from microsite_configuration.models import Microsite
-from xmodule.modulestore.django import modulestore
-
+from django.utils.translation import ugettext as _
+from django.views.decorators.http import require_POST
+from ipware.ip import get_ip
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from organizations.models import Organization
-from .models import HrManager
+
+from course_modes.models import CourseMode
+from embargo import api as embargo_api
+from microsite_configuration.models import Microsite
+from student.models import CourseEnrollment
+from util.db import outer_atomic
+from xmodule.modulestore.django import modulestore
+from .models import HrManager, CourseAccessRequest
 
 log = logging.getLogger(__name__)
 
@@ -91,3 +95,70 @@ def _user_has_access(user,organization):
     else:
         log.error('User {} does not have access to hr-management for microsite: {}'.format(user, organization))
         raise PermissionDenied
+
+
+@transaction.non_atomic_requests
+@require_POST
+@outer_atomic(read_committed=True)
+def require_course_access(request, check_access=True):
+    # Get the user
+    user = request.user
+
+    # Ensure the user is authenticated
+    if not user.is_authenticated():
+        return HttpResponseForbidden()
+
+    # Ensure we received a course_id
+    action = request.POST.get("enrollment_action")
+    if 'course_id' not in request.POST:
+        return HttpResponseBadRequest(_("Course id not specified"))
+
+    try:
+        course_id = SlashSeparatedCourseKey.from_deprecated_string(request.POST.get("course_id"))
+    except InvalidKeyError:
+        log.warning(
+            u"User %s tried to %s with invalid course id: %s",
+            user.username,
+            action,
+            request.POST.get("course_id"),
+        )
+        return HttpResponseBadRequest(_("Invalid course id"))
+
+    if action == "request_access":
+        # Make sure the course exists
+        # We don't do this check on unenroll, or a bad course id can't be unenrolled from
+        if not modulestore().has_course(course_id):
+            log.warning(
+                u"User %s tried to enroll in non-existent course %s",
+                user.username,
+                course_id
+            )
+            return HttpResponseBadRequest(_("Course id is invalid"))
+
+        available_modes = CourseMode.modes_for_course_dict(course_id)
+
+        # Check whether the user is blocked from enrolling in this course
+        # This can occur if the user's IP is on a global blacklist
+        # or if the user is enrolling in a country in which the course
+        # is not available.
+        redirect_url = embargo_api.redirect_if_blocked(
+            course_id, user=user, ip_address=get_ip(request),
+            url=request.path
+        )
+        if redirect_url:
+            return HttpResponse(redirect_url)
+
+        try:
+            enroll_mode = CourseMode.auto_enroll_mode(course_id, available_modes)
+            if enroll_mode:
+                CourseAccessRequest.objects.get_or_create(
+                    user=user,
+                    course_id=course_id,
+                    mode=enroll_mode
+                )
+        except Exception:
+            return HttpResponseBadRequest(_("Could not request access"))
+
+        return HttpResponse()
+    else:
+        return HttpResponseBadRequest(_("Enrollment action is invalid"))

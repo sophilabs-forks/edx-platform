@@ -8,4 +8,5 @@ urlpatterns = patterns(
     url(r'^$','index', name='index'),
     url(r'^users$','user_list', name='user_list'),
     url(r'^courses$','course_list', name='course_list'),
+    url(r'^require-course-access', 'require_course_access', name='require_course_access'),
 )
