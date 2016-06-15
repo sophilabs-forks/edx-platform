@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -209,7 +210,11 @@ def change_course_access(request):
     course_id = access_request.course_id
     if action.lower() == 'approve':
         CourseEnrollment.enroll(access_request.user, access_request.course_id, access_request.mode)
+        messages.success(request, 'Succesfully approved access to {} for {}'.format(
+            access_request.course_id, access_request.user.email))
         access_request.delete()
     elif action.lower() == 'reject':
         access_request.delete()
+        messages.success(request, 'Succesfully denied access to {} for {}'.format(
+            access_request.course_id, access_request.user.email))
     return redirect('course_detail', course_id=course_id.to_deprecated_string())
