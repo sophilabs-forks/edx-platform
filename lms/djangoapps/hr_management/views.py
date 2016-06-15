@@ -160,5 +160,6 @@ def require_course_access(request, check_access=True):
             return HttpResponseBadRequest(_("Could not request access"))
 
         return HttpResponse()
+        return HttpResponse(reverse('about_course', kwargs={'course_id': course_id.to_deprecated_string()}))
     else:
         return HttpResponseBadRequest(_("Enrollment action is invalid"))

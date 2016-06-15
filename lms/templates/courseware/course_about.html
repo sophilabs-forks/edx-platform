@@ -93,16 +93,9 @@ from hr_management.utils import requested_access_for_course
 
     $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
       if(xhr.status == 200) {
-        %if require_approval:
-          if (xhr.responseText == "") {
-            location.href = "/courses/";
-          }
-        %else:
-          if (xhr.responseText == "") {
-            location.href = "${reverse('dashboard')}";
-          }
-        %endif
-
+        if (xhr.responseText == "") {
+          location.href = "${reverse('dashboard')}";
+        }
         else {
           location.href = xhr.responseText;
         }
