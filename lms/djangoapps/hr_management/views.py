@@ -2,9 +2,10 @@ import logging
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import (HttpResponse, HttpResponseBadRequest, HttpResponseForbidden)
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from ipware.ip import get_ip
@@ -13,6 +14,7 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from organizations.models import Organization
 
 from course_modes.models import CourseMode
+from courseware.courses import get_course_by_id
 from embargo import api as embargo_api
 from microsite_configuration.models import Microsite
 from student.models import CourseEnrollment
@@ -83,6 +85,37 @@ def course_list(request):
     }
     return render(request, 'hr_management/courses.html',context)
 
+
+@login_required
+def course_detail(request, course_id):
+    user = request.user
+    domain = request.META.get('HTTP_HOST', None)
+    microsite = Microsite.get_microsite_for_domain(domain)
+    organizations = microsite.get_organizations()
+    organization = organizations[0]
+
+    _user_has_access(user,organization)
+
+    course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
+
+    if course_key.org != organization:
+        raise PermissionDenied("That course doesn't belong to this organization")
+
+    course = get_course_by_id(course_key)
+    course_requests = CourseAccessRequest.objects.filter(course_id=course_key)
+
+    context = {
+        'message': 'hr course list',
+        'user': user,
+        'microsite': microsite,
+        'organization': organization,
+        'course': course,
+        'course_requests': course_requests,
+    }
+    return render(request, 'hr_management/course.html',context)
+
+
+
 #TODO: refactor into decorator/mixin
 def _user_has_access(user,organization):
     '''
@@ -90,7 +123,7 @@ def _user_has_access(user,organization):
     '''
     user_exists = HrManager.objects.filter(user__username=user).filter(organization__short_name=organization)
 
-    if user_exists:
+    if user.is_superuser or user_exists:
         return True
     else:
         log.error('User {} does not have access to hr-management for microsite: {}'.format(user, organization))
@@ -159,7 +192,24 @@ def require_course_access(request, check_access=True):
         except Exception:
             return HttpResponseBadRequest(_("Could not request access"))
 
-        return HttpResponse()
         return HttpResponse(reverse('about_course', kwargs={'course_id': course_id.to_deprecated_string()}))
     else:
         return HttpResponseBadRequest(_("Enrollment action is invalid"))
+
+
+@login_required
+@require_POST
+def change_course_access(request):
+    try:
+        access_request = CourseAccessRequest.objects.get(id=request.POST.get('request_access_id'))
+    except CourseAccessRequest.DoesNotExist:
+        return redirect('course_list')
+
+    action = request.POST.get('approve', '') or request.POST.get('reject', '')
+    course_id = access_request.course_id
+    if action.lower() == 'approve':
+        CourseEnrollment.enroll(access_request.user, access_request.course_id, access_request.mode)
+        access_request.delete()
+    elif action.lower() == 'reject':
+        access_request.delete()
+    return redirect('course_detail', course_id=course_id.to_deprecated_string())

@@ -26,6 +26,9 @@ class CourseAccessRequest(models.Model):
     # list of possible values.
     mode = models.CharField(default=CourseMode.DEFAULT_MODE_SLUG, max_length=100)
 
+    class Meta:
+        ordering = ['-created', 'user__email']
+
     @classmethod
     def has_requested_access(cls, user, course_key):
         """

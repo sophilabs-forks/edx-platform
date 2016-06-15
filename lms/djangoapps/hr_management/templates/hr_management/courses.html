@@ -12,7 +12,7 @@
 		<li>Courses</li>
 		<ol>
 			{% for c in courses %}
-				<li>{{ c.display_name }}</li>
+				<li><a href="{% url 'course_detail' c.id %}">{{ c.display_name }}</a></li>
 			{% endfor %}
 		</ol>
 	</ul>

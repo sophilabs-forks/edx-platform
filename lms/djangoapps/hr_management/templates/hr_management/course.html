@@ -1,0 +1,27 @@
+{% extends "main_django.html" %}
+{% block title %}<title>hr_management</title>{% endblock %}
+
+{% block body %}
+	
+	<h1>Template: course.html </h1>
+	<ul>
+		<li>{{ message }}</li>
+		<li>Requesting user:{{ user }}</li>
+		<li>Microsite: {{ microsite }}</li>
+		<li>Organizations: {{ organization }}</li>
+		<li>Course: {{course.display_name}}</li>
+    <li>Course access requests:</li>
+		<ol>
+			{% for req in course_requests %}
+				<li>{{ req.user.email}} at {{ req.created }}
+          <form action="{% url 'change_course_access' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="request_access_id" value="{{req.id}}">
+            <input type="submit" name='approve' value="Approve">
+            <input type="submit" name='reject' value="Reject">
+          </form>
+        </li>
+			{% endfor %}
+		</ol>
+	</ul>
+{% endblock %}
