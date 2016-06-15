@@ -2,7 +2,13 @@
 {% block title %}<title>hr_management</title>{% endblock %}
 
 {% block body %}
-	
+  {% if messages %}
+	<ul>
+    {% for message in messages %}
+      <li {% if message.tags %}class="{{message.tags}}"{% endif %}>{{message}}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 	<h1>Template: course.html </h1>
 	<ul>
 		<li>{{ message }}</li>
