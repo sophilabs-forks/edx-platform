@@ -17,6 +17,7 @@ from organizations.models import Organization
 from course_modes.models import CourseMode
 from courseware.courses import get_course_by_id
 from embargo import api as embargo_api
+from edxmako.shortcuts import render_to_response
 from microsite_configuration.models import Microsite
 from student.models import CourseEnrollment
 from util.db import outer_atomic
@@ -41,7 +42,7 @@ def index(request):
         'microsite': microsite,
         'organization': organization
     }
-    return render(request, 'hr_management/index.html',context)
+    return render_to_response('hr_management/index.html', context)
 
 @login_required
 def user_list(request):
@@ -63,7 +64,7 @@ def user_list(request):
         'organization': organization,
         'users': users
     }
-    return render(request, 'hr_management/users.html',context)
+    return render_to_response('hr_management/users.html', context)
 
 @login_required
 def course_list(request):
@@ -84,7 +85,7 @@ def course_list(request):
         'organization': organization,
         'courses': courses
     }
-    return render(request, 'hr_management/courses.html',context)
+    return render_to_response('hr_management/courses.html', context)
 
 
 @login_required
@@ -113,7 +114,7 @@ def course_detail(request, course_id):
         'course': course,
         'course_requests': course_requests,
     }
-    return render(request, 'hr_management/course.html',context)
+    return render_to_response('hr_management/course.html', context)
 
 
 
