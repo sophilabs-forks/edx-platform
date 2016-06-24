@@ -35,38 +35,6 @@ from django.core.urlresolvers import reverse
 			<span>Managing course: <b>${course.display_name}</b></span>
 		</div>
 		<ol class="hr--access-requests">
-      <li>
-        <div class="request-info">
-          <span class="user-name">filip@appsembler.com</span><span class="helper-text">at</span><span class="date-requested">12/12/2015 @ 12:33</span>
-        </div>
-        <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
-          <input type="hidden" name="request_access_id" value="">
-          <input type="submit" class="request-control approve" name='approve' value="Approve">
-          <input type="submit" class="request-control reject" name='reject' value="Reject">
-        </form>
-			</li>
-      <li>
-        <div class="request-info">
-          <span class="user-name">filip@appsembler.com</span><span class="helper-text">at</span><span class="date-requested">12/12/2015 @ 12:33</span>
-        </div>
-        <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
-          <input type="hidden" name="request_access_id" value="">
-          <input type="submit" class="request-control approve" name='approve' value="Approve">
-          <input type="submit" class="request-control reject" name='reject' value="Reject">
-        </form>
-			</li>
-      <li>
-        <div class="request-info">
-          <span class="user-name">filip@appsembler.com</span><span class="helper-text">at</span><span class="date-requested">12/12/2015 @ 12:33</span>
-        </div>
-        <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
-          <input type="hidden" name="request_access_id" value="">
-          <input type="submit" class="request-control approve" name='approve' value="Approve">
-          <input type="submit" class="request-control reject" name='reject' value="Reject">
-        </form>
-			</li>
-
-
 			% for req in course_requests:
 			<li>
         <div class="request-info">
