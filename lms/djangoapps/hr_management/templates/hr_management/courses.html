@@ -12,7 +12,7 @@
 		<li>Courses</li>
 		<ol>
 			{% for c in courses %}
-				<li><a href="{% url 'course_detail' c.id %}">{{ c.display_name }}</a></li>
+				<li><a href="{% url 'course_detail' course_id=c.id.to_deprecated_string %}">{{ c.display_name }}</a></li>
 			{% endfor %}
 		</ol>
 	</ul>
