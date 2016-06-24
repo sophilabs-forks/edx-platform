@@ -1,20 +1,47 @@
-{% extends "main_django.html" %}
-{% block title %}<title>hr_management</title>{% endblock %}
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%!
+from django.core.urlresolvers import reverse
+%>
+<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<%block name="pagetitle">${microsite} | HR Management | Courses</%block>
 
-{% block body %}
-	
-	<h1>Template: users.html </h1>
-	<ul>
-		<li>{{ message }}</li>
-		<li>Requesting user:{{ user }}</li>
-		<li>Microsite: {{ microsite }}</li>
-		<li>Organizations: {{ organization }}</li>
-		<li>Users:</li>
-		<ol>
-			{% for u in users %}
-				<li>{{ u }}</li>
-			{% endfor %}
+
+<section class="hr-management hr-management__wrapper">
+  % if messages:
+  <ul class="hr-management__notifications">
+    % for message in messages:
+      <li
+        % if message.tags:
+          class="${message.tags}"
+        % endif
+        >
+          <span>
+            ${message}
+          </span>
+        </li>
+    % endfor
+  </ul>
+  % endif
+	<div class="hr-management__container">
+		<div class="hr-management__header">
+			<div class="hr-management__header__nav">
+				<a href="/hr-management">
+					<svg viewBox="0 0 24 24">
+					  <path fill="#000000" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+					</svg>
+				</a>
+			</div>
+			<span>Users:</span></span>
+		</div>
+		<ol class="hr--access-requests">
+			% for user in users:
+			<li>
+        <div class="request-info">
+          <span class="user-name">${user}</span>
+        </div>
+			</li>
+			% endfor
 		</ol>
-	</ul>
-
-{% endblock %}
+	</div>
+</section>
