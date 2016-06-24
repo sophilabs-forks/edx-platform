@@ -1,4 +1,4 @@
-from .models import CourseAccessRequest
+from hr_management.models import CourseAccessRequest
 
 
 def requested_access_for_course(course, user):
