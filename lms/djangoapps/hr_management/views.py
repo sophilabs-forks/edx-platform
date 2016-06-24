@@ -1,12 +1,13 @@
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import (HttpResponse, HttpResponseBadRequest, HttpResponseForbidden)
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from ipware.ip import get_ip
@@ -16,13 +17,16 @@ from organizations.models import Organization
 
 from course_modes.models import CourseMode
 from courseware.courses import get_course_by_id
+from edxmako.shortcuts import render_to_string
 from embargo import api as embargo_api
 from edxmako.shortcuts import render_to_response
+from microsite_configuration import microsite
 from microsite_configuration.models import Microsite
 from student.models import CourseEnrollment
 from util.db import outer_atomic
 from xmodule.modulestore.django import modulestore
 from .models import HrManager, CourseAccessRequest
+from hr_management.tasks import send_email_to_user
 
 log = logging.getLogger(__name__)
 
@@ -139,6 +143,11 @@ def require_course_access(request, check_access=True):
     # Get the user
     user = request.user
 
+    domain = request.META.get('HTTP_HOST', None)
+    microsite = Microsite.get_microsite_for_domain(domain)
+    organizations = microsite.get_organizations()
+    organization = organizations[0]
+
     # Ensure the user is authenticated
     if not user.is_authenticated():
         return HttpResponseForbidden()
@@ -186,11 +195,12 @@ def require_course_access(request, check_access=True):
         try:
             enroll_mode = CourseMode.auto_enroll_mode(course_id, available_modes)
             if enroll_mode:
-                CourseAccessRequest.objects.get_or_create(
+                access_request, created = CourseAccessRequest.objects.get_or_create(
                     user=user,
                     course_id=course_id,
                     mode=enroll_mode
                 )
+                _send_course_request_email_to_managers(access_request.user, access_request.course_id, organization)
         except Exception:
             return HttpResponseBadRequest(_("Could not request access"))
 
@@ -214,8 +224,52 @@ def change_course_access(request):
         messages.success(request, 'Succesfully approved access to {} for {}'.format(
             access_request.course_id, access_request.user.email))
         access_request.delete()
+        _send_course_request_approved_email_to_user(access_request.user, access_request.course_id)
     elif action.lower() == 'reject':
         access_request.delete()
         messages.success(request, 'Succesfully denied access to {} for {}'.format(
             access_request.course_id, access_request.user.email))
     return redirect('course_detail', course_id=course_id.to_deprecated_string())
+
+
+def _send_course_request_email_to_managers(user, course_id, organization):
+    course = get_course_by_id(course_id)
+    context = {
+        'user': user,
+        'course_name': course.display_name,
+    }
+    subject = render_to_string('hr_management/emails/course_access_requested_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/course_access_requested.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        hr_managers_emails = HrManager.objects.filter(organization__short_name=organization).values_list('user__email', flat=True)
+        send_email_to_user.delay(subject, message, from_address, hr_managers_emails)
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
+
+
+def _send_course_request_approved_email_to_user(user, course_id):
+    course = get_course_by_id(course_id)
+    context = {
+        'user': user,
+        'course_name': course.display_name,
+    }
+    subject = render_to_string('hr_management/emails/course_request_approved_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/course_request_approved.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        send_email_to_user.delay(subject, message, from_address, [user.email])
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
