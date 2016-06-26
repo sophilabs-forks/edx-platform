@@ -23,25 +23,54 @@ from django.core.urlresolvers import reverse
     % endfor
   </ul>
   % endif
-	<div class="hr-management__container">
-		<div class="hr-management__header">
-			<div class="hr-management__header__nav">
-				<a href="/hr-management">
-					<svg viewBox="0 0 24 24">
-					  <path fill="#000000" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
-					</svg>
-				</a>
-			</div>
-			<span>Users:</span></span>
-		</div>
-		<ol class="hr--access-requests">
-			% for user in users:
-			<li>
-        <div class="request-info">
-          <span class="user-name">${user}</span>
-        </div>
-			</li>
-			% endfor
-		</ol>
-	</div>
+  <div class="hr-management__container">
+    <div class="hr-management__header">
+      <div class="hr-management__header__nav">
+        <a href="/hr-management">
+          <svg viewBox="0 0 24 24">
+          <path fill="#000000" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+        </svg>
+      </a>
+    </div>
+    <span>Users:</span>
+  </div>
+  % if active_users:
+    <h2>Active users:</h2>
+    <ol class="hr--access-requests">
+      % for user in active_users:
+        <li>
+          <div class="request-info">
+            <span class="user-name">${user.email}</span>
+          </div>
+          <form action="${reverse('change_user_access')}" method="POST" class="request-controls">
+          <!-- {{ csrf_token }} -->
+          <input type="hidden" name="user_request_id" value="${user.id}">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+          <input type="submit" class="request-control reject" name='revoke' value="Revoke Access">
+          </form>
+        </li>
+      % endfor
+    </ol>
+  % endif
+  
+  % if inactive_users:
+    <h2>Users requesting access:</h2>
+    <ol class="hr--access-requests">
+      % for user in inactive_users:
+        <li>
+          <div class="request-info">
+            <span class="user-name">${user.email}</span>
+          </div>
+          <form action="${reverse('change_user_access')}" method="POST" class="request-controls">
+          <!-- {{ csrf_token }} -->
+          <input type="hidden" name="user_request_id" value="${user.id}">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+          <input type="submit" class="request-control approve" name='approve' value="Approve">
+          <input type="submit" class="request-control reject" name='reject' value="Reject">
+          </form>
+        </li>
+      % endfor
+    </ol>
+  % endif
+  </div>
 </section>

@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -60,15 +61,51 @@ def user_list(request):
     _user_has_access(user,organization)
 
     users = Organization.objects.get(short_name=organization).users.all()
+    active_users = [ u for u in users if u.userorganizationmapping_set.get(organization__short_name=organization).is_active ]
+    inactive_users = [ u for u in users if not u.userorganizationmapping_set.get(organization__short_name=organization).is_active ]
 
-    context = {
+    context = { 
         'message': 'hr user list',
         'user': user,
         'microsite': microsite,
         'organization': organization,
-        'users': users
-    }
+        'active_users': active_users,
+        'inactive_users': inactive_users
+    }   
+
     return render_to_response('hr_management/users.html', context)
+
+@login_required
+@require_POST
+def change_user_access(request):
+    try:
+        user_request_object = User.objects.get(id=request.POST.get('user_request_id'))
+    except CourseAccessRequest.DoesNotExist:
+        return redirect('course_list')
+
+    domain = request.META.get('HTTP_HOST', None)
+    microsite = Microsite.get_microsite_for_domain(domain)
+    organizations = microsite.get_organizations()
+    organization = organizations[0]
+    org_mapping = user_request_object.userorganizationmapping_set.get(organization__short_name=organization)
+
+    action = request.POST.get('approve', '') or request.POST.get('reject', '') or request.POST.get('revoke','')
+    if action.lower() == 'approve':
+        org_mapping.is_active = True
+        org_mapping.save()
+        messages.success(request, 'Succesfully approved access to user {}'.format(user_request_object.email))
+        #TODO: send email
+    elif action.lower() == 'reject':
+        org_mapping.delete()
+        messages.success(request, 'Succesfully denied access to user {}'.format(user_request_object.email))
+        #TODO send email
+    elif action.lower() == 'revoke access':
+        #TODO send email
+        org_mapping.is_active = False
+        org_mapping.save()
+        messages.success(request, 'Succesfully revoked access from user {}'.format(user_request_object.email))
+        # _send_course_request_approved_email_to_user(access_request.user, access_request.course_id)
+    return redirect('user_list')
 
 @login_required
 def course_list(request):
@@ -123,6 +160,9 @@ def course_detail(request, course_id):
 
 
 #TODO: refactor into decorator/mixin
+#
+#This method is meant to limit access of the hr-management pages to
+#   only those given access, or superusers
 def _user_has_access(user,organization):
     '''
     set user access in /admin/hr_management/hrmanager/
