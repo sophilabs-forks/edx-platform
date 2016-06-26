@@ -1,2 +1,2 @@
 python-intercom==0.2.13
-git+https://github.com/appsembler/edx-organizations.git@appsembler/nyif/cca#egg=edx-organizations==0.2.0
+git+https://github.com/appsembler/edx-organizations.git@appsembler/nyif/cca#egg=edx-organizations==0.2.1
