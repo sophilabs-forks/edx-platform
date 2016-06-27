@@ -289,7 +289,7 @@ def _send_course_request_email_to_managers(user, course_id, organization):
     )
     try:
         hr_managers_emails = HrManager.objects.filter(organization__short_name=organization).values_list('user__email', flat=True)
-        send_email_to_user.delay(subject, message, from_address, hr_managers_emails)
+        send_email_to_user.delay(subject, message, from_address, list(hr_managers_emails))
     except Exception:  # pylint: disable=broad-except
         log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
 
