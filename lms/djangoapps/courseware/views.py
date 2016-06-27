@@ -56,6 +56,7 @@ from openedx.core.djangoapps.credit.api import (
 )
 from courseware.models import StudentModuleHistory
 from courseware.model_data import FieldDataCache, ScoresClient
+from hr_management.models import CourseCCASettings
 from .module_render import toc_for_course, get_module_for_descriptor, get_module, get_module_by_usage_id
 from .entrance_exams import (
     course_has_entrance_exam,
@@ -866,6 +867,9 @@ def course_about(request, course_id):
         # get prerequisite courses display names
         pre_requisite_courses = get_prerequisite_courses_display(course)
 
+        # NYIF CCA
+        course_cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
+
         return render_to_response('courseware/course_about.html', {
             'course': course,
             'staff_access': staff_access,
@@ -887,7 +891,8 @@ def course_about(request, course_id):
             'disable_courseware_header': True,
             'can_add_course_to_cart': can_add_course_to_cart,
             'cart_link': reverse('shoppingcart.views.show_cart'),
-            'pre_requisite_courses': pre_requisite_courses
+            'pre_requisite_courses': pre_requisite_courses,
+            'require_access_request': course_cca_settings.require_access_request
         })
 
 

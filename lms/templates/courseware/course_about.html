@@ -11,7 +11,7 @@ from hr_management.utils import requested_access_for_course
 %>
 
 <%
-    if settings.FEATURES.get('REQUIRE_APPROVAL_FOR_COURSE_ACCESS', False):
+    if require_access_request:
       require_approval = True
       form_action=reverse('require_course_access')
       enrollment_action='request_access'
@@ -21,6 +21,7 @@ from hr_management.utils import requested_access_for_course
       require_approval = False
       form_action=reverse('change_enrollment')
       enrollment_action='enroll'
+      active_reg_button = True
 %>
 
 <%inherit file="../main.html" />

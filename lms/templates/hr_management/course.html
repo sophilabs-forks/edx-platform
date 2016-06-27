@@ -48,7 +48,26 @@ from django.core.urlresolvers import reverse
           <input type="submit" class="request-control reject" name='reject' value="Reject">
         </form>
 			</li>
+      % else:
+        <div class="request-info">
+          <h3>No requests at this time.</h3>
+        </div>
 			% endfor
 		</ol>
+    <br />
+    <form action="${reverse('change_course_cca_settings')}" method="post" class="form-require_access_request">
+      <label for="require_access_request">
+        Requires HR manager approval for signing up
+        <input type="checkbox" id="require_access_request" name="require_access_request" ${'checked' if require_access_request else None} />
+      </label>
+      <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+      <input type="hidden" name="course_id" value="${course.id.to_deprecated_string()}"/>
+    </form>
 	</div>
 </section>
+
+<script>
+  $('input[name="require_access_request"]').on('change', function() {
+    $(this).closest('form').submit();
+  })
+</script>
