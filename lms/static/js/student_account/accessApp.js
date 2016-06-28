@@ -16,6 +16,8 @@ var edx = edx || {};
         platformName: container.data('platform-name'),
         loginFormDesc: container.data('login-form-desc'),
         registrationFormDesc: container.data('registration-form-desc'),
-        passwordResetFormDesc: container.data('password-reset-form-desc')
+        passwordResetFormDesc: container.data('password-reset-form-desc'),
+	clouderaHideSsoInRegistration: container.data('cloudera-hide-sso-in-registration'),
+	clouderaHideSsoInLogin: container.data('cloudera-hide-sso-in-login')
     });
 })(jQuery);

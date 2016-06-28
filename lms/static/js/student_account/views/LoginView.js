@@ -32,7 +32,7 @@ var edx = edx || {};
             this.errorMessage = data.thirdPartyAuth.errorMessage || '';
             this.platformName = data.platformName;
             this.resetModel = data.resetModel;
-
+	    this.clouderaHideSsoInLogin = data.clouderaHideSsoInLogin;
             this.listenTo( this.model, 'sync', this.saveSuccess );
             this.listenTo( this.resetModel, 'sync', this.resetEmail );
         },
@@ -49,7 +49,8 @@ var edx = edx || {};
                     errorMessage: this.errorMessage,
                     providers: this.providers,
                     hasSecondaryProviders: this.hasSecondaryProviders,
-                    platformName: this.platformName
+                    platformName: this.platformName,
+		    clouderaHideSsoInLogin: this.clouderaHideSsoInLogin
                 }
             }));
 

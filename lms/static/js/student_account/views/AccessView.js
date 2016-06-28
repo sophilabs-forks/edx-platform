@@ -63,6 +63,10 @@ var edx = edx || {};
 
             this.platformName = obj.platformName;
 
+	    // set vars for cloudera custom variables
+	    this.clouderaHideSsoInRegistration = obj.clouderaHideSsoInRegistration;
+	    this.clouderaHideSsoInLogin = obj.clouderaHideSsoInLogin;
+
             // The login view listens for 'sync' events from the reset model
             this.resetModel = new edx.student.account.PasswordResetModel({}, {
                 method: 'GET',
@@ -112,7 +116,9 @@ var edx = edx || {};
                     model: model,
                     resetModel: this.resetModel,
                     thirdPartyAuth: this.thirdPartyAuth,
-                    platformName: this.platformName
+                    platformName: this.platformName,
+		    clouderaHideSsoInRegistration: this.clouderaHideSsoInRegistration,
+		    clouderaHideSsoInLogin: this.clouderaHideSsoInLogin
                 });
 
                 // Listen for 'password-help' event to toggle sub-views
@@ -149,7 +155,9 @@ var edx = edx || {};
                     fields: data.fields,
                     model: model,
                     thirdPartyAuth: this.thirdPartyAuth,
-                    platformName: this.platformName
+                    platformName: this.platformName,
+		    clouderaHideSsoInRegistration: this.clouderaHideSsoInRegistration,
+                    clouderaHideSsoInLogin: this.clouderaHideSsoInLogin
                 });
 
                 // Listen for 'auth-complete' event so we can enroll/redirect the user appropriately.
