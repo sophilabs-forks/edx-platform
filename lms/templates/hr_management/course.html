@@ -35,24 +35,26 @@ from django.core.urlresolvers import reverse
 			<span>Managing course: <b>${course.display_name}</b></span>
 		</div>
 		<ol class="hr--access-requests">
-			% for req in course_requests:
-			<li>
-        <div class="request-info">
-          <span class="user-name">${req.user.email}</span> <span class="helper-text">at</span> <span class="date-requested">${req.created.strftime('%Y/%m/%d %H:%M')}</span>
-        </div>
-        <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
-          <!-- {{ csrf_token }} -->
-          <input type="hidden" name="request_access_id" value="${req.id}">
-          <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
-          <input type="submit" class="request-control approve" name='approve' value="Approve">
-          <input type="submit" class="request-control reject" name='reject' value="Reject">
-        </form>
-			</li>
-      % else:
+      % if course_requests:
+        % for req in course_requests:
+        <li>
+          <div class="request-info">
+            <span class="user-name">${req.user.email}</span> <span class="helper-text">at</span> <span class="date-requested">${req.created.strftime('%Y/%m/%d %H:%M')}</span>
+          </div>
+          <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
+            <!-- {{ csrf_token }} -->
+            <input type="hidden" name="request_access_id" value="${req.id}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+            <input type="submit" class="request-control approve" name='approve' value="Approve">
+            <input type="submit" class="request-control reject" name='reject' value="Reject">
+          </form>
+        </li>
+        % endfor
+      %else:
         <div class="request-info">
           <h3>No requests at this time.</h3>
         </div>
-			% endfor
+      % endif
 		</ol>
     <br />
     <form action="${reverse('change_course_cca_settings')}" method="post" class="form-require_access_request">
