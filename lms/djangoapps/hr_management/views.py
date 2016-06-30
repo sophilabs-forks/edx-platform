@@ -146,7 +146,7 @@ def course_detail(request, course_id):
 
     course = get_course_by_id(course_key)
     course_requests = CourseAccessRequest.objects.filter(course_id=course_key)
-    cca_settings = CourseCCASettings.objects.get(course_id=course_key)
+    cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
 
     context = {
         'message': 'hr course list',
