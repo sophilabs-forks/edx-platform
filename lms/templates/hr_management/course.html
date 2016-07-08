@@ -1,0 +1,54 @@
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%!
+from django.core.urlresolvers import reverse
+%>
+<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<%block name="pagetitle">${microsite} | HR Management | Courses</%block>
+
+
+<section class="hr-management hr-management__wrapper">
+  % if messages:
+  <ul class="hr-management__notifications">
+    % for message in messages:
+      <li
+        % if message.tags:
+          class="${message.tags}"
+        % endif
+        >
+          <span>
+            ${message}
+          </span>
+        </li>
+    % endfor
+  </ul>
+  % endif
+	<div class="hr-management__container">
+		<div class="hr-management__header">
+			<div class="hr-management__header__nav">
+				<a href="/hr-management">
+					<svg viewBox="0 0 24 24">
+					  <path fill="#000000" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+					</svg>
+				</a>
+			</div>
+			<span>Managing course: <b>${course.display_name}</b></span>
+		</div>
+		<ol class="hr--access-requests">
+			% for req in course_requests:
+			<li>
+        <div class="request-info">
+          <span class="user-name">${req.user.email}</span> <span class="helper-text">at</span> <span class="date-requested">${req.created.strftime('%Y/%m/%d %H:%M')}</span>
+        </div>
+        <form action="${reverse('change_course_access')}" method="POST" class="request-controls">
+          <!-- {{ csrf_token }} -->
+          <input type="hidden" name="request_access_id" value="${req.id}">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+          <input type="submit" class="request-control approve" name='approve' value="Approve">
+          <input type="submit" class="request-control reject" name='reject' value="Reject">
+        </form>
+			</li>
+			% endfor
+		</ol>
+	</div>
+</section>

@@ -1,0 +1,30 @@
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%!
+from django.core.urlresolvers import reverse
+%>
+<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<%block name="pagetitle">${microsite} | HR Management | Courses</%block>
+
+
+<section class="hr-management hr-management__wrapper">
+	<div class="hr-management__container hr--courses">
+		<div class="hr-management__header">
+			<div class="hr-management__header__nav">
+				<a href="/hr-management">
+					<svg viewBox="0 0 24 24">
+					  <path fill="#000000" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+					</svg>
+				</a>
+			</div>
+			<span>Courses list</span>
+		</div>
+		<ol class="hr--course-list">
+			% for course in courses:
+			<li>
+				<a href="${reverse('course_detail', kwargs={'course_id': course.id.to_deprecated_string()})}">${course.display_name}</a>
+			</li>
+			% endfor
+		</ol>
+	</div>
+</section>

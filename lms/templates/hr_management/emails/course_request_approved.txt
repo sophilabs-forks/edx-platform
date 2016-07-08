@@ -1,0 +1,1 @@
+You have been given access to course ${course_name}

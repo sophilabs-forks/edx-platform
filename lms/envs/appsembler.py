@@ -17,3 +17,8 @@ GOOGLE_TAG_MANAGER_ID = APPSEMBLER_FEATURES.get('GOOGLE_TAG_MANAGER_ID', os.envi
 INTERCOM_APP_ID = APPSEMBLER_FEATURES.get('INTERCOM_APP_ID', os.environ.get('INTERCOM_APP_ID', ''))
 INTERCOM_API_KEY = APPSEMBLER_FEATURES.get('INTERCOM_API_KEY', os.environ.get('INTERCOM_API_KEY', ''))
 INTERCOM_USER_EMAIL = APPSEMBLER_FEATURES.get('INTERCOM_USER_EMAIL', os.environ.get('INTERCOM_USER_EMAIL', ''))
+
+AUTHENTICATION_BACKENDS = ('organizations.backends.OrganizationMemberMicrositeBackend',)
+
+MICROSITE_BACKEND = 'microsite_configuration.backends.database.DatabaseMicrositeBackend'
+
