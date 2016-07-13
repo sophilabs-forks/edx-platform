@@ -133,6 +133,11 @@ def courses(request):
     """
     Render "find courses" page.  The course selection work is done in courseware.courses.
     """
+	
+    #if the /courses is not accessed through a microsite, send to /login
+    if not microsite.is_request_in_microsite():
+        return redirect(reverse('root'))
+
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
