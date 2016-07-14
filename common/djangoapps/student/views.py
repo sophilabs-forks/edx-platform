@@ -1724,8 +1724,9 @@ def create_account_with_params(request, params):
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
     new_user = authenticate(username=user.username, password=params['password'])
-    login(request, new_user)
-    request.session.set_expiry(0)
+    if not microsite.is_request_in_microsite():
+        login(request, new_user)
+        request.session.set_expiry(0)
 
     # TODO: there is no error checking here to see that the user actually logged in successfully,
     # and is not yet an active user.
