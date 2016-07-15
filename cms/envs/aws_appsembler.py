@@ -13,3 +13,7 @@ COURSE_CATALOG_VISIBILITY_PERMISSION = 'see_in_catalog'
 COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
 
 INSTALLED_APPS += ('hr_management',)
+
+# set media values for SCORM upload
+MEDIA_ROOT = '/edx/var/edxapp/media'
+MEDIA_URL = '/media/'
