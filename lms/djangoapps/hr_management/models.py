@@ -45,3 +45,8 @@ class CourseAccessRequest(models.Model):
 
         record_exists = CourseAccessRequest.objects.filter(user=user, course_id=course_key).exists()
         return record_exists
+
+
+class CourseCCASettings(models.Model):
+    course_id = CourseKeyField(max_length=255, db_index=True)
+    require_access_request = models.BooleanField(default=False)

@@ -26,7 +26,7 @@ from microsite_configuration.models import Microsite
 from student.models import CourseEnrollment
 from util.db import outer_atomic
 from xmodule.modulestore.django import modulestore
-from .models import HrManager, CourseAccessRequest
+from .models import HrManager, CourseAccessRequest, CourseCCASettings
 from hr_management.tasks import send_email_to_user
 
 log = logging.getLogger(__name__)
@@ -146,6 +146,7 @@ def course_detail(request, course_id):
 
     course = get_course_by_id(course_key)
     course_requests = CourseAccessRequest.objects.filter(course_id=course_key)
+    cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
 
     context = {
         'message': 'hr course list',
@@ -154,6 +155,7 @@ def course_detail(request, course_id):
         'organization': organization,
         'course': course,
         'course_requests': course_requests,
+        'require_access_request': cca_settings.require_access_request,
     }
     return render_to_response('hr_management/course.html', context)
 
@@ -272,6 +274,19 @@ def change_course_access(request):
     return redirect('course_detail', course_id=course_id.to_deprecated_string())
 
 
+@login_required
+@require_POST
+def change_course_cca_settings(request):
+    course_id = request.POST.get('course_id')
+    course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
+    cca_settings = CourseCCASettings.objects.get(course_id=course_key)
+    require_access_request = (request.POST.get('require_access_request', '').lower() == 'on')
+    cca_settings.require_access_request = require_access_request
+    cca_settings.save()
+    messages.success(request, 'Succesfully updated course settings')
+    return redirect('course_detail', course_id=cca_settings.course_id.to_deprecated_string())
+
+
 def _send_course_request_email_to_managers(user, course_id, organization):
     course = get_course_by_id(course_id)
     context = {
@@ -289,7 +304,7 @@ def _send_course_request_email_to_managers(user, course_id, organization):
     )
     try:
         hr_managers_emails = HrManager.objects.filter(organization__short_name=organization).values_list('user__email', flat=True)
-        send_email_to_user.delay(subject, message, from_address, hr_managers_emails)
+        send_email_to_user.delay(subject, message, from_address, list(hr_managers_emails))
     except Exception:  # pylint: disable=broad-except
         log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
 
