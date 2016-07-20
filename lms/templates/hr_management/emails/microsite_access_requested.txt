@@ -1,0 +1,5 @@
+User ${user.email} requested access to https://${domain}
+
+You can grant or revoke access through: 
+
+https://${domain}/hr-management/users

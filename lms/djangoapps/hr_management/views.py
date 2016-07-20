@@ -94,7 +94,7 @@ def change_user_access(request):
         org_mapping.is_active = True
         org_mapping.save()
         messages.success(request, 'Succesfully approved access to user {}'.format(user_request_object.email))
-        #TODO: send email
+        _send_microsite_request_approved_email_to_user(user_request_object,domain)
     elif action.lower() == 'reject':
         org_mapping.delete()
         messages.success(request, 'Succesfully denied access to user {}'.format(user_request_object.email))
@@ -286,6 +286,49 @@ def change_course_cca_settings(request):
     messages.success(request, 'Succesfully updated course settings')
     return redirect('course_detail', course_id=cca_settings.course_id.to_deprecated_string())
 
+def send_microsite_request_email_to_managers(request, user):
+    domain = request.META.get('HTTP_HOST', None)
+    microsite_object = Microsite.get_microsite_for_domain(domain)
+    organizations = microsite_object.get_organizations()
+    organization = organizations[0]
+
+    context = {
+        'user': user,
+        'domain': domain
+    }
+    subject = render_to_string('hr_management/emails/microsite_access_requested_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/microsite_access_requested.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        hr_managers_emails = HrManager.objects.filter(organization__short_name=organization).values_list('user__email', flat=True)
+        send_email_to_user.delay(subject, message, from_address, list(hr_managers_emails))
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
+
+def _send_microsite_request_approved_email_to_user(user, domain):
+    context = {
+        'user': user,
+        'domain': domain,
+    }
+    subject = render_to_string('hr_management/emails/microsite_request_approved_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/microsite_request_approved.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        send_email_to_user.delay(subject, message, from_address, [user.email])
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
 
 def _send_course_request_email_to_managers(user, course_id, organization):
     course = get_course_by_id(course_id)

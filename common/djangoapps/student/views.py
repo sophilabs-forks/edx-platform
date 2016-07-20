@@ -127,6 +127,7 @@ from notification_prefs.views import enable_notifications
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.programs.utils import get_programs_for_dashboard
 
+from hr_management.views import send_microsite_request_email_to_managers
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1727,6 +1728,9 @@ def create_account_with_params(request, params):
     if not microsite.is_request_in_microsite():
         login(request, new_user)
         request.session.set_expiry(0)
+    else: 
+        #request is happening in microsite, so send HR manager approval email
+        send_microsite_request_email_to_managers(request, new_user)
 
     # TODO: there is no error checking here to see that the user actually logged in successfully,
     # and is not yet an active user.

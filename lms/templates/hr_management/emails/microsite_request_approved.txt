@@ -1,0 +1,5 @@
+Your manager has approved your request to access ${domain}.
+
+You can start enrolling in courses by visiting:
+
+https://${domain}/courses
