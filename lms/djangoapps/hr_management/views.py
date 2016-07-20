@@ -171,7 +171,7 @@ def _user_has_access(user,organization):
     '''
     user_exists = HrManager.objects.filter(user__username=user).filter(organization__short_name=organization)
 
-    if user.is_superuser or user_exists:
+    if user.is_superuser or user.is_staff or user_exists:
         return True
     else:
         log.error('User {} does not have access to hr-management for microsite: {}'.format(user, organization))
