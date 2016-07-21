@@ -810,6 +810,7 @@ def get_cosmetic_display_price(course, registration_price):
         return _('Free')
 
 
+@login_required
 @ensure_csrf_cookie
 @cache_if_anonymous()
 def course_about(request, course_id):
