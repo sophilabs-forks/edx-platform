@@ -7,4 +7,4 @@ INSTALLED_APPS += (
     'appsembler.intercom_integration',
     'appsembler.enrollment',
 )
-TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.intercom_integration.context_processors.intercom',)
+DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.intercom_integration.context_processors.intercom',)
