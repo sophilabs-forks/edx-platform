@@ -10,8 +10,8 @@ from organizations.models import Organization
 #            where they wil be able to assign the HrManager role to existing users
 #            
 class HrManager(models.Model):
-    user = models.OneToOneField(User)
-    organization = models.OneToOneField(Organization)
+    user = models.ForeignKey(User)
+    organization = models.ForeignKey(Organization)
 
     def __str__(self):
         return '{}: {}'.format(self.user, self.organization)
