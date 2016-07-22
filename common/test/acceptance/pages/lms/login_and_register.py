@@ -127,7 +127,7 @@ class CombinedLoginAndRegisterPage(PageObject):
     @property
     def url(self):
         """Return the URL for the combined login/registration page. """
-        url = "{base}/account/{login_or_register}".format(
+        url = "{base}/{login_or_register}".format(
             base=BASE_URL,
             login_or_register=self._start_page
         )
@@ -168,10 +168,7 @@ class CombinedLoginAndRegisterPage(PageObject):
             "Finish toggling to the other form"
         ).fulfill()
 
-    def register(
-            self, email="", password="", username="", full_name="", country="", favorite_movie="",
-            terms_of_service=False
-    ):
+    def register(self, email="", password="", username="", full_name="", country="", terms_of_service=False):
         """Fills in and submits the registration form.
 
         Requires that the "register" form is visible.
@@ -200,8 +197,6 @@ class CombinedLoginAndRegisterPage(PageObject):
             self.q(css="#register-password").fill(password)
         if country:
             self.q(css="#register-country option[value='{country}']".format(country=country)).click()
-        if favorite_movie:
-            self.q(css="#register-favorite_movie").fill(favorite_movie)
         if terms_of_service:
             self.q(css="#register-honor_code").click()
 
