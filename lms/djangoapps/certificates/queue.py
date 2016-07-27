@@ -386,11 +386,16 @@ class XQueueCertInterface(object):
 
         key = make_hashkey(random.random())
         cert.key = key
+        credits = course.credits
+        credits = int(credits) == credits and int(credits) or credits
+        credit_provider = course.credit_provider
         contents = {
             'action': 'create',
             'username': student.username,
             'course_id': course_id,
             'course_name': course.display_name or course_id,
+            'credits': credits,
+            'credit_provider': credit_provider,
             'name': cert.name,
             'grade': grade_contents,
             'template_pdf': template_pdf,
@@ -445,12 +450,19 @@ class XQueueCertInterface(object):
             example_cert (ExampleCertificate)
 
         """
+        course = modulestore().get_course(example_cert.course_key, depth=0)
+        credits = course.credits
+        credits = int(credits) == credits and int(credits) or credits
+        credit_provider = course.credit_provider
+
         contents = {
             'action': 'create',
             'course_id': unicode(example_cert.course_key),
             'course_name': example_cert.full_name,
             'name': example_cert.full_name,
             'template_pdf': example_cert.template,
+            'credits': credits,
+            'credit_provider': credit_provider,
 
             # Example certificates are not associated with a particular user.
             # However, we still need to find the example certificate when
@@ -480,6 +492,7 @@ class XQueueCertInterface(object):
                 callback_url_path=callback_url_path
             )
             LOGGER.info(u"Started generating example certificates for course '%s'.", example_cert.course_key)
+            # LOGGER.info(u"XQueue body contents will be '%s'.", json.dumps(contents))
         except XQueueAddToQueueError as exc:
             example_cert.update_status(
                 ExampleCertificate.STATUS_ERROR,
