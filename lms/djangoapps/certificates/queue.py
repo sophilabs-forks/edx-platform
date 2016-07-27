@@ -387,7 +387,10 @@ class XQueueCertInterface(object):
         key = make_hashkey(random.random())
         cert.key = key
         credits = course.credits
-        credits = int(credits) == credits and int(credits) or credits
+        try:
+            credits = int(credits) == credits and int(credits) or credits
+        except (TypeError, ValueError):
+            credits = None
         credit_provider = course.credit_provider
         contents = {
             'action': 'create',
