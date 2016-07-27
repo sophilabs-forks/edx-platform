@@ -455,7 +455,10 @@ class XQueueCertInterface(object):
         """
         course = modulestore().get_course(example_cert.course_key, depth=0)
         credits = course.credits
-        credits = int(credits) == credits and int(credits) or credits
+        try:
+            credits = int(credits) == credits and int(credits) or credits
+        except (TypeError, ValueError):
+            credits = None
         credit_provider = course.credit_provider
 
         contents = {
