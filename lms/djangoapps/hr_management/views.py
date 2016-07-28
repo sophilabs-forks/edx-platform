@@ -98,7 +98,7 @@ def change_user_access(request):
     elif action.lower() == 'reject':
         org_mapping.delete()
         messages.success(request, 'Succesfully denied access to user {}'.format(user_request_object.email))
-        #TODO send email
+        _send_microsite_request_denied_email_to_user(user_request_object,domain)
     elif action.lower() == 'revoke access':
         #TODO send email
         org_mapping.is_active = False
@@ -329,6 +329,25 @@ def _send_microsite_request_approved_email_to_user(user, domain):
         send_email_to_user.delay(subject, message, from_address, [user.email])
     except Exception:  # pylint: disable=broad-except
         log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
+
+def _send_microsite_request_denied_email_to_user(user,domain):
+    context = {
+        'user': user,
+        'domain': domain
+    }
+    subject = render_to_string('hr_management/emails/microsite_request_denied_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/microsite_request_denied.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        send_email_to_user.delay(subject, message, from_address, [user.email])
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request denied email to user from "%s"', from_address, exc_info=True)
 
 def _send_course_request_email_to_managers(user, course_id, organization):
     course = get_course_by_id(course_id)

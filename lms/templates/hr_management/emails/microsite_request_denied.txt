@@ -1,0 +1,3 @@
+Your manager has denied your request to access ${domain}.
+
+If you believe this decision was made in error, please contact your manager.
