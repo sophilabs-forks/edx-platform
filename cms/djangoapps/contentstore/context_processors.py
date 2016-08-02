@@ -77,7 +77,7 @@ def doc_url(request=None):  # pylint: disable=unused-argument
             )
 
         return {
-            "doc_url": get_doc_url(),
+            "doc_url": 'http://help.appsembler.com',
             "pdf_url": get_pdf_url(),
         }
 
