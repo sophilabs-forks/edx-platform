@@ -23,15 +23,16 @@ def signup(request):
     """
     Display the signup form.
     """
-    csrf_token = csrf(request)['csrf_token']
-    if request.user.is_authenticated():
-        return redirect('/course/')
-    if settings.FEATURES.get('AUTH_USE_CERTIFICATES_IMMEDIATE_SIGNUP'):
-        # Redirect to course to login to process their certificate if SSL is enabled
-        # and registration is disabled.
-        return redirect_with_get('login', request.GET, False)
-
-    return render_to_response('register.html', {'csrf': csrf_token})
+    # csrf_token = csrf(request)['csrf_token']
+    # if request.user.is_authenticated():
+    #     return redirect('/course/')
+    # if settings.FEATURES.get('AUTH_USE_CERTIFICATES_IMMEDIATE_SIGNUP'):
+    #     # Redirect to course to login to process their certificate if SSL is enabled
+    #     # and registration is disabled.
+    #     return redirect_with_get('login', request.GET, False)
+    #
+    # return render_to_response('register.html', {'csrf': csrf_token})
+    return redirect_with_get('login', request.GET, False)
 
 
 @ssl_login_shortcut
