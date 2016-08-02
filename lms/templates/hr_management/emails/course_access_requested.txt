@@ -1,1 +1,4 @@
 User ${user.email} requested access to ${course_name}
+
+To approve or deny this request, please visit: 
+${course_url}

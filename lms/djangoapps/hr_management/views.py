@@ -242,7 +242,7 @@ def require_course_access(request, check_access=True):
                     course_id=course_id,
                     mode=enroll_mode
                 )
-                _send_course_request_email_to_managers(access_request.user, access_request.course_id, organization)
+                _send_course_request_email_to_managers(access_request.user, access_request.course_id, organization, domain)
         except Exception:
             return HttpResponseBadRequest(_("Could not request access"))
 
@@ -349,11 +349,13 @@ def _send_microsite_request_denied_email_to_user(user,domain):
     except Exception:  # pylint: disable=broad-except
         log.error(u'Unable to send course request denied email to user from "%s"', from_address, exc_info=True)
 
-def _send_course_request_email_to_managers(user, course_id, organization):
+def _send_course_request_email_to_managers(user, course_id, organization, domain):
     course = get_course_by_id(course_id)
+    course_url = 'http://{}/hr-management/courses/{}'.format(domain,course_id)
     context = {
         'user': user,
         'course_name': course.display_name,
+        'course_url': course_url
     }
     subject = render_to_string('hr_management/emails/course_access_requested_subject.txt', context)
     # Email subject *must not* contain newlines
