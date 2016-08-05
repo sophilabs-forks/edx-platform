@@ -1,0 +1,4 @@
+You have been denied access to course ${course_name}
+
+If you believe this decision was made in error, please contact your manager. 
+

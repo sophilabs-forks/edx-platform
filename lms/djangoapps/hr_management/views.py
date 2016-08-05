@@ -104,7 +104,7 @@ def change_user_access(request):
         org_mapping.is_active = False
         org_mapping.save()
         messages.success(request, 'Succesfully revoked access from user {}'.format(user_request_object.email))
-        # _send_course_request_approved_email_to_user(access_request.user, access_request.course_id)
+        _send_microsite_request_denied_email_to_user(user_request_object,domain)
     return redirect('user_list')
 
 @login_required
@@ -271,6 +271,7 @@ def change_course_access(request):
         access_request.delete()
         messages.success(request, 'Succesfully denied access to {} for {}'.format(
             access_request.course_id, access_request.user.email))
+        _send_course_request_denied_email_to_user(access_request.user, access_request.course_id)
     return redirect('course_detail', course_id=course_id.to_deprecated_string())
 
 
@@ -383,6 +384,26 @@ def _send_course_request_approved_email_to_user(user, course_id):
     # Email subject *must not* contain newlines
     subject = ''.join(subject.splitlines())
     message = render_to_string('hr_management/emails/course_request_approved.txt', context)
+
+    from_address = microsite.get_value(
+        'email_from_address',
+        settings.DEFAULT_FROM_EMAIL
+    )
+    try:
+        send_email_to_user.delay(subject, message, from_address, [user.email])
+    except Exception:  # pylint: disable=broad-except
+        log.error(u'Unable to send course request approved email to user from "%s"', from_address, exc_info=True)
+
+def _send_course_request_denied_email_to_user(user, course_id):
+    course = get_course_by_id(course_id)
+    context = {
+        'user': user,
+        'course_name': course.display_name,
+    }
+    subject = render_to_string('hr_management/emails/course_request_denied_subject.txt', context)
+    # Email subject *must not* contain newlines
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr_management/emails/course_request_denied.txt', context)
 
     from_address = microsite.get_value(
         'email_from_address',
