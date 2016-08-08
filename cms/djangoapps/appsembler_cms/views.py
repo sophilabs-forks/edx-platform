@@ -40,7 +40,7 @@ class CreateCourseAPIView(GenericAPIView):
             run = str(timezone.now().year)
 
             fields = {
-                "display_name": "{}'s First Course".format(user.profile.name)
+                "display_name": u"{}'s First Course".format(user.profile.name)
             }
             new_course = None
             if serializer.data.get('course_id'):
