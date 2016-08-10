@@ -31,6 +31,75 @@ from hr_management.tasks import send_email_to_user
 
 log = logging.getLogger(__name__)
 
+
+# # TMP view
+from instructor.offline_gradecalc import student_grades
+from instructor.utils import DummyRequest
+from opaque_keys.edx.locations import SlashSeparatedCourseKey
+from courseware.courses import get_course_by_id
+from django.contrib.auth.models import User
+from xmodule.modulestore.django import modulestore
+from student.models import CourseEnrollment
+from organizations.models import Organization
+from django.views.decorators.cache import cache_control
+from datetime import datetime
+
+# from datetime import datetime
+
+@transaction.non_atomic_requests
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def report(request):
+
+    # student = User.objects.get(username='staff')
+    # request = DummyRequest()
+    
+    mongo_courses = modulestore().get_courses()
+    # #for full NYIF report
+    # orgs = Organization.objects.all()
+    domain = request.META.get('HTTP_HOST', None)
+    print('dom-----')
+    print(domain)
+    microsite_object = Microsite.get_microsite_for_domain(domain)
+    organizations_strings = microsite_object.get_organizations()
+    org_string = organizations_strings[0]
+    # org_string = 'microsite1'
+    organization = Organization.objects.get(short_name=org_string)
+    courses = [ c for c in mongo_courses if c.org==org_string ]
+    # num_courses = len(courses)
+    # num_users = len(organization.users.all())
+    # num_enrollments = 0
+    date = datetime.now().date()
+    report_list = []
+    for course in courses:
+        enrollments = CourseEnrollment.objects.filter(course_id=course.id)
+        # num_enrollments += len(enrollments)
+
+        for enrollment in enrollments:
+            student = enrollment.user
+            profile = student.profile
+            grade = _compute_grade_for_view(student,request,course)
+
+            entry = {
+                'fullname': profile.name,
+                'email': student.email,
+                'course_name': course.display_name,
+                'registration_date': str(enrollment.created),
+                'status': '',
+                'completion_date': '',
+                'score': grade["percent"],
+            }
+
+            report_list.append(entry)
+    context = {
+        'report_list': report_list,
+        'organization_name': org_string,
+        'date': date,
+        
+
+    }
+
+    return render_to_response('hr_management/report.html',context)
+
 @login_required
 def index(request):
     user = request.user

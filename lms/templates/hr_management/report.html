@@ -1,0 +1,28 @@
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<%block name="pagetitle">${organization_name} | Reports </%block>
+
+<div>
+	<span>${ organization_name } Weekly Report</span>
+	<span>${date}</span>
+	<hr />
+	<h2>Overview</h2>
+
+	<table>
+	<thead>
+		<tr style="fontweight:strong">
+			<td>Use Full Name</td>
+			<td>User Email</td>
+			<td>Course Name</td>
+		</tr>
+	</thead>
+	% for entry in report_list: 
+	<tr>
+		<td>${entry['fullname']}</td>
+		<td>${entry['email']}</td>
+		<td>${entry['course_name']}</td>
+	</tr>
+	% endfor
+	</table>
+</div>

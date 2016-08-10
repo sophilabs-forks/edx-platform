@@ -6,6 +6,7 @@ from hr_management import views
 urlpatterns = patterns(
     'hr_management.views',
     url(r'^$','index', name='index'),
+    url(r'^report', 'report', name='report'),
     url(r'^users$','user_list', name='user_list'),
     url(r'^change-user-access', 'change_user_access', name='change_user_access'),
     url(r'^courses$','course_list', name='course_list'),
