@@ -5,6 +5,9 @@ Models used to implement SAML SSO support in third_party_auth
 """
 from __future__ import absolute_import
 
+import re
+from random import randrange
+
 from config_models.models import ConfigurationModel, cache
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -174,6 +177,17 @@ class ProviderConfig(ConfigurationModel):
         # an error on submit.
         suggested_username = pipeline_kwargs.get('username')
 
+        # if the FEATURE flag TPA_CLEAN_USERNAMES is set to True we clean all
+        # special chars from the username, if the username is an email,
+        # removes the domain part.
+        # At the end adds a random int for avoid duplicates.
+        do_clean_username = settings.FEATURES.get("TPA_CLEAN_USERNAMES")
+        if do_clean_username:
+            if len(re.findall(r'[^@]+@[^@]+\.[^@]+', suggested_username)) > 0:
+                suggested_username = suggested_username.split('@')[0]
+            suggested_username = ''.join(e for e in suggested_username if e.isalnum())
+            suggested_username += str(randrange(100, 999))
+        #
         return {
             'email': details.get('email', ''),
             'name': details.get('fullname', ''),
