@@ -177,16 +177,28 @@ class ProviderConfig(ConfigurationModel):
         # an error on submit.
         suggested_username = pipeline_kwargs.get('username')
 
-        # if the FEATURE flag TPA_CLEAN_USERNAMES is set to True we clean all
-        # special chars from the username, if the username is an email,
-        # removes the domain part.
-        # At the end adds a random int for avoid duplicates.
-        do_clean_username = settings.FEATURES.get("TPA_CLEAN_USERNAMES")
-        if do_clean_username:
-            if len(re.findall(r'[^@]+@[^@]+\.[^@]+', suggested_username)) > 0:
-                suggested_username = suggested_username.split('@')[0]
-            suggested_username = ''.join(e for e in suggested_username if e.isalnum())
-            suggested_username += str(randrange(100, 999))
+        # if the FEATURE flag ENABLE_THIRD_PARTY_AUTH_CLEAN_USERNAMES is set to
+        # True we clean all special chars from the username, this feature is
+        # configurable by this three env settings with this default:
+        # TPA_CLEAN_USERNAMES_KEEP_DOMAIN_PART: false
+        # TPA_CLEAN_USERNAMES_REPLACER_CHAR: ""
+        # TPA_CLEAN_USERNAMES_ADD_RANDOM_INT: false
+        # You can override this three in your settings.
+        if settings.FEATURES.get("ENABLE_THIRD_PARTY_AUTH_CLEAN_USERNAMES"):
+            if not settings.TPA_CLEAN_USERNAMES_KEEP_DOMAIN_PART:
+                if len(
+                    re.findall(r'[^@]+@[^@]+\.[^@]+', suggested_username)
+                    ) > 0:
+                    suggested_username = suggested_username.split('@')[0]
+
+            suggested_username = re.sub(
+                r'[^a-zA-Z0-9]',
+                settings.TPA_CLEAN_USERNAMES_REPLACER_CHAR,
+                suggested_username
+            )
+
+            if settings.TPA_CLEAN_USERNAMES_ADD_RANDOM_INT:
+                suggested_username += str(randrange(100, 999))
         #
         return {
             'email': details.get('email', ''),
