@@ -111,14 +111,14 @@ def login_and_registration_form(request, initial_mode="login"):
             'login_form_desc': json.loads(form_descriptions['login']),
             'registration_form_desc': json.loads(form_descriptions['registration']),
             'password_reset_form_desc': json.loads(form_descriptions['password_reset']),
+            'cloudera_hide_sso_in_registration': settings.FEATURES['CLOUDERA_HIDE_SSO_IN_REGISTRATION'],
+            'cloudera_hide_sso_in_login': settings.FEATURES['CLOUDERA_HIDE_SSO_IN_LOGIN'],
         },
         'login_redirect_url': redirect_to,  # This gets added to the query string of the "Sign In" button in header
         'responsive': True,
         'allow_iframing': True,
         'disable_courseware_js': True,
         'disable_footer': True,
-        'cloudera_hide_sso_in_registration': settings.FEATURES['CLOUDERA_HIDE_SSO_IN_REGISTRATION'],
-        'cloudera_hide_sso_in_login': settings.FEATURES['CLOUDERA_HIDE_SSO_IN_LOGIN'],
     }
 
     return render_to_response('student_account/login_and_register.html', context)

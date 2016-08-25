@@ -74,6 +74,8 @@
                 };
 
                 this.platformName = options.platform_name;
+                this.clouderaHideSsoInRegistration = options.cloudera_hide_sso_in_registration;
+                this.clouderaHideSsoInLogin = options.cloudera_hide_sso_in_login;
 
                 // The login view listens for 'sync' events from the reset model
                 this.resetModel = new PasswordResetModel({}, {
@@ -124,7 +126,8 @@
                         model: model,
                         resetModel: this.resetModel,
                         thirdPartyAuth: this.thirdPartyAuth,
-                        platformName: this.platformName
+                        platformName: this.platformName,
+                        clouderaHideSsoInLogin: this.clouderaHideSsoInLogin
                     });
 
                     // Listen for 'password-help' event to toggle sub-views
@@ -161,7 +164,8 @@
                         fields: data.fields,
                         model: model,
                         thirdPartyAuth: this.thirdPartyAuth,
-                        platformName: this.platformName
+                        platformName: this.platformName,
+                        clouderaHideSsoInRegistration: this.clouderaHideSsoInRegistration
                     });
 
                     // Listen for 'auth-complete' event so we can enroll/redirect the user appropriately.
