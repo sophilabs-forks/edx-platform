@@ -26,7 +26,6 @@ class CourseMetadata(object):
         'enrollment_end',
         'tabs',
         'graceperiod',
-        'checklists',
         'show_timezone',
         'format',
         'graded',
@@ -46,7 +45,12 @@ class CourseMetadata(object):
         'language',
         'certificates',
         'minimum_grade_credit',
-        'course_access_groups'
+        'course_access_groups',
+        'default_time_limit_minutes',
+        'is_proctored_enabled',
+        'is_time_limited',
+        'is_practice_exam',
+        'self_paced'
     ]
 
     @classmethod
@@ -74,8 +78,8 @@ class CourseMetadata(object):
             filtered_list.append('facebook_url')
 
         # Do not show social sharing url field if the feature is disabled.
-        if (not settings.FEATURES.get('SOCIAL_SHARING_SETTINGS') or
-                not settings.FEATURES.get("SOCIAL_SHARING_SETTINGS").get("CUSTOM_COURSE_URLS")):
+        if (not hasattr(settings, 'SOCIAL_SHARING_SETTINGS') or
+                not getattr(settings, 'SOCIAL_SHARING_SETTINGS', {}).get("CUSTOM_COURSE_URLS")):
             filtered_list.append('social_sharing_url')
 
         # Do not show teams configuration if feature is disabled.
