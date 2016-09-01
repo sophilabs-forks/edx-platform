@@ -384,6 +384,32 @@ class UserProfile(models.Model):
         """
         return cls.PROFILE_COUNTRY_CACHE_KEY.format(user_id=user_id)
 
+    def get_testdrive_course(self):
+        """We assume that testdrive only has one course per user."""
+        es = CourseEnrollment.enrollments_for_user(self.user)
+        try:
+            return CourseOverview.get_from_id(es[0].course_id)
+        except:
+            # I'm not sure if this can happen
+            # but we just give up if it does.
+            return None
+
+    def is_testdrive_expired(self):
+        """Helper function that checks whether a given user's testdrive is expiried.
+        It will only enfore this check if ENFORCE_TESTDRIVE_EXPIRATION is set to True (default)."""
+
+        co = self.get_testdrive_course()
+
+        if settings.ENFORCE_TESTDRIVE_EXPIRATION:
+            if co:
+                return timezone.now().date() > (co.created + timedelta(days=settings.TESTDRIVE_TRIAL_DAYS)).date()
+        return False
+
+    def days_til_testdrive_expires(self):
+        co = self.get_testdrive_course()
+        if co:
+            return abs((timezone.now().date() - (co.created + timedelta(days=settings.TESTDRIVE_TRIAL_DAYS)).date()).days)
+
 
 @receiver(models.signals.post_save, sender=UserProfile)
 def invalidate_user_profile_country_cache(sender, instance, **kwargs):  # pylint:   disable=unused-argument, invalid-name

@@ -96,6 +96,17 @@ class StartDateError(AccessError):
         super(StartDateError, self).__init__(error_code, developer_message, user_message)
 
 
+class TestDriveExpiredError(AccessError):
+    """
+    Access denied because the testdrive trial has expired
+    """
+    def __init__(self):
+        error_code = "testdrive_expired"
+        developer_message = "User's testdrive has expired"
+        user_message = _("Your testdrive trial period has expired. Please email info@appsembler.com for assistance.")
+        super(TestDriveExpiredError, self).__init__(error_code, developer_message, user_message)
+
+
 class MilestoneError(AccessError):
     """
     Access denied because the user has unfulfilled milestones
