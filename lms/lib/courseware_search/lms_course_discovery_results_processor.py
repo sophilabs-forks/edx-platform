@@ -44,7 +44,11 @@ class LmsCourseDiscoveryResultProcessor(SearchResultProcessor):
             'COURSE_CATALOG_VISIBILITY_PERMISSION',
             settings.COURSE_CATALOG_VISIBILITY_PERMISSION
         )
-        course = get_course_by_id(self.get_course_key(), depth=0)
-        if not has_access(user, permission_name, course):
+        try:
+            course = get_course_by_id(self.get_course_key(), depth=0)
+            if not has_access(user, permission_name, course):
+                return True
+        except:
             return True
+
         return False
