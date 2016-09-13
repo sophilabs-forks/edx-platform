@@ -214,7 +214,10 @@ class ProviderConfig(ConfigurationModel):
             )
 
             if settings.TPA_CLEAN_USERNAMES_ADD_RANDOM_INT:
+                suggested_username = suggested_username[:27] if len(suggested_username) > 27 else suggested_username
                 suggested_username += str(randrange(100, 999))
+            else:
+                suggested_username = suggested_username[:30] if len(suggested_username) > 30 else suggested_username
         #
         return {
             'email': details.get('email', ''),
