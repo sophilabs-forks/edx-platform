@@ -2,7 +2,7 @@
 # edX translation file.
 # Copyright (C) 2015 EdX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # vingte <411029240@qq.com>, 2014
 # Alfred <alfredhuang211@qq.com>, 2015
@@ -65,7 +65,7 @@
 # edX translation file.
 # Copyright (C) 2015 EdX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # 肖寒 <bookman@vip.163.com>, 2013
 # Changyue Wang <peterwang.dut@gmail.com>, 2014-2015
@@ -104,7 +104,7 @@
 # edX translation file
 # Copyright (C) 2015 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # perypery <410224186@qq.com>, 2014
 # vingte <411029240@qq.com>, 2014
@@ -192,7 +192,7 @@
 # edX translation file
 # Copyright (C) 2015 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # dcschwester <244876839@qq.com>, 2014
 # AdiaCheng <75707teen@gmail.com>, 2014
@@ -243,7 +243,7 @@
 # edX translation file
 # Copyright (C) 2013 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Wentao Han <wentao.han@gmail.com>, 2013
 # Wentao Han <wentao.han@gmail.com>, 2013
@@ -251,7 +251,7 @@
 # edX translation file
 # Copyright (C) 2015 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # focusheart <focusheart@gmail.com>, 2014
 # Harry Li <harry75369@gmail.com>, 2014
@@ -19906,3 +19906,31 @@ msgid ""
 "A new revision was created: Merge between Revision #%(r1)d and Revision "
 "#%(r2)d"
 msgstr "产生新的修订版本：合并修订版本#%(r1)d与#%(r2)d"
+
+msgid ""
+"Appsembler test"
+msgstr "产生新的修订版合 Matej"
+
+msgid ""
+"Check out our course catalog and enroll in some awesome courses!"
+msgstr "敬请浏览目录，参与精彩课程！"
+
+msgid ""
+"Training Home"
+msgstr "培训首页"
+
+msgid ""
+"Classroom Training & Events"
+msgstr "课堂培训与活动"
+
+msgid ""
+"Terms of Sale"
+msgstr "销售条款"
+
+msgid ""
+"Privacy"
+msgstr "隐私政策"
+
+msgid ""
+"Sign In or Register"
+msgstr "请登录或注册"
