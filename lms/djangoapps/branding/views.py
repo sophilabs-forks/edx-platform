@@ -11,6 +11,7 @@ from django.utils import translation
 from django.shortcuts import redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.contrib.auth.decorators import login_required
 
 from edxmako.shortcuts import render_to_response
 import student.views
@@ -43,7 +44,7 @@ def get_course_enrollments(user):
         ]
     return site_enrollments
 
-
+@login_required
 @ensure_csrf_cookie
 @cache_if_anonymous()
 def index(request):
