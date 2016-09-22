@@ -49,7 +49,7 @@ def generate_and_email_nyif_report():
 
     email_subject = 'NYIF CCA Report for {}'.format(last_month)
     email_content = """
-NYIF Corperate Client Report
+NYIF Corporate Client Report
 {date}
 
 Overview

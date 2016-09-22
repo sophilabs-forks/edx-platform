@@ -25,7 +25,7 @@ def generate_csv_grade_string(organization=None):
     """
     Create a CSV string that will be included in weekly report email
     """
-    header = ['#full_name','email','course_name','enrollment_date','progress','completion_date','score']
+    header = ['#full_name','email','organization','course_name','enrollment_date','progress','completion_date','score']
     encoded_header = [unicode(s).encode('utf-8') for s in header ]
     fp = io.BytesIO()
     writer = csv.writer(fp, quotechar='"', quoting=csv.QUOTE_ALL)
@@ -44,6 +44,11 @@ def generate_csv_grade_string(organization=None):
             full_name = student.profile.name
         except: 
             continue
+        try: 
+            organization = student.organizations.all()[0]
+        except: 
+            organization = 'none'
+
         email = student.email
         for enrollment in student.courseenrollment_set.all(): 
             try:
@@ -59,6 +64,7 @@ def generate_csv_grade_string(organization=None):
             row = [
                 full_name,
                 email,
+                organization,
                 course_name,
                 enrollment_date,
                 progress,
