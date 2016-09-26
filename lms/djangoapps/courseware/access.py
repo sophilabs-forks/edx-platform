@@ -876,4 +876,4 @@ def is_user_in_course_access_group(user, course_key):
 
     return False
 
-f
+
