@@ -12,11 +12,16 @@ from organizations.models import Organization
 class HrManager(models.Model):
     user = models.ForeignKey(User)
     organization = models.ForeignKey(Organization)
+    send_monthly_report = models.BooleanField(default=False)
 
     def __str__(self):
         return '{}: {}'.format(self.user, self.organization)
     #organization = models.ManyToManyField(Org)
 
+# Email addresses that will receive the sitewide report
+class SitewideReportList(models.Model):
+    email = models.EmailField(null=False)
+    send_monthly_report = models.BooleanField(default=False)
 
 class CourseAccessRequest(models.Model):
     user = models.ForeignKey(User)
