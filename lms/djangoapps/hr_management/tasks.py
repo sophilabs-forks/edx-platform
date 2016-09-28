@@ -65,8 +65,7 @@ Raw student grade data
         )
     for report_recipient in SitewideReportList.objects.all():
         if report_recipient.send_monthly_report:
-            send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, ['tj@appsembler.com'])
-            # send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, [report_recipient.email])
+            send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, [report_recipient.email])
 
 #TODO: refactor into above method
 @task()
@@ -113,5 +112,4 @@ Raw student grade data
         #send to all users who are marked to receive the email
         for manager in HrManager.objects.filter(organization=organization):
             if manager.send_monthly_report:
-                send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, ['tj@appsembler.com'])
-                # send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, [manager.user.email])
+                send_mail(email_subject, email_content, settings.DEFAULT_FROM_EMAIL, [manager.user.email])
