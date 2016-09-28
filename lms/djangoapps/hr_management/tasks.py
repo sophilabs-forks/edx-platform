@@ -80,7 +80,8 @@ def generate_and_email_customer_report():
         total_users = len(organization.users.all())
 
         total_enrollments = 0
-        courses = [ c for c in mongo_courses if c.org==org_string ]
+        mongo_courses = modulestore().get_courses()
+        courses = [ c for c in mongo_courses if c.org==organization.short_name ]
         total_courses = len(courses)
         for course in courses:
             enrollments = CourseEnrollment.objects.filter(course_id=course.id)
