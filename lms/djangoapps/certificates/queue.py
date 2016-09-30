@@ -386,11 +386,19 @@ class XQueueCertInterface(object):
 
         key = make_hashkey(random.random())
         cert.key = key
+        credits = course.credits
+        try:
+            credits = int(credits) == credits and int(credits) or credits
+        except (TypeError, ValueError):
+            credits = None
+        credit_provider = course.credit_provider
         contents = {
             'action': 'create',
             'username': student.username,
             'course_id': course_id,
             'course_name': course.display_name or course_id,
+            'credits': credits,
+            'credit_provider': credit_provider,
             'name': cert.name,
             'grade': grade_contents,
             'template_pdf': template_pdf,
@@ -445,12 +453,23 @@ class XQueueCertInterface(object):
             example_cert (ExampleCertificate)
 
         """
+        course_id = example_cert.course_key
+        course = modulestore().get_course(course_id, depth=0)
+        credits = course.credits
+        try:
+            credits = int(credits) == credits and int(credits) or credits
+        except (TypeError, ValueError):
+            credits = None
+        credit_provider = course.credit_provider
+
         contents = {
             'action': 'create',
             'course_id': unicode(example_cert.course_key),
-            'course_name': example_cert.full_name,
+            'course_name': course.display_name or course_id,
             'name': example_cert.full_name,
             'template_pdf': example_cert.template,
+            'credits': credits,
+            'credit_provider': credit_provider,
 
             # Example certificates are not associated with a particular user.
             # However, we still need to find the example certificate when
@@ -480,6 +499,7 @@ class XQueueCertInterface(object):
                 callback_url_path=callback_url_path
             )
             LOGGER.info(u"Started generating example certificates for course '%s'.", example_cert.course_key)
+            # LOGGER.info(u"XQueue body contents will be '%s'.", json.dumps(contents))
         except XQueueAddToQueueError as exc:
             example_cert.update_status(
                 ExampleCertificate.STATUS_ERROR,

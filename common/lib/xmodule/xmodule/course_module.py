@@ -23,6 +23,8 @@ from xblock.fields import Scope, List, String, Dict, Boolean, Integer, Float
 from .fields import Date
 from django.utils.timezone import UTC
 
+from trinityeduedx.credit import CreditsMixin
+
 
 log = logging.getLogger(__name__)
 
@@ -749,7 +751,7 @@ class CourseModule(CourseFields, SequenceModule):  # pylint: disable=abstract-me
     """
 
 
-class CourseDescriptor(CourseFields, SequenceDescriptor, LicenseMixin):
+class CourseDescriptor(CourseFields, SequenceDescriptor, LicenseMixin, CreditsMixin):
     """
     The descriptor for the course XModule
     """
@@ -892,6 +894,9 @@ class CourseDescriptor(CourseFields, SequenceDescriptor, LicenseMixin):
         # load license if it exists
         definition = LicenseMixin.parse_license_from_xml(definition, xml_object)
 
+        # get credits/providers info if it exists
+        # definition = CreditsMixin.parse_license_from_xml(definition, xml_object)
+
         return definition, children
 
     def definition_to_xml(self, resource_fs):
@@ -913,6 +918,9 @@ class CourseDescriptor(CourseFields, SequenceDescriptor, LicenseMixin):
         # handle license specifically. Default the course to have a license
         # of "All Rights Reserved", if a license is not explicitly set.
         self.add_license_to_xml(xml_object, default="all-rights-reserved")
+
+        # handle credits/credit providers.  
+        # self.add_credits_to_xml(xml_object)
 
         return xml_object
 
