@@ -1832,7 +1832,7 @@ class LinkedInAddToProfileConfiguration(ConfigurationModel):
         """
         params = OrderedDict([
             ('_ed', self.company_identifier),
-            ('pfLicenseNo', self.license_id),
+            ('pfLicenseNo', self.license_id or ""),
             ('pfCertificationName', self._cert_name(course_name, cert_mode).encode('utf-8')),
             ('pfCertificationUrl', cert_url),
             ('source', source)
