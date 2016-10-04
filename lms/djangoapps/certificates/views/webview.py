@@ -288,7 +288,10 @@ def _update_social_context(request, context, course, user, user_certificate, pla
 
     # posting certificates to LinkedIn is not currently
     # supported in microsites/White Labels
-    if linkedin_config.enabled and not microsite.is_request_in_microsite():
+    # ...
+    # we don't care if the validation url is not in the microsite
+    # allow linkedin anyhow.
+    if linkedin_config.enabled:
         context['linked_in_url'] = linkedin_config.add_to_profile_url(
             course.id,
             course.display_name,
