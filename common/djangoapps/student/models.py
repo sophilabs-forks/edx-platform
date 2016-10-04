@@ -1793,6 +1793,15 @@ class LinkedInAddToProfileConfiguration(ConfigurationModel):
         )
     )
 
+    license_id = models.TextField(
+        blank=True,
+        default="",
+        help_text=_(
+            u"The license number or id for the LinkedIn Add-to-Profile button "
+            u"e.g NASBA 010101"
+        )
+    )
+
     # Deprecated
     dashboard_tracking_code = models.TextField(default="", blank=True)
 
@@ -1823,6 +1832,7 @@ class LinkedInAddToProfileConfiguration(ConfigurationModel):
         """
         params = OrderedDict([
             ('_ed', self.company_identifier),
+            ('pfLicenseNo', self.license_id),
             ('pfCertificationName', self._cert_name(course_name, cert_mode).encode('utf-8')),
             ('pfCertificationUrl', cert_url),
             ('source', source)
