@@ -9759,7 +9759,7 @@ msgstr "课程面板"
 
 #: lms/templates/dashboard.html
 msgid "My Courses"
-msgstr ""
+msgstr "我的课程"
 
 #: lms/templates/dashboard.html
 msgid "Looks like you haven't enrolled in any courses yet."
@@ -19934,3 +19934,11 @@ msgstr "隐私政策"
 msgid ""
 "Sign In or Register"
 msgstr "请登录或注册"
+
+msgid ""
+"MyAccount"
+msgstr "我的帐号"
+
+msgid ""
+"Terms of Use"
+msgstr "使用条款"
