@@ -175,14 +175,13 @@ class CertificatesViewsTests(ModuleStoreTestCase, EventTrackingTestCase):
     @mock.patch("microsite_configuration.microsite.is_request_in_microsite", _fake_is_request_in_microsite)
     def test_linkedin_share_microsites(self):
         """
-        Test: LinkedIn share URL should not be visible when called from within a microsite (for now)
+        Test: LinkedIn share URL _should_ be visible when called from within a microsite
         """
         self._add_course_certificates(count=1, signatory_count=1, is_active=True)
         test_url = get_certificate_url(course_id=self.cert.course_id, uuid=self.cert.verify_uuid)
         response = self.client.get(test_url)
         self.assertEqual(response.status_code, 200)
-        # the URL should not be present
-        self.assertNotIn(urllib.quote_plus(self.request.build_absolute_uri(test_url)), response.content)
+        self.assertIn(urllib.quote_plus(self.request.build_absolute_uri(test_url)), response.content)
 
     @override_settings(FEATURES=FEATURES_WITH_CERTS_ENABLED)
     def test_rendering_course_organization_data(self):
@@ -277,7 +276,7 @@ class CertificatesViewsTests(ModuleStoreTestCase, EventTrackingTestCase):
         )
         # Test an item from user info
         self.assertIn(
-            "{fullname}, you've earned a certificate!".format(fullname=self.user.profile.name),
+            "{fullname}, you&#39;ve earned a certificate!".format(fullname=self.user.profile.name),
             response.content
         )
         # Test an item from social info
