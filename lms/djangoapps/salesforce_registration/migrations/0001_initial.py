@@ -1,34 +1,21 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import migrations, models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'SalesforceDomainEntry'
-        db.create_table('salesforce_registration_salesforcedomainentry', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('category', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
-            ('domain', self.gf('django.db.models.fields.CharField')(default='', unique=True, max_length=255)),
-        ))
-        db.send_create_signal('salesforce_registration', ['SalesforceDomainEntry'])
+    dependencies = [
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'SalesforceDomainEntry'
-        db.delete_table('salesforce_registration_salesforcedomainentry')
-
-
-    models = {
-        'salesforce_registration.salesforcedomainentry': {
-            'Meta': {'object_name': 'SalesforceDomainEntry'},
-            'category': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
-            'domain': ('django.db.models.fields.CharField', [], {'default': "''", 'unique': 'True', 'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        }
-    }
-
-    complete_apps = ['salesforce_registration']
+    operations = [
+        migrations.CreateModel(
+            name='SalesforceDomainEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('category', models.CharField(default=b'', max_length=255)),
+                ('domain', models.CharField(default=b'', unique=True, max_length=255)),
+            ],
+        ),
+    ]
