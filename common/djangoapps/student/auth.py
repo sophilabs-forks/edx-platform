@@ -89,7 +89,10 @@ def has_studio_write_access(user, course_key):
     :param user:
     :param course_key: a CourseKey
     """
-    return bool(STUDIO_EDIT_CONTENT & get_user_permissions(user, course_key))
+    if ((not user.is_anonymous()) and user.profile.is_testdrive_expired()):
+        return False
+    else:
+        return bool(STUDIO_EDIT_CONTENT & get_user_permissions(user, course_key))
 
 
 def has_course_author_access(user, course_key):
@@ -107,7 +110,11 @@ def has_studio_read_access(user, course_key):
     There is currently no such thing as read-only course access in studio, but
     there is read-only access to content libraries.
     """
-    return bool(STUDIO_VIEW_CONTENT & get_user_permissions(user, course_key))
+    # We only check for testdrive expiration for actual users
+    if ((not user.is_anonymous()) and user.profile.is_testdrive_expired()):
+        return False
+    else:
+        return bool(STUDIO_VIEW_CONTENT & get_user_permissions(user, course_key))
 
 
 def add_users(caller, role, *users):

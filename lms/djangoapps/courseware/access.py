@@ -59,6 +59,7 @@ from courseware.access_response import (
     MilestoneError,
     MobileAvailabilityError,
     VisibilityError,
+    TestDriveExpiredError,
 )
 from courseware.access_utils import (
     adjust_start_date, check_start_date, debug, ACCESS_GRANTED, ACCESS_DENIED,
@@ -101,6 +102,14 @@ def has_access(user, action, obj, course_key=None):
     # Just in case user is passed in as None, make them anonymous
     if not user:
         user = AnonymousUser()
+
+    # We only check for testdrive expiration for actual users
+    # and we add an additional check for ENFORCE_TESTDRIVE_EXPIRATION_LMS
+    # just in case we find out that want to enable this later
+    if ((not user.is_anonymous()) and
+         settings.ENFORCE_TESTDRIVE_EXPIRATION_LMS and
+         user.profile.is_testdrive_expired()):
+        return TestDriveExpiredError()
 
     if isinstance(course_key, CCXLocator):
         course_key = course_key.to_course_locator()
