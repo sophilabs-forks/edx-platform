@@ -65,6 +65,8 @@ from courseware.access_utils import (
     in_preview_mode
 )
 
+from course_access_group.models import CourseAccessGroup
+
 log = logging.getLogger(__name__)
 
 
@@ -300,7 +302,7 @@ def _can_enroll_courselike(user, courselike):
         reg_method_ok = True
 
     #access group check
-    if not is_user_in_course_access_group(user,course.id):
+    if not is_user_in_course_access_group(user,course_key):
         return ACCESS_DENIED
 
     # If the user appears in CourseEnrollmentAllowed paired with the given course key,
