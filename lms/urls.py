@@ -331,7 +331,7 @@ urlpatterns += (
     # TODO: These views need to be updated before they work
     url(r'^calculate$', 'util.views.calculate'),
 
-    url(r'^courses/?$', 'student.views.dashboard', name="courses"),
+    url(r'^courses/?$', 'branding.views.courses', name="courses"),
     url(
         r'^change_enrollment$',
         'student.views.change_enrollment',
