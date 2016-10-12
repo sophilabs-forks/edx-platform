@@ -1,0 +1,19 @@
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<%block name="pagetitle">Microsite Management</%block>
+
+<section class="hr-management hr-management__wrapper">
+	<div class="hr-management__container hr--index">
+	<div>Microsites</div>
+		<ul class="hr-management">
+			% for microsite in microsites:
+				<li>
+					<span><a href="${microsite.home_url.href}" target="_blank">${microsite.home_url.label}</a></span>
+					<span>[ <a href="${microsite.management_url.href}" target="_blank">${microsite.management_url.label} ]</span>
+
+				</li>
+			% endfor
+		</ul>
+	</div>
+</section>

@@ -15,6 +15,7 @@ from ipware.ip import get_ip
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from organizations.models import Organization
+from organizations import api as orgsApi
 
 from course_modes.models import CourseMode
 from courseware.courses import get_course_by_id
@@ -29,25 +30,62 @@ from xmodule.modulestore.django import modulestore
 from .models import HrManager, CourseAccessRequest, CourseCCASettings
 from hr_management.tasks import send_email_to_user
 
+from .utils import generate_microsite_vo
+
+
 log = logging.getLogger(__name__)
+
+log.setLevel(logging.INFO)
 
 @login_required
 def index(request):
     user = request.user
     domain = request.META.get('HTTP_HOST', None)
-    microsite = Microsite.get_microsite_for_domain(domain)
-    organizations = microsite.get_organizations()
-    organization = organizations[0]
+    # domain will be the domain as showin in the browser URL bar
+    # ex for localhost: "localhost:8000" or "127.0.0.1:8000"
+    log.info("hr-management#index domain = {}".format(domain))
 
-    _user_has_access(user,organization)
+    # Check if the domain is a microsite
+    
+    #import pdb; pdb.set_trace()
+    microsite = Microsite.get_microsite_for_domain(domain)        
+    organization = None
+    if microsite:
+        log.info("our microsite = {}".format(microsite))
+        organizations = microsite.get_organizations()
+        #
+        if organizations:
+            organization = organizations[0]
 
-    context = {
-        'message': 'hr index',
-        'user': user,
-        'microsite': microsite,
-        'organization': organization
-    }
-    return render_to_response('hr_management/index.html', context)
+        # TODO: Handle when there is no organization
+        _user_has_access(user,organization)
+
+        context = {
+            'message': 'hr index',
+            'user': user,
+            'microsite': microsite,
+            'organization': organization
+        }
+        return render_to_response('hr_management/index.html', context)            
+    else:
+        # Serve up the 'manage microsites page'
+        # We don't have to worry about pagination *yet*
+        # https://docs.djangoproject.com/en/1.8/topics/pagination/
+
+        port = 8000
+
+        microsites = [
+            generate_microsite_vo(obj, port) for obj in Microsite.objects.all()
+        ]
+
+        context = {
+            'message': 'manage microsites',
+            'user': user,
+            'microsites': microsites,
+        }
+        return render_to_response('hr_management/manage_microsites.html', context)
+
+
 
 @login_required
 def user_list(request):

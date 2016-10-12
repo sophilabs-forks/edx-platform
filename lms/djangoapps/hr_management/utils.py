@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from hr_management.models import CourseAccessRequest
 
 from instructor.offline_gradecalc import student_grades
@@ -9,6 +11,13 @@ from django.contrib.auth.models import User
 from datetime import datetime
 import csv
 import io
+
+
+HrefLabel = namedtuple('HrefLabel', ['href', 'label'])
+
+# Microsite value object. Primary use in templates
+# the url members are intended for the HrefLabel above
+MicrositeVO = namedtuple('MicrositeVO', ['home_url', 'management_url', 'microsite'])
 
 def requested_access_for_course(course, user):
     """
@@ -78,3 +87,26 @@ def generate_csv_grade_string(organization=None):
     fp.close()
 
     return raw_grade_data
+
+def generate_microsite_vo(microsite, port=None):
+    """
+    Create a namedtuple of data to show in the UI
+
+    We build our urls here to keep the view and template simpler
+
+    Massage microsites to get the urls we want
+    Use protocol relative URL
+
+    Perhaps another option is creating custom template filters
+    https://docs.djangoproject.com/en/1.8/howto/custom-template-tags/
+    """
+    port_str = ':{}'.format(port) if port else ''
+    return MicrositeVO(
+        home_url=HrefLabel(
+            href='//{}{}'.format(microsite.site.domain, port_str),
+            label=microsite.site),
+        management_url=HrefLabel(
+            href='//{}{}/hr-management/'.format(microsite.site.domain, port_str),
+            label='manage'),
+        microsite=microsite
+    )
