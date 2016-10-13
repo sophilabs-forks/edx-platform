@@ -1,16 +1,34 @@
+
+# Standard Python includes
 from collections import namedtuple
-
-from hr_management.models import CourseAccessRequest
-
-from instructor.offline_gradecalc import student_grades
-from instructor.utils import DummyRequest
-from student.models import CourseEnrollment
-from courseware.courses import get_course_by_id
-from django.contrib.auth.models import User
-
 from datetime import datetime
 import csv
 import io
+import logging
+
+# Django includes
+from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+
+# Open edx includes
+from courseware.courses import get_course_by_id
+from instructor.offline_gradecalc import student_grades
+from instructor.utils import DummyRequest
+from microsite_configuration.models import Microsite, MicrositeOrganizationMapping
+from organizations import api as orgsApi
+from student.models import CourseEnrollment
+
+# other 3rd party includes
+
+# this package includes
+
+from hr_management.models import CourseAccessRequest
+
+
+
+log = logging.getLogger(__name__)
+
+log.setLevel(logging.INFO)
 
 
 HrefLabel = namedtuple('HrefLabel', ['href', 'label'])
@@ -110,3 +128,83 @@ def generate_microsite_vo(microsite, port=None):
             label='manage'),
         microsite=microsite
     )
+
+def create_microsite(**kwargs):
+    """
+
+    Example of end result:
+    Site: 
+    domain name: fdic.learning.nyif.com
+    display name: fdic
+
+    Organization:
+    long name: 'FDIC'
+    short name: 'FDIC'
+    Description: 'fdic microsite'
+
+
+    microsite:
+        Site: fdic.learninbg.nyif.com
+        key: 'fdic'
+        values: {
+      "PLATFORM_NAME":"FDIC",
+      "platform_name":"FDIC"
+    }
+
+        TODO: Add testing when data broken (like missing org_long_name)
+    """
+
+    # Do some sanity checking
+    # TODO: Raise if missing critical data
+
+    log.info("create_microsite kwargs = {}".format(kwargs))
+
+    subdomain_name = kwargs.get('subdomain_name')
+    # first check if microsite exists
+    microsites = Microsite.objects.filter(key=subdomain_name)
+    if microsites:
+        return microsites[0]
+
+    subdomain_full_hostname = "{}.{}".format(
+        kwargs.get('subdomain_name'),
+        kwargs.get('domain')
+    )
+
+    try:
+        organization = orgsApi.get_organization_by_short_name(
+            kwargs.get('org_short_name'))
+        # TODO: Also need to check org by long name
+    except:
+        organization = None
+
+    if not organization:
+        organization = orgsApi.add_organization({
+            'name': kwargs.get('org_long_name'),
+            'short_name': kwargs.get('org_short_name'),
+            'description': kwargs.get('org_description')
+            });
+
+
+    # TODO: Check if site already exists
+    sites = Site.objects.filter(domain=subdomain_full_hostname)
+    if sites:
+        site = sites[0]
+    else:
+        site = Site(domain=subdomain_full_hostname, name=subdomain_name)
+        site.save()
+
+    platform_name = 'TBD'    
+    # Create the microsite
+    microsite = Microsite(
+        key=subdomain_name,
+        values={
+            'PLATFORM_NAME': platform_name,
+            'platform_name': platform_name
+        },
+        site=site)
+    microsite.save()
+    morg = MicrositeOrganizationMapping(microsite=microsite,
+        organization=kwargs.get('org_long_name'))
+    morg.save()
+    
+    return microsite

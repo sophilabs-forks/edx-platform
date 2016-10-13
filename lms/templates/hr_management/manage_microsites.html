@@ -1,19 +1,63 @@
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
+<%!
+from django.core.urlresolvers import reverse
+%>
 <link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
 <%block name="pagetitle">Microsite Management</%block>
 
 <section class="hr-management hr-management__wrapper">
-	<div class="hr-management__container hr--index">
-	<div>Microsites</div>
-		<ul class="hr-management">
-			% for microsite in microsites:
-				<li>
-					<span><a href="${microsite.home_url.href}" target="_blank">${microsite.home_url.label}</a></span>
-					<span>[ <a href="${microsite.management_url.href}" target="_blank">${microsite.management_url.label} ]</span>
 
-				</li>
-			% endfor
-		</ul>
-	</div>
+  % if messages:
+  <ul class="hr-management__notifications">
+    % for message in messages:
+      <li
+        % if message.tags:
+          class="${message.tags}"
+        % endif
+        >
+          <span>
+            ${message}
+          </span>
+        </li>
+    % endfor
+  </ul>
+  % endif
+
+  <div class="">
+    <h1>Create a microsite:</h1>
+      <form action="${reverse('add_microsite')}" method="POST" class="request-controls">
+        <div class="hr-form-group">
+          <div class="group-header">Organization details:</div>
+          <label>Organization long name</label>
+          <input id="org_long_name" type="text" name="org_long_name" placeholder="My Organization">
+          <label>Organization short name</label>
+          <input id="org_short_name" type="text" name="org_short_name" placeholder="myorg">
+          <label>Organization description</labe>
+          <input id="org_description" type="text" name="org_description" placeholder="add some description">
+        </div>
+        <div class="hr-form-group">
+          <div class="group-header">Microsite details:</div>
+          <label>Microsite subdomain name:</label>
+          <input id="subdomain_name" type="text" name="subdomain_name">
+        </div>
+        <input type="hidden" name="hostname" value="${ hostname }" />
+        <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
+        <input type="submit" value="OK">
+      </form>
+  </div>
+
+  <div class="">
+    <h1>Available Microsites</h1>
+    <div class="hr-management__container hr--index">
+      <ul class="hr-management">
+        % for microsite in microsites:
+          <li>
+            <span><a href="${microsite.home_url.href}" target="_blank">${microsite.home_url.label}</a></span>
+            <span>[ <a href="${microsite.management_url.href}" target="_blank"> ${microsite.management_url.label} ]</a></span>
+          </li>
+        % endfor
+      </ul>
+    </div>
+    </div>
 </section>

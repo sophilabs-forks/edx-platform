@@ -1,9 +1,12 @@
 import logging
 
+from urlparse import urlparse
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -14,8 +17,8 @@ from django.views.decorators.http import require_POST
 from ipware.ip import get_ip
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
-from organizations.models import Organization
 from organizations import api as orgsApi
+from organizations.models import Organization
 
 from course_modes.models import CourseMode
 from courseware.courses import get_course_by_id
@@ -30,12 +33,19 @@ from xmodule.modulestore.django import modulestore
 from .models import HrManager, CourseAccessRequest, CourseCCASettings
 from hr_management.tasks import send_email_to_user
 
-from .utils import generate_microsite_vo
+from .utils import generate_microsite_vo, create_microsite
 
 
 log = logging.getLogger(__name__)
 
 log.setLevel(logging.INFO)
+
+"""
+Comments:
+
+subdomain resolution may be a challenge if the hostname is an IP instead of a 
+domain name
+"""
 
 @login_required
 def index(request):
@@ -45,8 +55,14 @@ def index(request):
     # ex for localhost: "localhost:8000" or "127.0.0.1:8000"
     log.info("hr-management#index domain = {}".format(domain))
 
+    # in Vagrant, returns 'example.com', which we don't want
+    #log.info("get_current_site={}".format(get_current_site(request)))
+
+    # returns just the stuff after the domain:port
+    #log.info("get_full_path={}".format(request.get_full_path()))
     # Check if the domain is a microsite
-    
+    #log.info("build_abs_uri={}".format(request.build_absolute_uri()))
+
     #import pdb; pdb.set_trace()
     microsite = Microsite.get_microsite_for_domain(domain)        
     organization = None
@@ -71,20 +87,92 @@ def index(request):
         # Serve up the 'manage microsites page'
         # We don't have to worry about pagination *yet*
         # https://docs.djangoproject.com/en/1.8/topics/pagination/
+        url = urlparse(request.build_absolute_uri())
 
-        port = 8000
+        log.info("Host full url={}".format(url))
+        log.info("hostname = {}".format(url.hostname))
+        log.info("port = {}".format(url.port))
+        port = url.port
 
+        # We're making an assumtion that we are in our site TLD (not a microsite url)
+        # Because a TLD could be
+        # localhost
+        # example.com
+        # example.co.uk
+        # learning.nyif.com (where we will have microsites like micro1.learning.nyif.com)
+        #
+        # See what we're saying?
+        hostname = url.hostname 
         microsites = [
             generate_microsite_vo(obj, port) for obj in Microsite.objects.all()
         ]
 
+        # We might not need host name, but
         context = {
             'message': 'manage microsites',
             'user': user,
             'microsites': microsites,
+            'hostname': hostname,
         }
         return render_to_response('hr_management/manage_microsites.html', context)
 
+@login_required
+@require_POST
+def add_microsite(request):
+    """
+    example
+    site fdic.learning.nyif.com
+    key: fdic
+    values: {
+        "PLATFORM_NAME": "FDIC",
+        "platform_name": "FDIC"
+    }
+
+    create a site
+    create an organization 
+    create a microsite
+    create a microsite mapping
+
+    Site fields: 
+
+        domain_name: full domain name: subdomain1.example.1
+        display_name: just a name: Subdomain1
+
+
+    """
+    user = request.user
+
+    data = create_microsite(
+        domain=request.POST.get('hostname'),
+        org_long_name=request.POST.get('org_long_name'),
+        org_short_name=request.POST.get('org_short_name'),
+        org_description=request.POST.get('org_description'),
+        subdomain_name=request.POST.get('subdomain_name'),
+    )
+
+    # 
+    #try:
+        #user_request_object = User.objects.get(id=request.POST.get('user_request_id'))
+    #except:
+    #   e = sys.exc_info()[0]
+        # Add Error flash
+    #    log.error('error adding microsite: {}'.format(e))
+
+    return redirect('index')    
+
+"""
+@login_required
+@require_POST
+def change_course_cca_settings(request):
+    course_id = request.POST.get('course_id')
+    course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
+    cca_settings = CourseCCASettings.objects.get(course_id=course_key)
+    require_access_request = (request.POST.get('require_access_request', '').lower() == 'on')
+    cca_settings.require_access_request = require_access_request
+    cca_settings.save()
+    messages.success(request, 'Succesfully updated course settings')
+    return redirect('course_detail', course_id=cca_settings.course_id.to_deprecated_string())
+"""
 
 
 @login_required
