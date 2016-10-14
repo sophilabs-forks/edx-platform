@@ -385,6 +385,10 @@ def _has_access_course(user, action, courselike):
         In this case we use the catalog_visibility property on the course descriptor
         but also allow course staff to see this.
         """
+        #short circuit if user not in CAG
+        if not is_user_in_course_access_group(user, courselike.id):
+            return ACCESS_DENIED
+
         return (
             _has_catalog_visibility(courselike, CATALOG_VISIBILITY_CATALOG_AND_ABOUT)
             or _has_staff_access_to_descriptor(user, courselike, courselike.id)
