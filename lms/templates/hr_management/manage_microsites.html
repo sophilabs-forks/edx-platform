@@ -3,53 +3,58 @@
 <%!
 from django.core.urlresolvers import reverse
 %>
-<link rel="stylesheet" href="${static.url("css/hr-management-style.css")}" type="text/css" media="all" />
+<link rel="stylesheet" href="${static.url("css/hr-management.css")}" type="text/css" media="all" />
 <%block name="pagetitle">Microsite Management</%block>
 
-<section class="hr-management hr-management__wrapper">
-
-  % if messages:
-  <ul class="hr-management__notifications">
-    % for message in messages:
-      <li
-        % if message.tags:
-          class="${message.tags}"
-        % endif
-        >
-          <span>
-            ${message}
-          </span>
-        </li>
-    % endfor
-  </ul>
-  % endif
-
-  <div class="">
+<section class="hr-management hr-management__wrapper2">
+  <div class="hr_management__container2">
+    % if messages:
+    <ul class="hr-management__notifications">
+      % for message in messages:
+        <li
+          % if message.tags:
+            class="${message.tags}"
+          % endif
+          >
+            <span>
+              ${message}
+            </span>
+          </li>
+      % endfor
+    </ul>
+    % endif
+  </div>
+  <div class="hr-management__container2">
     <h1>Create a microsite:</h1>
-      <form action="${reverse('add_microsite')}" method="POST" class="request-controls">
-        <div class="hr-form-group">
+    <form action="${reverse('add_microsite')}" method="POST" class="microsite-manager-form">
+      <div class="microsite-manager_group-row">
+      <!-- contain our grouped inputs -->
+        <div class="microsite-manager_group-col">
           <div class="group-header">Organization details:</div>
           <label>Organization long name</label>
           <input id="org_long_name" type="text" name="org_long_name" placeholder="My Organization">
           <label>Organization short name</label>
           <input id="org_short_name" type="text" name="org_short_name" placeholder="myorg">
           <label>Organization description</labe>
-          <input id="org_description" type="text" name="org_description" placeholder="add some description">
+          <input id="org_description" type="text" name="org_description" placeholder="add some description">      
         </div>
-        <div class="hr-form-group">
+        <div class="microsite-manager_group-col">
           <div class="group-header">Microsite details:</div>
           <label>Microsite subdomain name:</label>
-          <input id="subdomain_name" type="text" name="subdomain_name">
+          <input id="subdomain_name" type="text" name="subdomain_name" placeholder="just the subdomain name, not the fully qualified domain">
         </div>
+      </div>
+      <div class="microsite-manager_group-row">
+      <!-- contain our form buttons -->
         <input type="hidden" name="hostname" value="${ hostname }" />
         <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }" />
         <input type="submit" value="OK">
-      </form>
+      </div>
+    </form>  
   </div>
-
-  <div class="">
+  <div class="hr-management__container2">
     <h1>Available Microsites</h1>
-    <div class="hr-management__container hr--index">
+    <div class=" hr--index">
       <ul class="hr-management">
         % for microsite in microsites:
           <li>
@@ -59,5 +64,5 @@ from django.core.urlresolvers import reverse
         % endfor
       </ul>
     </div>
-    </div>
+  </div>
 </section>
