@@ -29,6 +29,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.template.defaultfilters import pluralize
 from django.db import models, IntegrityError, transaction
 from django.db.models import Count
 from django.db.models.signals import pre_save, post_save
@@ -408,7 +409,11 @@ class UserProfile(models.Model):
     def days_til_testdrive_expires(self):
         co = self.get_testdrive_course()
         if co:
-            return abs((timezone.now().date() - (co.created + timedelta(days=settings.TESTDRIVE_TRIAL_DAYS)).date()).days)
+            days = abs((timezone.now().date() - (co.created + timedelta(days=settings.TESTDRIVE_TRIAL_DAYS)).date()).days)
+            return '{0} day{1}'.format(days, pluralize(days))
+        # FIXME: this is really weird but basically it assumes that if the user doesn't have a course that
+        # his trial has not yet started.
+        return '{0} day{1}'.format(settings.TESTDRIVE_TRIAL_DAYS, pluralize(settings.TESTDRIVE_TRIAL_DAYS))
 
 
 @receiver(models.signals.post_save, sender=UserProfile)
