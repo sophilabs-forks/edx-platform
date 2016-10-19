@@ -1,12 +1,12 @@
 # pylint: disable=missing-docstring,unused-argument
 
 from django.http import (HttpResponse, HttpResponseServerError,
-                         HttpResponseNotFound)
+                         HttpResponseNotFound, HttpResponseForbidden)
 from edxmako.shortcuts import render_to_string, render_to_response
 import functools
 from openedx.core.lib.js_utils import escape_json_dumps
 
-__all__ = ['not_found', 'server_error', 'render_404', 'render_500']
+__all__ = ['not_found', 'server_error', 'render_404', 'render_500', 'render_403']
 
 
 def jsonable_error(status=500, message="The Studio servers encountered an error"):
@@ -35,6 +35,11 @@ def not_found(request):
 @jsonable_error(500, "The Studio servers encountered an error")
 def server_error(request):
     return render_to_response('error.html', {'error': '500'})
+
+
+@jsonable_error(403, "Forbidden")
+def render_403(request):
+    return HttpResponseForbidden(render_to_string('403.html', {}))
 
 
 @jsonable_error(404, "Resource not found")
