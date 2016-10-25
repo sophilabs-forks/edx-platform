@@ -251,7 +251,11 @@
     background-color: #c0392b;
 }
 
-/*  John's hacks */
+/*
+ * John's layout hacks
+ *
+ * Padding and margin order: bottom left right top
+ */
 
 .hr-management__wrapper2 {
     padding: 20px 0;
@@ -259,12 +263,16 @@
 }
 
 .hr-management__container2 {
-    padding: 50px 30px;
+    padding: 10px 30px;
     width: 100%;
     max-width: 920px;
-    margin: 0 auto;
+    margin: 10px auto;
     background-color: #fff;
     border: 1px solid #ddd;
+}
+
+.hr-management__container2 h1 {
+    margin-bottom: 10px;
 }
 
 .microsite-manager-form {
@@ -274,6 +282,11 @@
     justify-content: center;
 }
 
+.microsite-manager-form .group-header {
+    padding-bottom: 10px;
+    font-size: 1.2em;
+}
+
 /* Yes, there is redundancy for the row and col */
 .microsite-manager_group-row {
     display: flex;
@@ -281,7 +294,6 @@
     flex-direction: row;
     flex-grow: 1;
     justify-content: center;
-    /* bottom left right top */
     padding: 20px 10px;
 }
 
@@ -296,10 +308,30 @@
 }
 
 
+
+.microsite-manager-form label {
+    cursor: default;
+}
 .microsite-manager-form input[type="text"] {
     display: block;
 }
 
+.mm-microsite-list ul {
+    list-style-type: none;
+}
+.mm-microsite-list li {
+   padding: 5px 5px;
+    font-size: 1.5em;
+}
+.mm-microsite-list a {
+    cursor: pointer;
+}
 
-
+.microsite-link {
+    margin-right: 5px;
+}
+.microsite-mgr-link {
+    
+    font-size: 0.8em;
+}
 

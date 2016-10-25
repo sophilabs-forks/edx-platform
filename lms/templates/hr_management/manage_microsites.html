@@ -35,7 +35,7 @@ from django.core.urlresolvers import reverse
           <input id="org_long_name" type="text" name="org_long_name" placeholder="My Organization">
           <label>Organization short name</label>
           <input id="org_short_name" type="text" name="org_short_name" placeholder="myorg">
-          <label>Organization description</labe>
+          <label>Organization description</label>
           <input id="org_description" type="text" name="org_description" placeholder="add some description">      
         </div>
         <div class="microsite-manager_group-col">
@@ -54,12 +54,12 @@ from django.core.urlresolvers import reverse
   </div>
   <div class="hr-management__container2">
     <h1>Available Microsites</h1>
-    <div class=" hr--index">
-      <ul class="hr-management">
+    <div class="mm-microsite-list">
+      <ul>
         % for microsite in microsites:
           <li>
-            <span><a href="${microsite.home_url.href}" target="_blank">${microsite.home_url.label}</a></span>
-            <span>[ <a href="${microsite.management_url.href}" target="_blank"> ${microsite.management_url.label} ]</a></span>
+            <span class="microsite-link"><a href="${microsite.home_url.href}" target="_blank">${microsite.home_url.label}</a></span>
+            <span class="microsite-mgr-link">[ <a href="${microsite.management_url.href}" target="_blank"> ${microsite.management_url.label} ]</a></span>
           </li>
         % endfor
       </ul>
