@@ -203,8 +203,9 @@ def create_microsite(**kwargs):
         },
         site=site)
     microsite.save()
+    # TODO: Double check if we are using long or short name
     morg = MicrositeOrganizationMapping(microsite=microsite,
-        organization=kwargs.get('org_long_name'))
+        organization=kwargs.get('org_short_name'))
     morg.save()
     
     return microsite
