@@ -273,6 +273,10 @@
 
 .hr-management__container2 h1 {
     margin-bottom: 10px;
+    text-align: : center;
+    font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;
+    font-style: normal;
+    font-size: 2.0em;
 }
 
 .microsite-manager-form {
@@ -311,9 +315,11 @@
 
 .microsite-manager-form label {
     cursor: default;
+    font-size: 1.0em;
 }
 .microsite-manager-form input[type="text"] {
     display: block;
+    font-size: 1.0em;
 }
 
 .mm-microsite-list ul {
@@ -325,7 +331,18 @@
 }
 .mm-microsite-list a {
     cursor: pointer;
+    color: black;
+    font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;
+    font-style: normal;
+    text-decoration: none;
 }
+
+.mm-microsite-list a:hover {
+    cursor: pointer;
+    color: black;
+    text-decoration: underline;
+}
+
 
 .microsite-link {
     margin-right: 5px;
