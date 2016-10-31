@@ -5,10 +5,8 @@ from django.core.urlresolvers import reverse
 %>
 <link rel="stylesheet" href="${static.url("css/hr-management.css")}" type="text/css" media="all" />
 <%block name="pagetitle">Microsite Management</%block>
-
 <section class="hr-management hr-management__wrapper2">
-  <div class="hr_management__container2">
-    % if messages:
+  % if messages:
     <ul class="hr-management__notifications">
       % for message in messages:
         <li
@@ -22,8 +20,7 @@ from django.core.urlresolvers import reverse
           </li>
       % endfor
     </ul>
-    % endif
-  </div>
+  % endif
   <div class="hr-management__container2">
     <h1>Create a microsite</h1>
     <form action="${reverse('add_microsite')}" method="POST" class="microsite-manager-form">
@@ -32,16 +29,24 @@ from django.core.urlresolvers import reverse
         <div class="microsite-manager_group-col">
           <div class="group-header">Organization details:</div>
           <label>Organization long name</label>
-          <input id="org_long_name" type="text" name="org_long_name" placeholder="My Organization">
-          <label>Organization short name</label>
-          <input id="org_short_name" type="text" name="org_short_name" placeholder="myorg">
+          <input id="org_long_name" type="text" name="org_long_name" value="${_(org_long_name)}"
+            placeholder="ex: My Organization (required)">
+          <label>Organization short name (No spaces or special characters)</label>
+          <input id="org_short_name" type="text" name="org_short_name"
+            placeholder="ex: MyOrg (required)">
           <label>Organization description</label>
-          <input id="org_description" type="text" name="org_description" placeholder="add some description">      
+          <input id="org_description" type="text" name="org_description"
+            placeholder="add some description (optional)">
         </div>
         <div class="microsite-manager_group-col">
           <div class="group-header">Microsite details:</div>
           <label>Microsite subdomain name:</label>
-          <input id="subdomain_name" type="text" name="subdomain_name" placeholder="just the subdomain name, not the fully qualified domain">
+          <div class="subdomain-input">
+            <input id="subdomain_name" type="text" name="subdomain_name"
+              style="text-transform: lowercase; "
+              placeholder="ex: mysubdomain (required)">
+            <div class="domain-fragment">${ "."+hostname }</div>
+          </div>
         </div>
       </div>
       <div class="microsite-manager_group-row">

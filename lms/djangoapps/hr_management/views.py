@@ -1,6 +1,7 @@
 import logging
 
 from urlparse import urlparse
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -103,6 +104,7 @@ def index(request):
             'microsites': microsites,
             'hostname': url.hostname,
         }
+
         return render_to_response('hr_management/manage_microsites.html', context)
 
 
@@ -110,37 +112,41 @@ def index(request):
 @login_required
 @require_POST
 def add_microsite(request):
-    """
-    example
-    site fdic.learning.nyif.com
-    key: fdic
-    values: {
-        "PLATFORM_NAME": "FDIC",
-        "platform_name": "FDIC"
-    }
+    domain=request.POST.get('hostname')
+    org_long_name=request.POST.get('org_long_name')
+    org_short_name=request.POST.get('org_short_name')
+    org_description=request.POST.get('org_description')
+    subdomain_name=request.POST.get('subdomain_name')
 
-    create a site
-    create an organization 
-    create a microsite
-    create a microsite mapping
+    all_valid = True
+    slug_re = re.compile("^[A-Za-z0-9-_]+$")
 
-    Site fields: 
+    if org_long_name is None or org_long_name.strip() == '':
+        messages.error(request, "Organization long name cannot be empty")
+        all_valid = False
+    if not slug_re.match(org_short_name):
+        messages.error(request,
+            "Organization short name '{}' is not valid. ".format(org_short_name))
+        all_valid = False
+    if not slug_re.match(subdomain_name):
+        messages.error(request,
+            "Subdomain name '{}' is not valid. ".format(subdomain_name))
+        all_valid = False
 
-        domain_name: full domain name: subdomain1.example.1
-        display_name: just a name: Subdomain1
-
-    TODO: In the template, make sure org shortname has no spaces
-
-    """
     user = request.user
 
-    data = create_microsite(
-        domain=request.POST.get('hostname'),
-        org_long_name=request.POST.get('org_long_name'),
-        org_short_name=request.POST.get('org_short_name'),
-        org_description=request.POST.get('org_description'),
-        subdomain_name=request.POST.get('subdomain_name'),
-    )
+    if all_valid:
+        data = create_microsite(
+            domain=domain,
+            org_long_name=org_long_name,
+            org_short_name=org_short_name,
+            org_description=org_description,
+            subdomain_name=subdomain_name,
+        )
+        messages.info(request, "Microsite {} succesfully created".format(data.key))
+
+    # TODO: Help the user by passing variables back to template. Maybe Django
+    # Forms does this automatically
     return redirect('index')
 
 @login_required

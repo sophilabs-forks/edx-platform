@@ -262,6 +262,11 @@
     min-height: 70vh;
 }
 
+.hr-management__wrapper2 .hr-management__notifications {
+    margin-top: 0;
+    background: black;
+}
+
 .hr-management__container2 {
     padding: 10px 30px;
     width: 100%;
@@ -311,8 +316,6 @@
     padding: 20px 10px;
 }
 
-
-
 .microsite-manager-form label {
     cursor: default;
     font-size: 1.0em;
@@ -320,6 +323,23 @@
 .microsite-manager-form input[type="text"] {
     display: block;
     font-size: 1.0em;
+}
+
+.microsite-manager-form .subdomain-input {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.microsite-manager-form .subdomain-input input[type="text"] {
+    /* Hack to show all of placeholder text */
+    min-width: 250px;
+}
+
+.domain-fragment {
+    padding-top: 0.5em;
+    padding-left: 0.1em;
 }
 
 .mm-microsite-list ul {
