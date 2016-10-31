@@ -55,15 +55,6 @@ def index(request):
     # ex for localhost: "localhost:8000" or "127.0.0.1:8000"
     log.info("hr-management#index domain = {}".format(domain))
 
-    # in Vagrant, returns 'example.com', which we don't want
-    #log.info("get_current_site={}".format(get_current_site(request)))
-
-    # returns just the stuff after the domain:port
-    #log.info("get_full_path={}".format(request.get_full_path()))
-    # Check if the domain is a microsite
-    #log.info("build_abs_uri={}".format(request.build_absolute_uri()))
-
-    #import pdb; pdb.set_trace()
     microsite = Microsite.get_microsite_for_domain(domain)        
     organization = None
     if microsite:
@@ -92,19 +83,17 @@ def index(request):
         log.info("Host full url={}".format(url))
         log.info("hostname = {}".format(url.hostname))
         log.info("port = {}".format(url.port))
-        port = url.port
 
         # We're making an assumtion that we are in our site TLD (not a microsite url)
         # Because a TLD could be
-        # localhost
-        # example.com
-        # example.co.uk
-        # learning.nyif.com (where we will have microsites like micro1.learning.nyif.com)
+        # * localhost
+        # * example.com
+        # * example.co.uk
+        # * learning.nyif.com (where we will have microsites like 
+        #   micro1.learning.nyif.com)
         #
-        # See what we're saying?
-        hostname = url.hostname 
         microsites = [
-            generate_microsite_vo(obj, port) for obj in Microsite.objects.all()
+            generate_microsite_vo(obj, url.port) for obj in Microsite.objects.all().order_by('key')
         ]
 
         # We might not need host name, but
@@ -112,10 +101,12 @@ def index(request):
             'message': 'manage microsites',
             'user': user,
             'microsites': microsites,
-            'hostname': hostname,
+            'hostname': url.hostname,
         }
         return render_to_response('hr_management/manage_microsites.html', context)
 
+
+# TODO: We need to set proper authorizataion for this call
 @login_required
 @require_POST
 def add_microsite(request):
@@ -138,6 +129,7 @@ def add_microsite(request):
         domain_name: full domain name: subdomain1.example.1
         display_name: just a name: Subdomain1
 
+    TODO: In the template, make sure org shortname has no spaces
 
     """
     user = request.user
@@ -149,31 +141,7 @@ def add_microsite(request):
         org_description=request.POST.get('org_description'),
         subdomain_name=request.POST.get('subdomain_name'),
     )
-
-    # 
-    #try:
-        #user_request_object = User.objects.get(id=request.POST.get('user_request_id'))
-    #except:
-    #   e = sys.exc_info()[0]
-        # Add Error flash
-    #    log.error('error adding microsite: {}'.format(e))
-
-    return redirect('index')    
-
-"""
-@login_required
-@require_POST
-def change_course_cca_settings(request):
-    course_id = request.POST.get('course_id')
-    course_key = SlashSeparatedCourseKey.from_deprecated_string(course_id)
-    cca_settings = CourseCCASettings.objects.get(course_id=course_key)
-    require_access_request = (request.POST.get('require_access_request', '').lower() == 'on')
-    cca_settings.require_access_request = require_access_request
-    cca_settings.save()
-    messages.success(request, 'Succesfully updated course settings')
-    return redirect('course_detail', course_id=cca_settings.course_id.to_deprecated_string())
-"""
-
+    return redirect('index')
 
 @login_required
 def user_list(request):

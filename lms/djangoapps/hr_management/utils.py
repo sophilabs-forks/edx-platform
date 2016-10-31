@@ -184,7 +184,6 @@ def create_microsite(**kwargs):
             'description': kwargs.get('org_description')
             });
 
-
     # TODO: Check if site already exists
     sites = Site.objects.filter(domain=subdomain_full_hostname)
     if sites:
@@ -193,10 +192,11 @@ def create_microsite(**kwargs):
         site = Site(domain=subdomain_full_hostname, name=subdomain_name)
         site.save()
 
-    platform_name = 'TBD'    
-    # Create the microsite
+    # We're just being consistent with NYIF's existing microsite for this one
+    platform_name = subdomain_name.upper()   
+
     microsite = Microsite(
-        key=subdomain_name,
+        key=subdomain_name.lower(),
         values={
             'PLATFORM_NAME': platform_name,
             'platform_name': platform_name
@@ -209,3 +209,32 @@ def create_microsite(**kwargs):
     morg.save()
     
     return microsite
+
+def delete_microsite(microsite):
+    '''
+    Deletes the given microsite and mapping to organization
+    :param Microsite microsite: The microsite to delete
+    :return: True if microsite deleted False if not
+
+    TODO: Consider passing the microsite name (key is the field name) to this
+    method and move the code in the `Command` handle method to here
+    And add testing
+    TODO: Add flag to delete org and/or site
+    '''
+
+    if not microsite:
+        return False
+    else:
+        # Get the mapping
+        mapping_qs = MicrositeOrganizationMapping.objects.filter(
+            microsite=microsite.id)
+        if mapping_qs.count() == 1:
+            mapping_qs[0].delete()
+        else:
+            # found none or more than one (bad state for the lastter)
+            return False
+
+        microsite.delete()
+        # at this point just assuming we've deleted it
+        # TODO: Add exception handling for delete failure?
+        return True
