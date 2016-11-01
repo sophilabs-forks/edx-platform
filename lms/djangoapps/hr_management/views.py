@@ -7,7 +7,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import (HttpResponse, HttpResponseBadRequest, HttpResponseForbidden)
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    )
 from django.shortcuts import redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
@@ -36,6 +41,9 @@ def index(request):
     user = request.user
     domain = request.META.get('HTTP_HOST', None)
     microsite = Microsite.get_microsite_for_domain(domain)
+    if not microsite:
+        raise Http404
+
     organizations = microsite.get_organizations()
     organization = organizations[0]
 
