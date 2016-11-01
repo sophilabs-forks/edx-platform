@@ -13,29 +13,6 @@ from organizations import api as orgsApi
 
 from hr_management.utils import delete_microsite
 
-"""
-Tables
-
-django_site
-organizations_organizationmicrosite_configuration_microsite
-
-microsite_configuration_microsite
-microsite_configuration_micrositehistory
-microsite_configuration_micrositeorganizationmapping
-
-organizations_organization
-organizations_organizationcourse
-organizations_userorganizationmapping
-
-truncate table X
-or
-
-delete from table X;
-
-ALTER TABLE mytable AUTO_INCREMENT = 1
-
-"""
-
 class Command(BaseCommand):
     help = 'delete the specified microsite'
 
@@ -65,4 +42,3 @@ class Command(BaseCommand):
                 e = sys.exc_info()[0]
                 print("Error finding microsites: {}".format(e))
                 traceback.print_exc(file=sys.stdout)
-

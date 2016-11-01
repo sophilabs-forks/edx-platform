@@ -24,12 +24,7 @@ from student.models import CourseEnrollment
 
 from hr_management.models import CourseAccessRequest
 
-
-
 log = logging.getLogger(__name__)
-
-log.setLevel(logging.INFO)
-
 
 HrefLabel = namedtuple('HrefLabel', ['href', 'label'])
 
@@ -131,60 +126,61 @@ def generate_microsite_vo(microsite, port=None):
 
 def create_microsite(**kwargs):
     """
+    Creates a Microsite object and related objects as needed
 
-    Example of end result:
-    Site: 
-    domain name: fdic.learning.nyif.com
-    display name: fdic
+    :param subdomain_name: Subdomain name: 
+    :param domain: Fully qualified domain name
+    :param org_long_name: Organization name. May contain spaces
+    :paran org_short_name:  Organization short name, no spaces or special chars
+      besides hyphens and underscores. Basically needs to be sluggable
+    :param org_description:  optional
 
-    Organization:
-    long name: 'FDIC'
-    short name: 'FDIC'
-    Description: 'fdic microsite'
+    :rtype: Microsite object
 
 
-    microsite:
-        Site: fdic.learninbg.nyif.com
-        key: 'fdic'
-        values: {
-      "PLATFORM_NAME":"FDIC",
-      "platform_name":"FDIC"
-    }
-
-        TODO: Add testing when data broken (like missing org_long_name)
+    TODO: Add data checking/validation (like missing essential values)
     """
-
-    # Do some sanity checking
-    # TODO: Raise if missing critical data
-
     log.info("create_microsite kwargs = {}".format(kwargs))
 
     subdomain_name = kwargs.get('subdomain_name')
+    if subdomain_name:
+        subdomain_name = subdomain_name.lower()
+    else:
+        raise "Missing subdomain name"
+
+    domain = kwargs.get('domain')
+    if not domain:
+        raise "Missing domain name"
+
+    org_long_name = kwargs.get('org_long_name')
+    if not org_long_name:
+        raise "Missing organization long name"
+
+    org_short_name = kwargs.get('org_short_name')
+    if not org_short_name:
+        raise "Missing org short name"
+
+    org_description = kwargs.get('org_description')
     # first check if microsite exists
     microsites = Microsite.objects.filter(key=subdomain_name)
     if microsites:
         return microsites[0]
 
-    subdomain_full_hostname = "{}.{}".format(
-        kwargs.get('subdomain_name'),
-        kwargs.get('domain')
-    )
+    subdomain_full_hostname = "{}.{}".format(subdomain_name, domain)
 
     try:
-        organization = orgsApi.get_organization_by_short_name(
-            kwargs.get('org_short_name'))
-        # TODO: Also need to check org by long name
+        organization = orgsApi.get_organization_by_short_name(org_short_name)
+        # TODO: Additional validation - Also check org by long name
     except:
         organization = None
 
     if not organization:
         organization = orgsApi.add_organization({
-            'name': kwargs.get('org_long_name'),
-            'short_name': kwargs.get('org_short_name'),
-            'description': kwargs.get('org_description')
+            'name': org_long_name,
+            'short_name': org_short_name,
+            'description': org_description,
             });
 
-    # TODO: Check if site already exists
     sites = Site.objects.filter(domain=subdomain_full_hostname)
     if sites:
         site = sites[0]
@@ -203,9 +199,8 @@ def create_microsite(**kwargs):
         },
         site=site)
     microsite.save()
-    # TODO: Double check if we are using long or short name
     morg = MicrositeOrganizationMapping(microsite=microsite,
-        organization=kwargs.get('org_short_name'))
+        organization=org_short_name)
     morg.save()
     
     return microsite

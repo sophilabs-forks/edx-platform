@@ -1,7 +1,8 @@
-import logging
 
+import logging
 from urlparse import urlparse
 import re
+import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -86,7 +87,7 @@ def index(request):
         log.info("port = {}".format(url.port))
 
         # We're making an assumtion that we are in our site TLD (not a microsite url)
-        # Because a TLD could be
+        # Because a TLD could be:
         # * localhost
         # * example.com
         # * example.co.uk
@@ -97,7 +98,6 @@ def index(request):
             generate_microsite_vo(obj, url.port) for obj in Microsite.objects.all().order_by('key')
         ]
 
-        # We might not need host name, but
         context = {
             'message': 'manage microsites',
             'user': user,
@@ -136,14 +136,18 @@ def add_microsite(request):
     user = request.user
 
     if all_valid:
-        data = create_microsite(
-            domain=domain,
-            org_long_name=org_long_name,
-            org_short_name=org_short_name,
-            org_description=org_description,
-            subdomain_name=subdomain_name,
-        )
-        messages.info(request, "Microsite {} succesfully created".format(data.key))
+        try:
+            data = create_microsite(
+                domain=domain,
+                org_long_name=org_long_name,
+                org_short_name=org_short_name,
+                org_description=org_description,
+                subdomain_name=subdomain_name,
+            )
+            messages.info(request, "Microsite {} succesfully created".format(data.key))
+        except:
+            e = sys.exc_info()[0]
+            messages.error(request, "Error creating microsite: {}".format(e))
 
     # TODO: Help the user by passing variables back to template. Maybe Django
     # Forms does this automatically
