@@ -6,7 +6,10 @@ from .appsembler import *
 INSTALLED_APPS += ('appsembler',)
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
-INSTALLED_APPS += ('hr_management',)
+INSTALLED_APPS += (
+    'hr_management',
+    'microsite_manager',
+    )
 
 # disable caching in dev environment
 for cache_key in CACHES.keys():
