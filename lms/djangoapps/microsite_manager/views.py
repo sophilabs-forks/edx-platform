@@ -18,22 +18,18 @@ from django.views.decorators.http import require_POST
 from edxmako.shortcuts import render_to_response
 from microsite_configuration.models import Microsite
 
-from .utils import generate_microsite_vo, create_microsite
+from .utils import generate_microsite_tuple, create_microsite
 
 log = logging.getLogger(__name__)
-
-log.setLevel(logging.INFO)
-
 
 @login_required
 def index(request):
     if not request.user.is_staff:
         raise Http404
 
-    domain = request.META.get('HTTP_HOST', None)
-    # domain will be the domain as showin in the browser URL bar
-    # ex for localhost: "localhost:8000" or "127.0.0.1:8000"
-    log.info("hr-management#index domain = {}".format(domain))
+    # we are on a microsite, so just return a 404
+    if _is_microsite(request):
+    	raise Http404
 
     # Serve up the 'manage microsites page'
     # We don't have to worry about pagination *yet*
@@ -53,7 +49,7 @@ def index(request):
     #   micro1.learning.nyif.com)
     #
     microsites = [
-        generate_microsite_vo(obj, url.port) for obj in Microsite.objects.all().order_by('key')
+        generate_microsite_tuple(obj, url.port) for obj in Microsite.objects.all().order_by('key')
     ]
 
     context = {
@@ -109,4 +105,12 @@ def add_microsite(request):
     # TODO: Help the user by passing variables back to template. Maybe Django
     # Forms does this automatically
     return redirect('index')
+
+
+def _is_microsite(request):
+    domain = request.META.get('HTTP_HOST', None)
+    # domain will be the domain as showin in the browser URL bar
+    # ex for localhost: "localhost:8000" or "127.0.0.1:8000"
+    log.info("microsite_manager.views: our domain is '{}'".format(domain))
+    return True if Microsite.get_microsite_for_domain(domain) else False
 

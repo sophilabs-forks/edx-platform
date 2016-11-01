@@ -1,3 +1,9 @@
+/**
+ * NOTE: These styles were copied from the hr_management app styles. This is
+ * because the microsite manager portal was originally in that app. Low priority
+ * issue to clean this up
+*/
+
 .hr-management {
     background-color: #efefef;
     margin-bottom: -40px;

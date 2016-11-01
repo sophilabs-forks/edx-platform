@@ -17,10 +17,10 @@ HrefLabel = namedtuple('HrefLabel', ['href', 'label'])
 
 # Microsite value object. Primary use in templates
 # the url members are intended for the HrefLabel above
-MicrositeVO = namedtuple('MicrositeVO', ['home_url', 'management_url', 'microsite'])
+MicrositeTuple = namedtuple('MicrositeTuple', ['home_url', 'management_url', 'microsite'])
 
 
-def generate_microsite_vo(microsite, port=None):
+def generate_microsite_tuple(microsite, port=None):
     """
     Create a namedtuple of data to show in the UI
 
@@ -33,7 +33,7 @@ def generate_microsite_vo(microsite, port=None):
     https://docs.djangoproject.com/en/1.8/howto/custom-template-tags/
     """
     port_str = ':{}'.format(port) if port else ''
-    return MicrositeVO(
+    return MicrositeTuple(
         home_url=HrefLabel(
             href='//{}{}'.format(microsite.site.domain, port_str),
             label=microsite.site),
