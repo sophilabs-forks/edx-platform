@@ -3,7 +3,7 @@ from smtplib import SMTPException
 from celery.task import task
 from celery.utils.log import get_task_logger
 from django.core.mail import send_mail
-from datetime import date, datetime, timedelta
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -41,9 +41,10 @@ def generate_and_email_nyif_report():
     total_organizations = len(Organization.objects.all())
 
     raw_grade_data = generate_csv_grade_string()
-    last_month = (date.today().replace(day=1) - timedelta(days=1)).strftime('%B')
+    #NOTE: this depends on the report being sent on the last day of the month
+    this_month = datetime.today().strftime('%B')
 
-    email_subject = 'NYIF CCA Report for {}'.format(last_month)
+    email_subject = 'NYIF CCA Report for {}'.format(this_month)
     email_content = """
 NYIF Corporate Client Report
 {date}
@@ -88,9 +89,9 @@ def generate_and_email_customer_report():
 
 
         raw_grade_data = generate_csv_grade_string(organization=organization)
-        last_month = (date.today().replace(day=1) - timedelta(days=1)).strftime('%B')
+        this_month = datetime.today().strftime('%B')
 
-        email_subject = '{} Report for {}'.format(organization.name,last_month)
+        email_subject = '{} Report for {}'.format(organization.name,this_month)
         email_content = """
 {org_name} Report
 {date}
