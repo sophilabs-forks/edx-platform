@@ -286,7 +286,7 @@ msgstr ""
 #: lms/djangoapps/courseware/tabs.py
 #: lms/djangoapps/django_comment_client/forum/views.py
 msgid "Discussion"
-msgstr ""
+msgstr "讨论"
 
 #: cms/djangoapps/contentstore/views/component.py
 #: lms/djangoapps/class_dashboard/dashboard_data.py
@@ -5176,7 +5176,7 @@ msgstr "课程页面"
 #: lms/djangoapps/courseware/tabs.py
 #: lms/djangoapps/instructor/views/instructor_dashboard.py
 msgid "Course Info"
-msgstr ""
+msgstr "课程信息"
 
 #: lms/templates/courseware/syllabus.html
 msgid "Syllabus"
@@ -5691,7 +5691,7 @@ msgstr "电子邮件"
 #: lms/djangoapps/instructor/views/api.py
 #: lms/djangoapps/instructor_task/tasks_helper.py lms/envs/devstack.py
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: lms/djangoapps/instructor/views/api.py
 msgid "Location"
@@ -11899,7 +11899,7 @@ msgstr ""
 
 #: lms/templates/courseware/courses.html
 msgid "Refine Your Search"
-msgstr ""
+msgstr "精简搜索结果"
 
 #: lms/templates/courseware/courseware-chromeless.html
 #: lms/templates/courseware/courseware.html
