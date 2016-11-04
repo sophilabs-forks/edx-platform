@@ -4,6 +4,7 @@ from instructor.offline_gradecalc import student_grades
 from instructor.utils import DummyRequest
 from student.models import CourseEnrollment
 from courseware.courses import get_course_by_id
+from certificates.models import GeneratedCertificate
 from django.contrib.auth.models import User
 
 from datetime import datetime
@@ -25,7 +26,7 @@ def generate_csv_grade_string(organization=None):
     """
     Create a CSV string that will be included in weekly report email
     """
-    header = ['#full_name','email','organization','course_name','enrollment_date','progress','completion_date','score']
+    header = ['#full_name','email','organization','course_name','enrollment_date','completion_date','score']
     encoded_header = [unicode(s).encode('utf-8') for s in header ]
     fp = io.BytesIO()
     writer = csv.writer(fp, quotechar='"', quoting=csv.QUOTE_ALL)
@@ -58,8 +59,13 @@ def generate_csv_grade_string(organization=None):
             grade = student_grades(student, request, course)
             enrollment_date = enrollment.created
             course_name = course.display_name
-            progress = ''
-            completion_date = ''
+            
+            certificate = GeneratedCertificate.objects.filter(user=student).filter(course_id=course.id)
+            if certificate:
+                cert = certificate[0]
+                completion_date = cert.created_date
+            else:
+                completion_date = ''
             score = grade['percent']
             row = [
                 full_name,
@@ -67,7 +73,6 @@ def generate_csv_grade_string(organization=None):
                 organization,
                 course_name,
                 enrollment_date,
-                progress,
                 completion_date,
                 score
             ]
