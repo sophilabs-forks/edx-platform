@@ -11,7 +11,7 @@ from student.models import CourseEnrollment
 from xmodule.modulestore.django import modulestore
 from organizations.models import Organization
 
-from .utils import generate_csv_grade_string
+from .utils import generate_csv_grade_string, upload_report_string_to_s3
 from .models import HrManager, SitewideReportList
 
 LOGGER = get_task_logger(__name__)
@@ -41,6 +41,7 @@ def generate_and_email_nyif_report():
     total_organizations = len(Organization.objects.all())
 
     raw_grade_data = generate_csv_grade_string()
+    file_url = upload_report_string_to_s3(raw_grade_data,'Sitewide')
     #NOTE: this depends on the report being sent on the last day of the month
     this_month = datetime.today().strftime('%B')
 
@@ -55,14 +56,14 @@ Overview
     Number of Enrollments: {num_enrollments}
     Number of Organizations {num_organizations}
 
-Raw student grade data
-{grade_data}
+Raw student grade data: 
+{file_url}
     """.format(date=datetime.now().date(),
             num_users=total_users,
             num_courses=total_courses,
             num_enrollments=total_enrollments,
             num_organizations=total_organizations,
-            grade_data=raw_grade_data
+            file_url=file_url
         )
     for report_recipient in SitewideReportList.objects.all():
         if report_recipient.send_monthly_report:
@@ -89,8 +90,11 @@ def generate_and_email_customer_report():
 
 
         raw_grade_data = generate_csv_grade_string(organization=organization)
-        this_month = datetime.today().strftime('%B')
+        file_url = upload_report_string_to_s3(raw_grade_data,organization.name)
 
+        #NOTE: this depends on the report being sent on the last day of the month        
+        this_month = datetime.today().strftime('%B')
+        
         email_subject = '{} Report for {}'.format(organization.name,this_month)
         email_content = """
 {org_name} Report
@@ -102,13 +106,13 @@ Overview
     Number of Enrollments: {num_enrollments}
 
 Raw student grade data
-{grade_data}
+{file_url}
         """.format(org_name=organization.name,
                 date=datetime.now().date(),
                 num_users=total_users,
                 num_courses=total_courses,
                 num_enrollments=total_enrollments,
-                grade_data=raw_grade_data
+                file_url=file_url
             )
         #send to all users who are marked to receive the email
         for manager in HrManager.objects.filter(organization=organization):

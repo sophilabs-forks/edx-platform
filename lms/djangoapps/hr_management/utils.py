@@ -8,8 +8,11 @@ from certificates.models import GeneratedCertificate
 from django.contrib.auth.models import User
 
 from datetime import datetime
+import logging
 import csv
 import io
+
+log = logging.getLogger(__name__)
 
 def requested_access_for_course(course, user):
     """
@@ -83,3 +86,32 @@ def generate_csv_grade_string(organization=None):
     fp.close()
 
     return raw_grade_data
+
+from django.conf import settings
+import boto
+from boto.s3.key import Key
+from datetime import datetime
+def upload_report_string_to_s3(content, filename_prefix=''):
+    """
+    Takes the CSV grade string from generate_csv_grade_string and uploads to S3.
+    Requires the Grade Bucket (used for instructor dashboard grade downloads) to be configured
+    """
+    grade_config = settings.GRADES_DOWNLOAD
+    if grade_config['STORAGE_TYPE'] != 'S3':
+        log.error('Cannot upload string to S3 if STORAGE_TYPE is \'{}\''.format(grade_config['STORAGE_TYPE']))
+        return
+
+    BUCKET_NAME = grade_config['BUCKET']
+    filename = '/reports/{}LearningPlatformReportFor{}.csv'.format(filename_prefix, datetime.today().strftime('%B'))
+    conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+    bucket = conn.lookup(BUCKET_NAME)
+    
+    key = Key(bucket)
+    key.key = filename
+    key.set_contents_from_string(content)
+
+    url = key.generate_url(expires_in=0)
+    conn.close()
+    
+    log.info('{} successfully uploaded to S3 bucket: {}'.format(filename, BUCKET_NAME))
+    return url
