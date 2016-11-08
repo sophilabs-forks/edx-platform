@@ -3552,27 +3552,33 @@ msgstr ""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Basic Account Information (required)"
-msgstr ""
+msgstr "Informações Básicas (obrigatório)"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid ""
 "The name that identifies you throughout {platform_name}. You cannot change "
 "your username."
 msgstr ""
+"Nome visível para o organizador do curso. "
+"Você não pode alterar o nome de usuário."
+""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Full Name"
-msgstr ""
+msgstr "Nome Completo"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid ""
 "The name that appears on your certificates. Other learners never see your "
 "full name."
 msgstr ""
+"O nome que aparece nos seus certificados. Outros usuários não tem acesso "
+"ao seu nome completo."
+""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Email Address"
-msgstr ""
+msgstr "E-mail"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid ""
@@ -3583,7 +3589,7 @@ msgstr ""
 #: lms/static/js/student_account/views/account_settings_factory.js
 #: lms/templates/student_account/account.underscore
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Reset your Password"
@@ -3592,48 +3598,54 @@ msgstr ""
 #: lms/static/js/student_account/views/account_settings_factory.js
 #: lms/templates/student_account/account.underscore
 msgid "Reset Password"
-msgstr ""
+msgstr "Redefinir Senha"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid ""
 "When you click \"Reset Password\", a message will be sent to your email "
 "address. Click the link in the message to reset your password."
 msgstr ""
+"Ao clicar em \"Redefinir Senha\", uma mensagem será enviada para e-mail. "
+"Clique no link da mensagem para redefinir sua senha."
+""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Language"
-msgstr ""
+msgstr "Idioma"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid ""
 "The language used throughout this site. This site is currently available in "
 "a limited number of languages."
 msgstr ""
+"O idioma utilizado neste site. Este site está disponível em um número "
+"limitado de idiomas."
+""
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Country or Region"
-msgstr ""
+msgstr "País ou Região"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Additional Information (optional)"
-msgstr ""
+msgstr "Informações Adicionais (opcional)"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Education Completed"
-msgstr ""
+msgstr "Nível de Escolaridade"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Gender"
-msgstr ""
+msgstr "Gênero"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Year of Birth"
-msgstr ""
+msgstr "Ano de Nascimento"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Preferred Language"
-msgstr ""
+msgstr "Idioma de Preferência"
 
 #: lms/static/js/student_account/views/account_settings_factory.js
 msgid "Connected Accounts"
@@ -3678,15 +3690,15 @@ msgstr ""
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "{platform_name} learners can see my:"
-msgstr ""
+msgstr "Como os outros usuários veem meu perfil:"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Limited Profile"
-msgstr ""
+msgstr "Versão limitada"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Full Profile"
-msgstr ""
+msgstr "Versão completa"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Country"
@@ -3694,22 +3706,24 @@ msgstr ""
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Add Country"
-msgstr ""
+msgstr "Adicionar país"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "Add language"
-msgstr ""
+msgstr "Adicionar idioma"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid "About me"
-msgstr ""
+msgstr "Sobre mim"
 
 #: lms/static/js/student_profile/views/learner_profile_factory.js
 msgid ""
 "Tell other learners a little about yourself: where you live, what your "
 "interests are, why you're taking courses, or what you hope to learn."
 msgstr ""
-
+"Conte um pouco mais sobre você. Onde você vive, quais são seus interesses "
+"e o que você espera aprender em nossos cursos?"
+""
 #: lms/static/js/student_profile/views/learner_profile_fields.js
 msgid "Account Settings page."
 msgstr ""
@@ -5348,7 +5362,7 @@ msgstr ""
 
 #: lms/templates/student_account/account_settings.underscore
 msgid "Account Settings"
-msgstr ""
+msgstr "Configurações Da Conta"
 
 #: lms/templates/student_account/account_settings.underscore
 msgid ""
@@ -5356,7 +5370,9 @@ msgid ""
 "specify additional information and see your linked social accounts on this "
 "page."
 msgstr ""
-
+"Estas configurações incluem informações básicas sobre sua conta. "
+"Você também pode incluir informações adicionais."
+""
 #: lms/templates/student_account/account_settings.underscore
 msgid "section.title"
 msgstr ""
@@ -5532,7 +5548,7 @@ msgstr ""
 
 #: lms/templates/student_profile/learner_profile.underscore
 msgid "You are currently sharing a limited profile."
-msgstr ""
+msgstr "Você está compartilhando uma versão limitada do seu perfil."
 
 #: lms/templates/student_profile/learner_profile.underscore
 msgid "This edX learner is currently sharing a limited profile."

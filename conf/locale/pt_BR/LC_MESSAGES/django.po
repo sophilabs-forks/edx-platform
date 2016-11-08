@@ -9436,7 +9436,7 @@ msgstr "Ajuda"
 #: cms/templates/widgets/header.html lms/templates/navigation-edx.html
 #: lms/templates/navigation.html
 msgid "Sign Out"
-msgstr ""
+msgstr "Sair"
 
 #: common/templates/license.html
 msgid "All Rights Reserved"
@@ -9610,7 +9610,7 @@ msgstr "Erros de carregamento do curso"
 
 #: lms/templates/dashboard.html
 msgid "Search Your Courses"
-msgstr ""
+msgstr "Pesquisar cursos"
 
 #: lms/templates/dashboard.html lms/templates/courseware/courseware.html
 msgid "Clear search"
@@ -9618,11 +9618,11 @@ msgstr ""
 
 #: lms/templates/dashboard.html
 msgid "Want to change your account settings?"
-msgstr ""
+msgstr "Deseja alterar as configurações de sua conta?"
 
 #: lms/templates/dashboard.html
 msgid "Click the arrow next to your username above."
-msgstr ""
+msgstr "Clique na seta ao lado de seu nome de usuário, localizado no topo da tela."
 
 #: lms/templates/dashboard.html
 msgid "Order History"
@@ -10239,11 +10239,11 @@ msgstr "Mais opções no menu suspenso"
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 #: lms/templates/student_account/account_settings.html
 msgid "Account Settings"
-msgstr ""
+msgstr "Configurações Da Conta"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 msgid "My Profile"
-msgstr ""
+msgstr "Meu perfil"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 #: lms/templates/shoppingcart/shopping_cart.html
@@ -11147,7 +11147,7 @@ msgstr ""
 #: lms/templates/ccx/_dashboard_ccx_listing.html
 #: lms/templates/dashboard/_dashboard_course_listing.html
 msgid "Started - {start_date}"
-msgstr ""
+msgstr "Iniciado - {start_date}"
 
 #: lms/templates/ccx/_dashboard_ccx_listing.html
 #: lms/templates/dashboard/_dashboard_course_listing.html
@@ -11769,7 +11769,7 @@ msgstr "Pesquise cursos grátis da {university_name}."
 
 #: lms/templates/courseware/courses.html
 msgid "Explore courses from {platform_name}."
-msgstr ""
+msgstr "Explore os cursos da {platform_name}."
 
 #: lms/templates/courseware/courses.html
 msgid "{platform_name} Logo"
@@ -11806,7 +11806,7 @@ msgstr ""
 
 #: lms/templates/courseware/courseware.html
 msgid "search"
-msgstr ""
+msgstr "Pesquisar"
 
 #: lms/templates/courseware/courseware.html
 msgid "No content has been added to this course"
@@ -15772,7 +15772,7 @@ msgstr "Voltar"
 
 #: lms/templates/registration/activate_account_notice.html
 msgid "Thanks for Registering!"
-msgstr ""
+msgstr "Obrigado por cadastrar-se!"
 
 #: lms/templates/registration/activate_account_notice.html
 msgid ""
@@ -15780,6 +15780,10 @@ msgid ""
 "account activation message to {email}. To activate your account and start "
 "enrolling in courses, click the link in the message."
 msgstr ""
+"Cadastro realizado com sucesso. Nós enviamos um e-mail para "
+"{email}. Para ativar sua conta e começar " 
+"a estudar conosco, clique no link da mensagem que você recebeu."
+""
 
 #: lms/templates/registration/activation_complete.html
 msgid "Activation Complete!"
@@ -19377,7 +19381,7 @@ msgstr ""
 
 #: cms/templates/widgets/problem-edit.html
 msgid "Explanation"
-msgstr ""
+msgstr "Explicação"
 
 #: cms/templates/widgets/problem-edit.html
 msgid "Advanced Editor"
