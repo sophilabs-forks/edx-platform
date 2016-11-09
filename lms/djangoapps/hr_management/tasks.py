@@ -57,13 +57,13 @@ Overview
     Number of Organizations {num_organizations}
 
 Raw student grade data: 
-{file_url}
+{raw_grade_data}
     """.format(date=datetime.now().date(),
             num_users=total_users,
             num_courses=total_courses,
             num_enrollments=total_enrollments,
             num_organizations=total_organizations,
-            file_url=file_url
+            raw_grade_data=raw_grade_data
         )
     for report_recipient in SitewideReportList.objects.all():
         if report_recipient.send_monthly_report:
@@ -106,13 +106,13 @@ Overview
     Number of Enrollments: {num_enrollments}
 
 Raw student grade data
-{file_url}
+{raw_grade_data}
         """.format(org_name=organization.name,
                 date=datetime.now().date(),
                 num_users=total_users,
                 num_courses=total_courses,
                 num_enrollments=total_enrollments,
-                file_url=file_url
+                raw_grade_data=raw_grade_data
             )
         #send to all users who are marked to receive the email
         for manager in HrManager.objects.filter(organization=organization):
