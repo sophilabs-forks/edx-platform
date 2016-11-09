@@ -44,6 +44,9 @@ def generate_csv_grade_string(organization=None):
 
     output_data = []
     for student in student_list:
+        #don't' include site staff or superusers in reports
+        if student.is_staff or student.is_superuser:
+            continue
         try:
             full_name = student.profile.name
         except: 
