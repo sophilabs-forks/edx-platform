@@ -1298,13 +1298,13 @@ def logout_user(request):
     logout(request)
     if settings.FEATURES.get('AUTH_USE_CAS'):
         target = reverse('cas-logout')
-    else:
-        try:
-            tpa_idp = third_party_auth.provider.Registry.accepting_logins()[0]
-            custom_logout_url = pipeline.get_logout_url(tpa_idp.provider_id, pipeline.AUTH_ENTRY_REGISTER)
-            target = custom_logout_url
-        except:
-            target = '/'
+    # else:
+    #     try:
+    #         tpa_idp = third_party_auth.provider.Registry.accepting_logins()[0]
+    #         custom_logout_url = pipeline.get_logout_url(tpa_idp.provider_id, pipeline.AUTH_ENTRY_REGISTER)
+    #         target = custom_logout_url
+    #     except:
+    target = '/'
     response = redirect(target)
 
     delete_logged_in_cookies(response)
