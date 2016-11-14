@@ -121,7 +121,9 @@ class CourseMetadata(object):
                 'value': field.read_json(descriptor),
                 'display_name': _(field.display_name),    # pylint: disable=translation-of-non-string
                 'help': _(field.help),                    # pylint: disable=translation-of-non-string
-                'deprecated': field.runtime_options.get('deprecated', False)
+                'deprecated': field.runtime_options.get('deprecated', False),
+                'values': getattr(field, 'values', None) if type(field).__name__ not in ("Boolean") and type(getattr(field, 'values', None)).__name__ in ('list', 'tuple') else None,
+
             }
         return result
 

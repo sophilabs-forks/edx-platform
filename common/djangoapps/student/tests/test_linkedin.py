@@ -27,12 +27,14 @@ class LinkedInAddToProfileUrlTests(TestCase):
     def test_linked_in_url(self, cert_mode, expected_cert_name):
         config = LinkedInAddToProfileConfiguration(
             company_identifier='0_mC_o2MizqdtZEmkVXjH4eYwMj4DnkCWrZP_D9',
+            license_id='NASBA 010101',
             enabled=True
         )
 
         expected_url = (
             'http://www.linkedin.com/profile/add'
             '?_ed=0_mC_o2MizqdtZEmkVXjH4eYwMj4DnkCWrZP_D9&'
+            'pfLicenseNo=NASBA+010101&'
             'pfCertificationName={expected_cert_name}&'
             'pfCertificationUrl=http%3A%2F%2Fs3.edx%2Fcert&'
             'source=o'
