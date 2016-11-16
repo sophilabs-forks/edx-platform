@@ -93,12 +93,12 @@ class Status(object):
         }
         tooltips = {
             # Translators: these are tooltips that indicate the state of an assessment question
-            'correct': _('This is correct.'),
-            'incorrect': _('This is incorrect.'),
-            'partially-correct': _('This is partially correct.'),
-            'unanswered': _('This is unanswered.'),
-            'unsubmitted': _('This is unanswered.'),
-            'queued': _('This is being processed.'),
+            'correct': _('This answer is correct.'),
+            'incorrect': _('This answer is incorrect.'),
+            'partially-correct': _('This answer is partially correct.'),
+            'unanswered': _('This answer is unanswered.'),
+            'unsubmitted': _('This answer is unanswered.'),
+            'queued': _('This answer is being processed.'),
         }
         self.display_name = names.get(status, unicode(status))
         self.display_tooltip = tooltips.get(status, u'')
@@ -467,7 +467,7 @@ class ChoiceGroup(InputTypeBase):
             raise Exception(msg)
 
         self.choices = self.extract_choices(self.xml, i18n)
-        self._choices_map = dict(self.choices,)  # pylint: disable=attribute-defined-outside-init
+        self._choices_map = dict(self.choices,)
 
     @classmethod
     def get_attributes(cls):

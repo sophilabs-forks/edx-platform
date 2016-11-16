@@ -4,8 +4,9 @@ End-to-end tests for Student's Profile Page.
 """
 from contextlib import contextmanager
 
-from datetime import datetime
 from bok_choy.web_app_test import WebAppTest
+from datetime import datetime
+from flaky import flaky
 from nose.plugins.attrib import attr
 
 from ...pages.common.logout import LogoutPage
@@ -48,6 +49,8 @@ class LearnerProfileTestMixin(EventsTestMixin):
         profile_page.value_for_dropdown_field('language_proficiencies', 'English')
         profile_page.value_for_dropdown_field('country', 'United Arab Emirates')
         profile_page.set_value_for_textarea_field('bio', 'Nothing Special')
+        # Waits here for text to appear/save on bio field
+        profile_page.wait_for_ajax()
 
     def visit_profile_page(self, username, privacy=None):
         """
@@ -604,7 +607,7 @@ class OwnLearnerProfilePageTest(LearnerProfileTestMixin, WebAppTest):
 
         self.assert_default_image_has_public_access(profile_page)
 
-        profile_page.upload_file(filename='cohort_users_only_username.csv')
+        profile_page.upload_file(filename='generic_csv.csv')
         self.assertEqual(
             profile_page.profile_image_message,
             "The file must be one of the following types: .gif, .png, .jpeg, .jpg."
@@ -750,6 +753,15 @@ class DifferentUserLearnerProfilePageTest(LearnerProfileTestMixin, WebAppTest):
         self.verify_profile_page_is_public(profile_page, is_editable=False)
         self.verify_profile_page_view_event(username, different_user_id, visibility=self.PRIVACY_PUBLIC)
 
+    def test_badge_share_modal(self):
+        username = 'testcert'
+        AutoAuthPage(self.browser, username=username).visit()
+        profile_page = self.visit_profile_page(username)
+        profile_page.display_accomplishments()
+        badge = profile_page.badges[0]
+        badge.display_modal()
+        badge.close_modal()
+
 
 @attr('a11y')
 class LearnerProfileA11yTest(LearnerProfileTestMixin, WebAppTest):
@@ -765,10 +777,10 @@ class LearnerProfileA11yTest(LearnerProfileTestMixin, WebAppTest):
         username, _ = self.log_in_as_unique_user()
         profile_page = self.visit_profile_page(username)
 
-        # TODO: There are several existing color contrast errors on this page,
-        # we will ignore this error in the test until we fix them.
         profile_page.a11y_audit.config.set_rules({
-            "ignore": ['color-contrast'],
+            "ignore": [
+                'link-href',  # TODO: AC-231
+            ],
         })
 
         profile_page.a11y_audit.check_for_accessibility_errors()
@@ -791,4 +803,29 @@ class LearnerProfileA11yTest(LearnerProfileTestMixin, WebAppTest):
         different_username, _ = self.initialize_different_user(privacy=self.PRIVACY_PUBLIC)
         self.log_in_as_unique_user()
         profile_page = self.visit_profile_page(different_username)
+
+        profile_page.a11y_audit.config.set_rules({
+            "ignore": [
+                'link-href',  # TODO: AC-231
+            ],
+        })
+
+        profile_page.a11y_audit.check_for_accessibility_errors()
+
+    def test_badges_accessibility(self):
+        """
+        Test the accessibility of the badge listings and sharing modal.
+        """
+        username = 'testcert'
+        AutoAuthPage(self.browser, username=username).visit()
+        profile_page = self.visit_profile_page(username)
+
+        profile_page.a11y_audit.config.set_rules({
+            "ignore": [
+                'link-href',  # TODO: AC-231
+            ],
+        })
+        profile_page.display_accomplishments()
+        profile_page.a11y_audit.check_for_accessibility_errors()
+        profile_page.badges[0].display_modal()
         profile_page.a11y_audit.check_for_accessibility_errors()

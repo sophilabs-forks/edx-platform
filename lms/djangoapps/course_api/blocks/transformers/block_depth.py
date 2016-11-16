@@ -1,7 +1,7 @@
 """
 Block Depth Transformer
 """
-from openedx.core.lib.block_cache.transformer import BlockStructureTransformer
+from openedx.core.lib.block_structure.transformer import BlockStructureTransformer
 
 
 class BlockDepthTransformer(BlockStructureTransformer):
@@ -37,7 +37,7 @@ class BlockDepthTransformer(BlockStructureTransformer):
             cls.BLOCK_DEPTH,
         )
 
-    def transform(self, usage_info, block_structure):  # pylint: disable=unused-argument
+    def transform(self, usage_info, block_structure):
         """
         Mutates block_structure based on the given usage_info.
         """
@@ -58,6 +58,6 @@ class BlockDepthTransformer(BlockStructureTransformer):
             )
 
         if self.requested_depth is not None:
-            block_structure.remove_block_if(
+            block_structure.remove_block_traversal(
                 lambda block_key: self.get_block_depth(block_structure, block_key) > self.requested_depth
             )

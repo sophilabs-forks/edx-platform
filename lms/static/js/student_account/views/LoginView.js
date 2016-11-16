@@ -3,9 +3,10 @@
     define([
             'jquery',
             'underscore',
+            'gettext',
             'js/student_account/views/FormView'
         ],
-        function($, _, FormView) {
+        function($, _, gettext, FormView) {
 
         return FormView.extend({
             el: '#login-form',
@@ -36,7 +37,7 @@
             render: function( html ) {
                 var fields = html || '';
 
-                $(this.el).html( _.template( this.tpl, {
+                $(this.el).html(_.template(this.tpl)({
                     // We pass the context object to the template so that
                     // we can perform variable interpolation using sprintf
                     context: {
@@ -102,7 +103,13 @@
             },
 
             saveError: function( error ) {
-                this.errors = ['<li>' + error.responseText + '</li>'];
+                var msg = error.responseText;
+                if (error.status === 0) {
+                    msg = gettext('An error has occurred. Check your Internet connection and try again.');
+                } else if(error.status === 500){
+                    msg = gettext('An error has occurred. Try refreshing the page, or check your Internet connection.');
+                }
+                this.errors = ['<li>' + msg + '</li>'];
                 this.setErrors();
                 this.element.hide( this.$resetSuccess );
 

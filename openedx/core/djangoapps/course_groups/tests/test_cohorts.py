@@ -4,6 +4,7 @@ Tests for cohorts
 # pylint: disable=no-member
 import ddt
 from mock import call, patch
+from nose.plugins.attrib import attr
 import before_after
 
 from django.contrib.auth.models import User
@@ -15,7 +16,8 @@ from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from student.models import CourseEnrollment
 from student.tests.factories import UserFactory
 from xmodule.modulestore.django import modulestore
-from xmodule.modulestore.tests.django_utils import TEST_DATA_MIXED_TOY_MODULESTORE, ModuleStoreTestCase
+from xmodule.modulestore.tests.django_utils import TEST_DATA_MIXED_MODULESTORE, ModuleStoreTestCase
+from xmodule.modulestore.tests.factories import ToyCourseFactory
 
 from ..models import CourseUserGroup, CourseCohort, CourseUserGroupPartitionGroup
 from .. import cohorts
@@ -25,7 +27,8 @@ from ..tests.helpers import (
 )
 
 
-@patch("openedx.core.djangoapps.course_groups.cohorts.tracker")
+@attr('shard_2')
+@patch("openedx.core.djangoapps.course_groups.cohorts.tracker", autospec=True)
 class TestCohortSignals(TestCase):
     """
     Test cases to validate event emissions for various cohort-related workflows
@@ -130,19 +133,20 @@ class TestCohortSignals(TestCase):
         self.assertFalse(mock_tracker.emit.called)
 
 
+@attr('shard_2')
 @ddt.ddt
 class TestCohorts(ModuleStoreTestCase):
     """
     Test the cohorts feature
     """
-    MODULESTORE = TEST_DATA_MIXED_TOY_MODULESTORE
+    MODULESTORE = TEST_DATA_MIXED_MODULESTORE
 
     def setUp(self):
         """
         Make sure that course is reloaded every time--clear out the modulestore.
         """
         super(TestCohorts, self).setUp()
-        self.toy_course_key = SlashSeparatedCourseKey("edX", "toy", "2012_Fall")
+        self.toy_course_key = ToyCourseFactory.create().id
 
     def _create_cohort(self, course_id, cohort_name, assignment_type):
         """
@@ -179,8 +183,7 @@ class TestCohorts(ModuleStoreTestCase):
         self.assertIsNone(cohorts.get_cohort_id(user, course.id))
 
         config_course_cohorts(course, is_cohorted=True)
-        cohort = CohortFactory(course_id=course.id, name="TestCohort")
-        cohort.users.add(user)
+        cohort = CohortFactory(course_id=course.id, name="TestCohort", users=[user])
         self.assertEqual(cohorts.get_cohort_id(user, course.id), cohort.id)
 
         self.assertRaises(
@@ -237,8 +240,7 @@ class TestCohorts(ModuleStoreTestCase):
 
         self.assertIsNone(cohorts.get_cohort(user, course.id), "No cohort created yet")
 
-        cohort = CohortFactory(course_id=course.id, name="TestCohort")
-        cohort.users.add(user)
+        cohort = CohortFactory(course_id=course.id, name="TestCohort", users=[user])
 
         self.assertIsNone(
             cohorts.get_cohort(user, course.id),
@@ -261,8 +263,8 @@ class TestCohorts(ModuleStoreTestCase):
         )
 
     @ddt.data(
-        (True, 2),
-        (False, 6),
+        (True, 3),
+        (False, 9),
     )
     @ddt.unpack
     def test_get_cohort_sql_queries(self, use_cached, num_sql_queries):
@@ -271,10 +273,8 @@ class TestCohorts(ModuleStoreTestCase):
         """
         course = modulestore().get_course(self.toy_course_key)
         config_course_cohorts(course, is_cohorted=True)
-        cohort = CohortFactory(course_id=course.id, name="TestCohort")
-
         user = UserFactory(username="test", email="a@b.com")
-        cohort.users.add(user)
+        CohortFactory.create(course_id=course.id, name="TestCohort", users=[user])
 
         with self.assertNumQueries(num_sql_queries):
             for __ in range(3):
@@ -314,10 +314,7 @@ class TestCohorts(ModuleStoreTestCase):
         user1 = UserFactory(username="test", email="a@b.com")
         user2 = UserFactory(username="test2", email="a2@b.com")
 
-        cohort = CohortFactory(course_id=course.id, name="TestCohort")
-
-        # user1 manually added to a cohort
-        cohort.users.add(user1)
+        cohort = CohortFactory(course_id=course.id, name="TestCohort", users=[user1])
 
         # Add an auto_cohort_group to the course...
         config_course_cohorts(
@@ -730,12 +727,13 @@ class TestCohorts(ModuleStoreTestCase):
             )
 
 
+@attr('shard_2')
 @ddt.ddt
 class TestCohortsAndPartitionGroups(ModuleStoreTestCase):
     """
     Test Cohorts and Partitions Groups.
     """
-    MODULESTORE = TEST_DATA_MIXED_TOY_MODULESTORE
+    MODULESTORE = TEST_DATA_MIXED_MODULESTORE
 
     def setUp(self):
         """
@@ -743,7 +741,7 @@ class TestCohortsAndPartitionGroups(ModuleStoreTestCase):
         """
         super(TestCohortsAndPartitionGroups, self).setUp()
 
-        self.test_course_key = SlashSeparatedCourseKey("edX", "toy", "2012_Fall")
+        self.test_course_key = ToyCourseFactory.create().id
         self.course = modulestore().get_course(self.test_course_key)
 
         self.first_cohort = CohortFactory(course_id=self.course.id, name="FirstCohort")

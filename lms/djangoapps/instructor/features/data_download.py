@@ -7,7 +7,7 @@ acceptance tests.
 # pylint: disable=redefined-outer-name
 
 from lettuce import world, step
-from nose.tools import assert_in, assert_regexp_matches  # pylint: disable=no-name-in-module
+from nose.tools import assert_in, assert_regexp_matches
 from terrain.steps import reload_the_page
 from django.utils import http
 
@@ -63,7 +63,7 @@ Graded sections:
 Listing grading context for course {}
 graded sections:
 []
-all descriptors:
+all graded blocks:
 length=0""".format(world.course_key)
     assert_in(expected_config, world.css_text('#data-grade-config-text'))
 

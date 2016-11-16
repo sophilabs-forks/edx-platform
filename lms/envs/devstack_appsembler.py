@@ -3,8 +3,14 @@
 from .devstack import *
 from .appsembler import *
 
+# disable caching in dev environment
+for cache_key in CACHES.keys():
+    CACHES[cache_key]['BACKEND'] = 'django.core.cache.backends.dummy.DummyCache'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 INSTALLED_APPS += ('appsembler',)
-TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
+DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 #just temporary
 INSTALLED_APPS += ('aquent_data_migration',)

@@ -1,7 +1,7 @@
 """
 Block Counts Transformer
 """
-from openedx.core.lib.block_cache.transformer import BlockStructureTransformer
+from openedx.core.lib.block_structure.transformer import BlockStructureTransformer
 
 
 class BlockCountsTransformer(BlockStructureTransformer):
@@ -27,7 +27,7 @@ class BlockCountsTransformer(BlockStructureTransformer):
         # collect basic xblock fields
         block_structure.request_xblock_fields('category')
 
-    def transform(self, usage_info, block_structure):  # pylint: disable=unused-argument
+    def transform(self, usage_info, block_structure):
         """
         Mutates block_structure based on the given usage_info.
         """

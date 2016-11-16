@@ -10,6 +10,7 @@ class ProblemPage(PageObject):
     """
 
     url = None
+    CSS_PROBLEM_HEADER = '.problem-header'
 
     def is_browser_on_page(self):
         return self.q(css='.xblock-student_view').present
@@ -29,11 +30,25 @@ class ProblemPage(PageObject):
         return self.q(css="div.problem p").text
 
     @property
+    def problem_content(self):
+        """
+        Return the content of the problem
+        """
+        return self.q(css="div.problems-wrapper").text[0]
+
+    @property
     def message_text(self):
         """
         Return the "message" text of the question of the problem.
         """
         return self.q(css="div.problem span.message").text[0]
+
+    @property
+    def extract_hint_text_from_html(self):
+        """
+        Return the "hint" text of the problem from html
+        """
+        return self.q(css="div.problem div.problem-hint").html[0].split(' <', 1)[0]
 
     @property
     def hint_text(self):
@@ -48,7 +63,7 @@ class ProblemPage(PageObject):
         """
         def mathjax_present():
             """ Returns True if MathJax css is present in the problem body """
-            mathjax_container = self.q(css="div.problem p .MathJax .math")
+            mathjax_container = self.q(css="div.problem p .MathJax_SVG")
             return mathjax_container.visible and mathjax_container.present
 
         self.wait_for(
@@ -62,7 +77,7 @@ class ProblemPage(PageObject):
         """
         def mathjax_present():
             """ Returns True if MathJax css is present in the problem body """
-            mathjax_container = self.q(css="div.problem div.problem-hint .MathJax .math")
+            mathjax_container = self.q(css="div.problem div.problem-hint .MathJax_SVG")
             return mathjax_container.visible and mathjax_container.present
 
         self.wait_for(
@@ -70,24 +85,66 @@ class ProblemPage(PageObject):
             description="MathJax rendered in hint"
         )
 
-    def fill_answer(self, text):
+    def fill_answer(self, text, input_num=None):
         """
         Fill in the answer to the problem.
+
+        args:
+            text: String to fill the input with.
+
+        kwargs:
+            input_num: If provided, fills only the input_numth field. Else, all
+                input fields will be filled.
         """
-        self.q(css='div.problem div.capa_inputtype.textline input').fill(text)
+        fields = self.q(css='div.problem div.capa_inputtype.textline input')
+        fields = fields.nth(input_num) if input_num is not None else fields
+        fields.fill(text)
 
     def fill_answer_numerical(self, text):
         """
         Fill in the answer to a numerical problem.
         """
         self.q(css='div.problem section.inputtype input').fill(text)
+        self.wait_for_element_invisibility('.loading', 'wait for loading icon to disappear')
+        self.wait_for_ajax()
 
     def click_check(self):
         """
-        Click the Check button!
+        Click the Check button.
         """
         self.q(css='div.problem button.check').click()
         self.wait_for_ajax()
+
+    def click_save(self):
+        """
+        Click the Save button.
+        """
+        self.q(css='div.problem button.save').click()
+        self.wait_for_ajax()
+
+    def click_reset(self):
+        """
+        Click the Reset button.
+        """
+        self.q(css='div.problem button.reset').click()
+        self.wait_for_ajax()
+
+    def wait_for_status_icon(self):
+        """
+        wait for status icon
+        """
+        self.wait_for_element_visibility('div.problem section.inputtype div .status', 'wait for status icon')
+
+    def wait_for_expected_status(self, status_selector, message):
+        """
+        Waits for the expected status indicator.
+
+        Args:
+            status_selector(str): status selector string.
+            message(str): description of promise, to be logged.
+        """
+        msg = "Wait for status to be {}".format(message)
+        self.wait_for_element_visibility(status_selector, msg)
 
     def click_hint(self):
         """
@@ -133,7 +190,7 @@ class ProblemPage(PageObject):
 
         Problem <clarification>clarification text hidden by an icon in rendering</clarification> Text
         """
-        self.q(css='div.problem .clarification:nth-child({index}) i[data-tooltip]'.format(index=index + 1)).click()
+        self.q(css='div.problem .clarification:nth-child({index}) span[data-tooltip]'.format(index=index + 1)).click()
 
     @property
     def visible_tooltip_text(self):

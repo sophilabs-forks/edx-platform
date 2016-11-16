@@ -3,13 +3,12 @@ import collections
 from datetime import datetime, timedelta
 
 import mock
-import ddt
 from pytz import UTC
 from django.test import TestCase
 from django.test.utils import override_settings
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.tests.factories import CourseFactory, ItemFactory
-from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
+from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase, SharedModuleStoreTestCase
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from xmodule.modulestore.django import modulestore
 from xmodule.partitions.partitions import UserPartition, Group
@@ -79,7 +78,7 @@ class LMSLinksTestCase(TestCase):
         link = utils.get_lms_link_for_item(location, True)
         self.assertEquals(
             link,
-            "//preview/courses/mitX/101/test/jump_to/i4x://mitX/101/vertical/contacting_us"
+            "//preview.localhost/courses/mitX/101/test/jump_to/i4x://mitX/101/vertical/contacting_us"
         )
 
         # now test with the course' location
@@ -110,65 +109,17 @@ class ExtraPanelTabTestCase(TestCase):
         return course
 
 
-@ddt.ddt
-class CourseImageTestCase(ModuleStoreTestCase):
-    """Tests for course image URLs."""
-
-    def verify_url(self, expected_url, actual_url):
-        """
-        Helper method for verifying the URL is as expected.
-        """
-        if not expected_url.startswith("/"):
-            expected_url = "/" + expected_url
-        self.assertEquals(expected_url, actual_url)
-
-    def test_get_image_url(self):
-        """Test image URL formatting."""
-        course = CourseFactory.create()
-        self.verify_url(
-            unicode(course.id.make_asset_key('asset', course.course_image)),
-            utils.course_image_url(course)
-        )
-
-    def test_non_ascii_image_name(self):
-        """ Verify that non-ascii image names are cleaned """
-        course_image = u'before_\N{SNOWMAN}_after.jpg'
-        course = CourseFactory.create(course_image=course_image)
-        self.verify_url(
-            unicode(course.id.make_asset_key('asset', course_image.replace(u'\N{SNOWMAN}', '_'))),
-            utils.course_image_url(course)
-        )
-
-    def test_spaces_in_image_name(self):
-        """ Verify that image names with spaces in them are cleaned """
-        course_image = u'before after.jpg'
-        course = CourseFactory.create(course_image=u'before after.jpg')
-        self.verify_url(
-            unicode(course.id.make_asset_key('asset', course_image.replace(" ", "_"))),
-            utils.course_image_url(course)
-        )
-
-    @ddt.data(ModuleStoreEnum.Type.split, ModuleStoreEnum.Type.mongo)
-    def test_empty_image_name(self, default_store):
-        """ Verify that empty image names are cleaned """
-        course_image = u''
-        course = CourseFactory.create(course_image=course_image, default_store=default_store)
-        self.assertEquals(
-            course_image,
-            utils.course_image_url(course),
-        )
-
-
-class XBlockVisibilityTestCase(ModuleStoreTestCase):
+class XBlockVisibilityTestCase(SharedModuleStoreTestCase):
     """Tests for xblock visibility for students."""
 
-    def setUp(self):
-        super(XBlockVisibilityTestCase, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(XBlockVisibilityTestCase, cls).setUpClass()
 
-        self.dummy_user = ModuleStoreEnum.UserID.test
-        self.past = datetime(1970, 1, 1, tzinfo=UTC)
-        self.future = datetime.now(UTC) + timedelta(days=1)
-        self.course = CourseFactory.create()
+        cls.dummy_user = ModuleStoreEnum.UserID.test
+        cls.past = datetime(1970, 1, 1, tzinfo=UTC)
+        cls.future = datetime.now(UTC) + timedelta(days=1)
+        cls.course = CourseFactory.create()
 
     def test_private_unreleased_xblock(self):
         """Verifies that a private unreleased xblock is not visible"""
@@ -533,18 +484,18 @@ class GetUserPartitionInfoTest(ModuleStoreTestCase):
         expected = [
             {
                 "id": 0,
-                "name": "Cohort user partition",
-                "scheme": "cohort",
+                "name": u"Cohort user partition",
+                "scheme": u"cohort",
                 "groups": [
                     {
                         "id": 0,
-                        "name": "Group A",
+                        "name": u"Group A",
                         "selected": False,
                         "deleted": False,
                     },
                     {
                         "id": 1,
-                        "name": "Group B",
+                        "name": u"Group B",
                         "selected": False,
                         "deleted": False,
                     },
@@ -552,12 +503,12 @@ class GetUserPartitionInfoTest(ModuleStoreTestCase):
             },
             {
                 "id": 1,
-                "name": "Random user partition",
-                "scheme": "random",
+                "name": u"Random user partition",
+                "scheme": u"random",
                 "groups": [
                     {
                         "id": 0,
-                        "name": "Group C",
+                        "name": u"Group C",
                         "selected": False,
                         "deleted": False,
                     },

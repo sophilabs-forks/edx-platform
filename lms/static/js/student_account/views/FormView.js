@@ -55,7 +55,7 @@
             render: function( html ) {
                 var fields = html || '';
 
-                $(this.el).html( _.template( this.tpl, {
+                $(this.el).html( _.template(this.tpl)({
                     fields: fields
                 }));
 
@@ -84,7 +84,7 @@
                         data[i].errorMessages = this.escapeStrings( data[i].errorMessages );
                     }
 
-                    html.push( _.template( fieldTpl, $.extend( data[i], {
+                    html.push( _.template(fieldTpl)($.extend( data[i], {
                         form: this.formType,
                         requiredStr: this.requiredStr
                     }) ) );
@@ -213,6 +213,13 @@
                 this.focusFirstError();
             },
 
+            /* Allows extended views to add non-form attributes
+             * to the data before saving it to model 
+             */
+            setExtraData: function( data ) {
+                return data;
+            },
+
             submitForm: function( event ) {
                 var data = this.getFormData();
 
@@ -223,6 +230,7 @@
                 this.toggleDisableButton(true);
 
                 if ( !_.compact(this.errors).length ) {
+                    data = this.setExtraData( data );
                     this.model.set( data );
                     this.model.save();
                     this.toggleErrorMsg( false );
