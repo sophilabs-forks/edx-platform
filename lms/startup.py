@@ -9,13 +9,15 @@ from django.conf import settings
 # Force settings to run so that the python path is modified
 settings.INSTALLED_APPS  # pylint: disable=pointless-statement
 
-from django_startup import autostartup
+from openedx.core.lib.django_startup import autostartup
 import edxmako
 import logging
 from monkey_patch import django_utils_translation
 import analytics
-from util import keyword_substitution
 
+
+import xmodule.x_module
+import lms_xblock.runtime
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +38,7 @@ def run():
     add_mimetypes()
 
     if settings.FEATURES.get('USE_CUSTOM_THEME', False):
-        enable_theme()
+        enable_stanford_theme()
 
     if settings.FEATURES.get('USE_MICROSITES', False):
         enable_microsites()
@@ -44,16 +46,29 @@ def run():
     if settings.FEATURES.get('ENABLE_THIRD_PARTY_AUTH', False):
         enable_third_party_auth()
 
-    # Initialize Segment.io analytics module. Flushes first time a message is received and
-    # every 50 messages thereafter, or if 10 seconds have passed since last flush
-    if settings.FEATURES.get('SEGMENT_IO_LMS') and hasattr(settings, 'SEGMENT_IO_LMS_KEY'):
-        analytics.init(settings.SEGMENT_IO_LMS_KEY, flush_at=50)
+    # Initialize Segment analytics module by setting the write_key.
+    if settings.LMS_SEGMENT_KEY:
+        analytics.write_key = settings.LMS_SEGMENT_KEY
 
-    # Monkey patch the keyword function map
-    if keyword_substitution.keyword_function_map_is_empty():
-        keyword_substitution.add_keyword_function_map(get_keyword_function_map())
-        # Once keyword function map is set, make update function do nothing
-        keyword_substitution.add_keyword_function_map = lambda x: None
+    # register any dependency injections that we need to support in edx_proctoring
+    # right now edx_proctoring is dependent on the openedx.core.djangoapps.credit
+    if settings.FEATURES.get('ENABLE_SPECIAL_EXAMS'):
+        # Import these here to avoid circular dependencies of the form:
+        # edx-platform app --> DRF --> django translation --> edx-platform app
+        from edx_proctoring.runtime import set_runtime_service
+        from instructor.services import InstructorService
+        from openedx.core.djangoapps.credit.services import CreditService
+        set_runtime_service('credit', CreditService())
+
+        # register InstructorService (for deleting student attempts and user staff access roles)
+        set_runtime_service('instructor', InstructorService())
+
+    # In order to allow modules to use a handler url, we need to
+    # monkey-patch the x_module library.
+    # TODO: Remove this code when Runtimes are no longer created by modulestores
+    # https://openedx.atlassian.net/wiki/display/PLAT/Convert+from+Storage-centric+runtimes+to+Application-centric+runtimes
+    xmodule.x_module.descriptor_global_handler_url = lms_xblock.runtime.handler_url
+    xmodule.x_module.descriptor_global_local_resource_url = lms_xblock.runtime.local_resource_url
 
 
 def add_mimetypes():
@@ -70,7 +85,7 @@ def add_mimetypes():
     mimetypes.add_type('application/font-woff', '.woff')
 
 
-def enable_theme():
+def enable_stanford_theme():
     """
     Enable the settings for a custom theme, whose files should be stored
     in ENV_ROOT/themes/THEME_NAME (e.g., edx_all/themes/stanford).
@@ -78,7 +93,7 @@ def enable_theme():
     # Workaround for setting THEME_NAME to an empty
     # string which is the default due to this ansible
     # bug: https://github.com/ansible/ansible/issues/4812
-    if settings.THEME_NAME == "":
+    if getattr(settings, "THEME_NAME", "") == "":
         settings.THEME_NAME = None
         return
 
@@ -129,11 +144,11 @@ def enable_microsites():
             ms_config['template_dir'] = template_dir
 
             ms_config['microsite_name'] = ms_name
-            log.info('Loading microsite {0}'.format(ms_root))
+            log.info('Loading microsite %s', ms_root)
         else:
             # not sure if we have application logging at this stage of
             # startup
-            log.error('Error loading microsite {0}. Directory does not exist'.format(ms_root))
+            log.error('Error loading microsite %s. Directory does not exist', ms_root)
             # remove from our configuration as it is not valid
             del microsite_config_dict[ms_name]
 
@@ -153,52 +168,4 @@ def enable_third_party_auth():
     """
 
     from third_party_auth import settings as auth_settings
-    auth_settings.apply_settings(settings.THIRD_PARTY_AUTH, settings)
-
-
-def get_keyword_function_map():
-    """
-    Define the mapping of keywords and filtering functions
-
-    The functions are used to filter html, text and email strings
-    before rendering them.
-
-    The generated map will be monkey-patched onto the keyword_substitution
-    module so that it persists along with the running server.
-
-    Each function must take: user & course as parameters
-    """
-
-    from student.models import anonymous_id_for_user
-    from util.date_utils import get_default_time_display
-
-    def user_id_sub(user, course):
-        """
-        Gives the anonymous id for the given user
-
-        For compatibility with the existing anon_ids, return anon_id without course_id
-        """
-        return anonymous_id_for_user(user, None)
-
-    def user_fullname_sub(user, course=None):
-        """ Returns the given user's name """
-        return user.profile.name
-
-    def course_display_name_sub(user, course):
-        """ Returns the course's display name """
-        return course.display_name
-
-    def course_end_date_sub(user, course):
-        """ Returns the course end date in the default display """
-        return get_default_time_display(course.end)
-
-    # Define keyword -> function map
-    # Take care that none of these functions return %% encoded keywords
-    kf_map = {
-        '%%USER_ID%%': user_id_sub,
-        '%%USER_FULLNAME%%': user_fullname_sub,
-        '%%COURSE_DISPLAY_NAME%%': course_display_name_sub,
-        '%%COURSE_END_DATE%%': course_end_date_sub
-    }
-
-    return kf_map
+    auth_settings.apply_settings(settings)

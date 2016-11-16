@@ -12,7 +12,17 @@ TO DO sync instructor and staff flags
 import logging
 from django_comment_common.models import Role
 
-from student.roles import CourseBetaTesterRole, CourseInstructorRole, CourseStaffRole
+from student.roles import (
+    CourseBetaTesterRole,
+    CourseInstructorRole,
+    CourseCcxCoachRole,
+    CourseStaffRole,
+)
+
+from instructor.enrollment import (
+    enroll_email,
+    get_email_params,
+)
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +30,7 @@ ROLES = {
     'beta': CourseBetaTesterRole,
     'instructor': CourseInstructorRole,
     'staff': CourseStaffRole,
+    'ccx_coach': CourseCcxCoachRole,
 }
 
 
@@ -68,6 +79,15 @@ def _change_access(course, user, level, action):
         raise ValueError("unrecognized level '{}'".format(level))
 
     if action == 'allow':
+        if level == 'ccx_coach':
+            email_params = get_email_params(course, True)
+            enroll_email(
+                course_id=course.id,
+                student_email=user.email,
+                auto_enroll=True,
+                email_students=True,
+                email_params=email_params,
+            )
         role.add_users(user)
     elif action == 'revoke':
         role.remove_users(user)

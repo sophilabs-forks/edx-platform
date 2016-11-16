@@ -1,8 +1,15 @@
 define([
     'jquery', 'js/models/settings/course_details', 'js/views/settings/main',
-    'js/common_helpers/ajax_helpers'
+    'common/js/spec_helpers/ajax_helpers'
 ], function($, CourseDetailsModel, MainView, AjaxHelpers) {
     'use strict';
+
+    var SELECTORS = {
+        entrance_exam_min_score: '#entrance-exam-minimum-score-pct',
+        entrance_exam_enabled_field: '#entrance-exam-enabled',
+        grade_requirement_div: '.div-grade-requirements div'
+    };
+
     describe('Settings/Main', function () {
         var urlRoot = '/course/settings/org/DemoX/Demo_Course',
             modelData = {
@@ -22,7 +29,10 @@ define([
                 course_image_asset_path : '',
                 pre_requisite_courses : [],
                 entrance_exam_enabled : '',
-                entrance_exam_minimum_score_pct: '50'
+                entrance_exam_minimum_score_pct: '50',
+                license: null,
+                language: '',
+                has_cert_config: false
             },
             mockSettingsPage = readFixtures('mock/mock-settings-page.underscore');
 
@@ -62,6 +72,13 @@ define([
             );
         });
 
+        it('Changing course start date without active certificate configuration should result in error', function () {
+            this.view.$el.find('#course-start-date')
+                .val('10/06/2014')
+                .trigger('change');
+            expect(this.view.$el.find('span.message-error').text()).toContain("course must have at least one active certificate configuration");
+        });
+
         it('Selecting a course in pre-requisite drop down should save it as part of course details', function () {
             var pre_requisite_courses = ['test/CSS101/2012_T1'];
             var requests = AjaxHelpers.requests(this),
@@ -79,12 +96,52 @@ define([
             AjaxHelpers.respondWithJson(requests, expectedJson);
         });
 
-        it('should save entrance exam course details information correctly', function () {
-            var entrance_exam_minimum_score_pct = '60';
-            var entrance_exam_enabled = 'true';
+        it('should disallow save with an invalid minimum score percentage', function(){
+            var entrance_exam_enabled_field = this.view.$(SELECTORS.entrance_exam_enabled_field),
+                entrance_exam_min_score = this.view.$(SELECTORS.entrance_exam_min_score);
 
-            var entrance_exam_min_score = this.view.$('#entrance-exam-minimum-score-pct');
-            var entrance_exam_enabled_field = this.view.$('#entrance-exam-enabled');
+            //input some invalid values.
+            expect(entrance_exam_min_score.val('101').trigger('input')).toHaveClass("error");
+            expect(entrance_exam_min_score.val('invalidVal').trigger('input')).toHaveClass("error");
+
+        });
+
+        it('should provide a default value for the minimum score percentage', function(){
+
+            var entrance_exam_min_score = this.view.$(SELECTORS.entrance_exam_min_score);
+
+            //if input an empty value, model should be populated with the default value.
+            entrance_exam_min_score.val('').trigger('input');
+            expect(this.model.get('entrance_exam_minimum_score_pct'))
+                .toEqual(this.model.defaults.entrance_exam_minimum_score_pct);
+        });
+
+        it('show and hide the grade requirement section when the check box is selected and deselected respectively', function(){
+
+            var entrance_exam_enabled_field = this.view.$(SELECTORS.entrance_exam_enabled_field);
+
+            // select the entrance-exam-enabled checkbox. grade requirement section should be visible.
+            entrance_exam_enabled_field
+                .attr('checked', 'true')
+                .trigger('change');
+
+            this.view.render();
+            expect(this.view.$(SELECTORS.grade_requirement_div)).toBeVisible();
+
+            // deselect the entrance-exam-enabled checkbox. grade requirement section should be hidden.
+            entrance_exam_enabled_field
+                .removeAttr('checked')
+                .trigger('change');
+
+            expect(this.view.$(SELECTORS.grade_requirement_div)).toBeHidden();
+
+        });
+
+        it('should save entrance exam course details information correctly', function () {
+            var entrance_exam_minimum_score_pct = '60',
+                entrance_exam_enabled = 'true',
+                entrance_exam_min_score = this.view.$(SELECTORS.entrance_exam_min_score),
+                entrance_exam_enabled_field = this.view.$(SELECTORS.entrance_exam_enabled_field);
 
             var requests = AjaxHelpers.requests(this),
                 expectedJson = $.extend(true, {}, modelData, {
@@ -92,22 +149,10 @@ define([
                     entrance_exam_minimum_score_pct: entrance_exam_minimum_score_pct
                 });
 
-            expect(this.view.$('.div-grade-requirements div')).toBeHidden();
-
-            // select the entrance-exam-enabled checkbox. grade requirement section should be visible
+            // select the entrance-exam-enabled checkbox.
             entrance_exam_enabled_field
-                .attr('checked', entrance_exam_enabled)
+                .attr('checked', 'true')
                 .trigger('change');
-            expect(this.view.$('.div-grade-requirements div')).toBeVisible();
-
-            //input some invalid values.
-            expect(entrance_exam_min_score.val('101').trigger('input')).toHaveClass("error");
-            expect(entrance_exam_min_score.val('invalidVal').trigger('input')).toHaveClass("error");
-
-            //if input an empty value, model should be populated with the default value.
-            entrance_exam_min_score.val('').trigger('input');
-            expect(this.model.get('entrance_exam_minimum_score_pct'))
-                .toEqual(this.model.defaults.entrance_exam_minimum_score_pct);
 
             // input a valid value for entrance exam minimum score.
             entrance_exam_min_score.val(entrance_exam_minimum_score_pct).trigger('input');
@@ -118,5 +163,28 @@ define([
             );
             AjaxHelpers.respondWithJson(requests, expectedJson);
         });
+
+        it('should save language as part of course details', function(){
+            var requests = AjaxHelpers.requests(this);
+            var expectedJson = $.extend(true, {}, modelData, {
+                language: 'en',
+            });
+            $('#course-language').val('en').trigger('change');
+            expect(this.model.get('language')).toEqual('en');
+            this.view.saveView();
+            AjaxHelpers.expectJsonRequest(
+                requests, 'POST', urlRoot, expectedJson
+            );
+        });
+
+        it('should not error if about_page_editable is False', function(){
+            var requests = AjaxHelpers.requests(this);
+            // if about_page_editable is false, there is no section.course_details
+            $('.course_details').remove();
+            expect(this.model.get('language')).toEqual('');
+            this.view.saveView();
+            AjaxHelpers.expectJsonRequest(requests, 'POST', urlRoot, modelData);
+        });
+
     });
 });

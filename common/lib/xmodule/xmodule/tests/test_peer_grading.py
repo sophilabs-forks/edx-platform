@@ -1,3 +1,6 @@
+"""
+Test cases covering behaviors and workflows of the Peer Grading XBlock
+"""
 import unittest
 import json
 import logging
@@ -13,6 +16,7 @@ from xmodule.tests.test_util_open_ended import DummyModulestore
 from xmodule.open_ended_grading_classes.peer_grading_service import MockPeerGradingService
 from xmodule.peer_grading_module import PeerGradingModule, PeerGradingDescriptor, MAX_ALLOWED_FEEDBACK_LENGTH
 from xmodule.modulestore.exceptions import ItemNotFoundError, NoPathToItem
+from xmodule.validation import StudioValidationMessage
 
 log = logging.getLogger(__name__)
 
@@ -48,6 +52,7 @@ class PeerGradingModuleTest(unittest.TestCase, DummyModulestore):
         Create a peer grading module from a test system
         @return:
         """
+        super(PeerGradingModuleTest, self).setUp()
         self.setup_modulestore(self.course_id.course)
         self.peer_grading = self.get_module_from_location(self.problem_location)
         self.coe = self.get_module_from_location(self.coe_location)
@@ -217,11 +222,15 @@ class PeerGradingModuleTest(unittest.TestCase, DummyModulestore):
         self.assertEqual(score_dict["score"], 0.0)
 
     def get_score(self, success, count_graded, count_required):
+        """
+        Returns the peer-graded score based on the provided graded/required values
+        """
         self.peer_grading.use_for_single_location_local = True
         self.peer_grading.graded = True
 
         # Patch for external grading service.
-        with patch('xmodule.peer_grading_module.PeerGradingModule.query_data_for_location') as mock_query_data_for_location:
+        module_name = 'xmodule.peer_grading_module.PeerGradingModule.query_data_for_location'
+        with patch(module_name) as mock_query_data_for_location:
             mock_query_data_for_location.return_value = (
                 success,
                 {"count_graded": count_graded, "count_required": count_required}
@@ -230,8 +239,26 @@ class PeerGradingModuleTest(unittest.TestCase, DummyModulestore):
             # Returning score dict.
             return self.peer_grading.get_score()
 
+    def test_deprecation_message(self):
+        """
+        Test the validation message produced for deprecation.
+        """
+        peer_grading_module = self.peer_grading
+
+        validation = peer_grading_module.validate()
+        self.assertEqual(len(validation.messages), 0)
+
+        self.assertEqual(
+            validation.summary.text,
+            "ORA1 is no longer supported. To use this assessment, replace this ORA1 component with an ORA2 component."
+        )
+        self.assertEqual(validation.summary.type, StudioValidationMessage.ERROR)
+
 
 class MockPeerGradingServiceProblemList(MockPeerGradingService):
+    """
+    Mock object representing a set of peer-grading problems
+    """
     def get_problem_list(self, course_id, grader_id):
         return {'success': True,
                 'problem_list': [
@@ -264,6 +291,7 @@ class PeerGradingModuleScoredTest(unittest.TestCase, DummyModulestore):
         Create a peer grading module from a test system
         @return:
         """
+        super(PeerGradingModuleScoredTest, self).setUp()
         self.setup_modulestore(self.course_id.course)
 
     def test_metadata_load(self):
@@ -305,6 +333,7 @@ class PeerGradingModuleLinkedTest(unittest.TestCase, DummyModulestore):
         """
         Create a peer grading module from a test system.
         """
+        super(PeerGradingModuleLinkedTest, self).setUp()
         self.setup_modulestore(self.course_id.course)
 
     @property
@@ -329,6 +358,9 @@ class PeerGradingModuleLinkedTest(unittest.TestCase, DummyModulestore):
         return ScopeIds(None, None, self.problem_location, self.problem_location)
 
     def _create_peer_grading_descriptor_with_linked_problem(self):
+        """
+        Internal helper method to construct a peer grading XBlock
+        """
         # Initialize the peer grading module.
         system = get_test_descriptor_system()
 

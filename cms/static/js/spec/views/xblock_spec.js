@@ -1,9 +1,9 @@
-define([ "jquery", "js/common_helpers/ajax_helpers", "URI", "js/views/xblock", "js/models/xblock_info",
+define([ "jquery", "common/js/spec_helpers/ajax_helpers", "URI", "js/views/xblock", "js/models/xblock_info",
     "xmodule", "coffee/src/main", "xblock/cms.runtime.v1"],
     function ($, AjaxHelpers, URI, XBlockView, XBlockInfo) {
 
         describe("XBlockView", function() {
-            var model, xblockView, mockXBlockHtml, respondWithMockXBlockFragment;
+            var model, xblockView, mockXBlockHtml;
 
             beforeEach(function () {
                 model = new XBlockInfo({
@@ -18,15 +18,10 @@ define([ "jquery", "js/common_helpers/ajax_helpers", "URI", "js/views/xblock", "
 
             mockXBlockHtml = readFixtures('mock/mock-xblock.underscore');
 
-            respondWithMockXBlockFragment = function(requests, response) {
-                var requestIndex = requests.length - 1;
-                AjaxHelpers.respondWithJson(requests, response, requestIndex);
-            };
-
             it('can render a nested xblock', function() {
                 var requests = AjaxHelpers.requests(this);
                 xblockView.render();
-                respondWithMockXBlockFragment(requests, {
+                AjaxHelpers.respondWithJson(requests, {
                     html: mockXBlockHtml,
                     resources: []
                 });
@@ -48,7 +43,7 @@ define([ "jquery", "js/common_helpers/ajax_helpers", "URI", "js/views/xblock", "
                     });
                     // Note: this mock response will call the AJAX success function synchronously
                     // so the promise variable defined above will be available.
-                    respondWithMockXBlockFragment(requests, {
+                    AjaxHelpers.respondWithJson(requests, {
                         html: mockXBlockHtml,
                         resources: resources
                     });

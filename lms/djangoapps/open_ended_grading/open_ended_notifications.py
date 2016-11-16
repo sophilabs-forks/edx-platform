@@ -7,8 +7,6 @@ from django.conf import settings
 from xmodule.open_ended_grading_classes import peer_grading_service
 from xmodule.open_ended_grading_classes.controller_query_service import ControllerQueryService
 
-from xmodule.modulestore.django import ModuleI18nService
-
 from courseware.access import has_access
 from edxmako.shortcuts import render_to_string
 from student.models import unique_id_for_user
@@ -120,7 +118,7 @@ def combined_notifications(course, user):
     #Initialize controller query service using our mock system
     controller_qs = ControllerQueryService(settings.OPEN_ENDED_GRADING_INTERFACE, render_to_string)
     student_id = unique_id_for_user(user)
-    user_is_staff = has_access(user, 'staff', course)
+    user_is_staff = bool(has_access(user, 'staff', course))
     course_id = course.id
     notification_type = "combined"
 

@@ -1,12 +1,13 @@
-<%!
-    from django.utils.translation import ugettext as _
-    from django.template.defaultfilters import escapejs
-%>
 <%inherit file="base.html" />
 <%def name="online_help_token()"><% return "updates" %></%def>
 <%namespace name='static' file='static_content.html'/>
+<%!
+from django.utils.translation import ugettext as _
+from django.template.defaultfilters import escapejs
+from openedx.core.lib.js_utils import escape_json_dumps
+%>
 
-<!-- TODO decode course # from context_course into title -->
+## TODO decode course # from context_course into title.
 <%block name="title">${_("Course Updates")}</%block>
 <%block name="bodyclass">is-signedin course course-info updates view-updates</%block>
 
@@ -21,7 +22,12 @@
 
 <%block name="requirejs">
   require(["js/factories/course_info"], function(CourseInfoFactory) {
-      CourseInfoFactory("${updates_url}", "${handouts_locator | escapejs}", "${base_asset_url}");
+      CourseInfoFactory(
+        "${updates_url}",
+        "${handouts_locator | escapejs}",
+        "${base_asset_url}",
+        ${escape_json_dumps(push_notification_enabled) | n}
+       );
   });
 </%block>
 
@@ -33,7 +39,7 @@
         <span class="sr">&gt; </span>${_("Course Updates")}
       </h1>
 
-      <nav class="nav-actions">
+      <nav class="nav-actions" aria-label="${_('Page Actions')}">
         <h3 class="sr">${_('Page Actions')}</h3>
         <ul>
           <li class="nav-item">
@@ -47,7 +53,7 @@
   <div class="wrapper-content wrapper">
     <section class="content">
       <div class="introduction">
-        <p clas="copy">${_('Use course updates to notify students of important dates or exams, highlight particular discussions in the forums, announce schedule changes, and respond to student questions. You add or edit updates in HTML.')}</p>
+        <p class="copy">${_('Use course updates to notify students of important dates or exams, highlight particular discussions in the forums, announce schedule changes, and respond to student questions. You add or edit updates in HTML.')}</p>
       </div>
     </section>
   </div>

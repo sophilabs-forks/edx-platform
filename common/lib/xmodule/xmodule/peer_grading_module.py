@@ -1,9 +1,15 @@
+"""
+ORA1. Deprecated.
+"""
 import json
 import logging
 
 from datetime import datetime
+
+from django.utils.timezone import UTC
 from lxml import etree
 from pkg_resources import resource_string
+
 from xblock.fields import Dict, String, Scope, Boolean, Float, Reference
 
 from xmodule.capa_module import ComplexEncoder
@@ -11,19 +17,18 @@ from xmodule.fields import Date, Timedelta
 from xmodule.modulestore.exceptions import ItemNotFoundError, NoPathToItem
 from xmodule.raw_module import RawDescriptor
 from xmodule.timeinfo import TimeInfo
-from xmodule.util.duedate import get_extended_due_date
 from xmodule.x_module import XModule, module_attr
 from xmodule.open_ended_grading_classes.peer_grading_service import PeerGradingService, MockPeerGradingService
+from xmodule.open_ended_grading_classes.grading_service_module import GradingServiceError
+from xmodule.validation import StudioValidation, StudioValidationMessage
 
 from open_ended_grading_classes import combined_open_ended_rubric
-from django.utils.timezone import UTC
-from xmodule.open_ended_grading_classes.grading_service_module import GradingServiceError
 
 log = logging.getLogger(__name__)
 
-# Make '_' a no-op so we can scrape strings
+# Make '_' a no-op so we can scrape strings. Using lambda instead of
+#  `django.utils.translation.ugettext_noop` because Django cannot be imported in this file
 _ = lambda text: text
-
 
 EXTERNAL_GRADER_NO_CONTACT_ERROR = "Failed to contact external graders.  Please notify course staff."
 MAX_ALLOWED_FEEDBACK_LENGTH = 5000
@@ -52,14 +57,6 @@ class PeerGradingFields(object):
     due = Date(
         help=_("Due date that should be displayed."),
         scope=Scope.settings)
-    extended_due = Date(
-        help=_("Date that this problem is due by for a particular student. This "
-               "can be set by an instructor, and will override the global due "
-               "date if it is set to a date that is later than the global due "
-               "date."),
-        default=None,
-        scope=Scope.user_state,
-    )
     graceperiod = Timedelta(
         help=_("Amount of grace to give on the due date."),
         scope=Scope.settings
@@ -124,7 +121,7 @@ class PeerGradingModule(PeerGradingFields, XModule):
 
         # We need to set the location here so the child modules can use it.
         self.runtime.set('location', self.location)
-        if (self.runtime.open_ended_grading_interface):
+        if self.runtime.open_ended_grading_interface:
             self.peer_gs = PeerGradingService(self.system.open_ended_grading_interface, self.system.render_template)
         else:
             self.peer_gs = MockPeerGradingService()
@@ -141,8 +138,7 @@ class PeerGradingModule(PeerGradingFields, XModule):
                 self.linked_problem = self.system.get_module(linked_descriptors[0])
 
         try:
-            self.timeinfo = TimeInfo(
-                get_extended_due_date(self), self.graceperiod)
+            self.timeinfo = TimeInfo(self.due, self.graceperiod)
         except Exception:
             log.error("Error parsing due date information in location {0}".format(self.location))
             raise
@@ -570,7 +566,7 @@ class PeerGradingModule(PeerGradingFields, XModule):
             except (NoPathToItem, ItemNotFoundError):
                 continue
             if descriptor:
-                problem['due'] = get_extended_due_date(descriptor)
+                problem['due'] = descriptor.due
                 grace_period = descriptor.graceperiod
                 try:
                     problem_timeinfo = TimeInfo(problem['due'], grace_period)
@@ -616,7 +612,7 @@ class PeerGradingModule(PeerGradingFields, XModule):
         elif data.get('location') is not None:
             problem_location = self.course_id.make_usage_key_from_deprecated_string(data.get('location'))
 
-        module = self._find_corresponding_module_for_location(problem_location)  # pylint: disable-unused-variable
+        self._find_corresponding_module_for_location(problem_location)
 
         ajax_url = self.ajax_url
         html = self.system.render_template('peer_grading/peer_grading_problem.html', {
@@ -652,6 +648,14 @@ class PeerGradingModule(PeerGradingFields, XModule):
             )
         else:
             return True, ""
+
+    def validate(self):
+        """
+        Message for either error or warning validation message/s.
+
+        Returns message and type. Priority given to error type message.
+        """
+        return self.descriptor.validate()
 
 
 class PeerGradingDescriptor(PeerGradingFields, RawDescriptor):
@@ -719,3 +723,22 @@ class PeerGradingDescriptor(PeerGradingFields, RawDescriptor):
     show_calibration_essay = module_attr('show_calibration_essay')
     use_for_single_location_local = module_attr('use_for_single_location_local')
     _find_corresponding_module_for_location = module_attr('_find_corresponding_module_for_location')
+
+    def validate(self):
+        """
+        Validates the state of this instance. This is the override of the general XBlock method,
+        and it will also ask its superclass to validate.
+        """
+        validation = super(PeerGradingDescriptor, self).validate()
+        validation = StudioValidation.copy(validation)
+
+        i18n_service = self.runtime.service(self, "i18n")
+
+        validation.summary = StudioValidationMessage(
+            StudioValidationMessage.ERROR,
+            i18n_service.ugettext(
+                "ORA1 is no longer supported. To use this assessment, "
+                "replace this ORA1 component with an ORA2 component."
+            )
+        )
+        return validation

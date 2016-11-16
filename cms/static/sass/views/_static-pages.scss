@@ -94,6 +94,7 @@
         &.action-visible .toggle-checkbox ~ .action-button {
           .fa-eye {
             display: inline-block;
+            pointer-events: none;
           }
 
           .fa-eye-slash {
@@ -111,6 +112,7 @@
 
           .fa-eye-slash {
             display: inline-block;
+            pointer-events: none;
           }
         }
       }
@@ -195,7 +197,7 @@
       }
 
       .drag-handle {
-        background: url(../images/drag-handles.png) center no-repeat #fff;
+        background: url('#{$static-path}/images/drag-handles.png') center no-repeat #fff;
       }
     }
 
@@ -208,10 +210,10 @@
       width: 35px;
       height: 100%;
       border: none;
-      background: url(../images/drag-handles.png) center no-repeat #fff;
+      background: url('#{$static-path}/images/drag-handles.png') center no-repeat #fff;
 
       &:hover {
-        background: url(../images/drag-handles.png) center no-repeat #fff;
+        background: url('#{$static-path}/images/drag-handles.png') center no-repeat #fff;
       }
 
       &.is-fixed {
