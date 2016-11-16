@@ -3,6 +3,9 @@
 from .aws import *
 from .appsembler import *
 
-INSTALLED_APPS += ('appsembler','aquent_data_migration','accredible_certificate',)
 
-TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
+#comment these out for migration
+INSTALLED_APPS += ('appsembler','aquent_data_migration',)
+#INSTALLED_APPS += ('appsembler','aquent_data_migration','accredible_certificate',)
+
+#TEMPLATE_CONTEXT_PROCESSORS += ('appsembler.context_processors.intercom',)
