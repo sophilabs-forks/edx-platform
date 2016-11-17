@@ -128,7 +128,7 @@ from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.programs.views import get_course_programs_for_dashboard
 from openedx.core.djangoapps.programs.utils import is_student_dashboard_programs_enabled
 
-from aquent_data_migration.utils import generate_student_certificates
+#from aquent_data_migration.utils import generate_student_certificates
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1938,7 +1938,7 @@ def activate_account(request, key):
                         )
 
             #call accredible api to generate certs that already exist for user
-            generate_student_certificates(student[0])
+#generate_student_certificates(student[0])
 
         resp = render_to_response(
             "registration/activation_complete.html",
