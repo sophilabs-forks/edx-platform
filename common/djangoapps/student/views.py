@@ -2051,8 +2051,8 @@ def activate_account(request, key):
         # Enroll student in any pending courses he/she may have if auto_enroll flag is set
         _enroll_user_in_pending_courses(regs[0].user)
 
-            #call accredible api to generate certs that already exist for user
-            generate_student_certificates(student[0])
+        #call accredible api to generate certs that already exist for user
+        generate_student_certificates(student[0])
 
         resp = render_to_response(
             "registration/activation_complete.html",
