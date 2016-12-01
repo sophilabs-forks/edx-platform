@@ -9594,11 +9594,11 @@ msgstr "Painel de controle"
 
 #: lms/templates/dashboard.html
 msgid "Current Courses"
-msgstr ""
+msgstr "CURSOS ATUAIS"
 
 #: lms/templates/dashboard.html
 msgid "Looks like you haven't enrolled in any courses yet."
-msgstr ""
+msgstr "Parece que você ainda não se inscreveu em nenhum curso."
 
 #: lms/templates/dashboard.html
 msgid "Find courses now!"
@@ -9610,7 +9610,7 @@ msgstr "Erros de carregamento do curso"
 
 #: lms/templates/dashboard.html
 msgid "Search Your Courses"
-msgstr "Pesquisar cursos"
+msgstr "Pesquisar seus cursos"
 
 #: lms/templates/dashboard.html lms/templates/courseware/courseware.html
 msgid "Clear search"
