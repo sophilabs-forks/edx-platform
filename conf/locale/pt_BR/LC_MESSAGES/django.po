@@ -9582,11 +9582,11 @@ msgstr "Ocultar anotações "
 
 #: lms/templates/course.html
 msgid "LEARN MORE"
-msgstr ""
+msgstr "SAIBA MAIS"
 
 #: lms/templates/course.html
 msgid "Starts"
-msgstr ""
+msgstr "Início"
 
 #: lms/templates/dashboard.html
 msgid "Dashboard"
@@ -10074,7 +10074,7 @@ msgstr ""
 
 #: lms/templates/login.html
 msgid "We couldn't log you in."
-msgstr ""
+msgstr "Não foi possível logar"
 
 #: lms/templates/login.html
 msgid "Your email or password is incorrect"
@@ -10256,7 +10256,7 @@ msgstr "Registre-se"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 msgid "Sign in"
-msgstr ""
+msgstr "Entrar"
 
 #: lms/templates/navigation-edx.html lms/templates/navigation.html
 msgid ""
@@ -11152,7 +11152,7 @@ msgstr "Iniciado - {start_date}"
 #: lms/templates/ccx/_dashboard_ccx_listing.html
 #: lms/templates/dashboard/_dashboard_course_listing.html
 msgid "Starts - {start_date}"
-msgstr ""
+msgstr "Início - {start_date}"
 
 #: lms/templates/ccx/_dashboard_ccx_listing.html
 msgid "View Archived Custom Course"
@@ -17564,7 +17564,7 @@ msgstr ""
 
 #: cms/templates/group_configurations.html
 msgid "Learn More"
-msgstr ""
+msgstr "Saiba Mais"
 
 #: cms/templates/group_configurations.html
 msgid ""
@@ -18394,7 +18394,7 @@ msgstr ""
 
 #: cms/templates/login.html cms/templates/widgets/header.html
 msgid "Sign In"
-msgstr ""
+msgstr "Entrar"
 
 #: cms/templates/login.html
 msgid "Sign In to {studio_name}"
