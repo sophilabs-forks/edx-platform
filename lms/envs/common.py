@@ -2683,3 +2683,5 @@ DEPRECATED_ADVANCED_COMPONENT_TYPES = []
 # Cutoff date for granting audit certificates
 
 AUDIT_CERT_CUTOFF_DATE = None
+
+INSTALLED_APPS += ('appsembler_reporting',)
