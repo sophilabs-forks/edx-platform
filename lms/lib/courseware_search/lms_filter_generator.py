@@ -9,6 +9,7 @@ from search.filter_generator import SearchFilterGenerator
 from openedx.core.djangoapps.user_api.partition_schemes import RandomUserPartitionScheme
 from openedx.core.djangoapps.course_groups.partition_scheme import CohortPartitionScheme
 
+from course_access_group.models import CourseAccessGroup
 
 INCLUDE_SCHEMES = [CohortPartitionScheme, RandomUserPartitionScheme, ]
 SCHEME_SUPPORTS_ASSIGNMENT = [RandomUserPartitionScheme, ]
@@ -53,3 +54,11 @@ class LmsSearchFilterGenerator(SearchFilterGenerator):
 
         exclude_dictionary['catalog_visibility'] = ['none', 'about']
         return exclude_dictionary
+
+    def content_groups_filter(self, **kwargs):
+        """ Here we retrieve the user groups for seach filter """
+        user = kwargs['user']
+        if user.is_staff:
+            return {'groups': CourseAccessGroup.objects.all().values_list('name', flat=True)}
+
+        return {'groups': user.courseaccessgroup_set.all().values_list('name', flat=True)}

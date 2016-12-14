@@ -14,6 +14,7 @@ from contentstore.course_group_config import GroupConfiguration
 from course_modes.models import CourseMode
 from eventtracking import tracker
 from openedx.core.lib.courses import course_image_url
+from course_access_group.models import CourseAccessGroup
 from search.search_engine_base import SearchEngine
 from xmodule.annotator_mixin import html_to_text
 from xmodule.modulestore import ModuleStoreEnum
@@ -527,10 +528,22 @@ class AboutInfo(object):
 
         return [mode.slug for mode in CourseMode.modes_for_course(course.id)]
 
+    def from_course_groups(self, **kwargs):
+        """ fetches the course groups """
+        course = kwargs.get('course', None)
+        course_groups = CourseAccessGroup.objects.filter(courses__course_id=course.id).values_list('name', flat=True)
+        if not course:
+            raise ValueError("Context dictionary does not contain expected argument 'course'")
+        if course_groups:
+            return list(course_groups)
+
+        return ''
+
     # Source location options - either from the course or the about info
     FROM_ABOUT_INFO = from_about_dictionary
     FROM_COURSE_PROPERTY = from_course_property
     FROM_COURSE_MODE = from_course_mode
+    FROM_COURSE_GROUPS = from_course_groups
 
 
 class CourseAboutSearchIndexer(object):
@@ -570,6 +583,7 @@ class CourseAboutSearchIndexer(object):
         AboutInfo("modes", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_MODE),
         AboutInfo("language", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
         AboutInfo("catalog_visibility", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
+        AboutInfo("groups", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_GROUPS),
     ]
 
     @classmethod
@@ -628,6 +642,7 @@ class CourseAboutSearchIndexer(object):
                     course_info[about_information.property_name] = section_content
 
         # Broad exception handler to protect around and report problems with indexing
+
         try:
             searcher.index(cls.DISCOVERY_DOCUMENT_TYPE, [course_info])
         except:  # pylint: disable=bare-except
