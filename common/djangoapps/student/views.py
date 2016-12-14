@@ -2052,7 +2052,7 @@ def activate_account(request, key):
         _enroll_user_in_pending_courses(regs[0].user)
 
         #call accredible api to generate certs that already exist for user
-        generate_student_certificates(student[0])
+        generate_student_certificates(regs[0].user)
 
         resp = render_to_response(
             "registration/activation_complete.html",
