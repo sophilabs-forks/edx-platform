@@ -110,6 +110,7 @@ class ProctoringFields(object):
 
 @XBlock.wants('proctoring')
 @XBlock.wants('credit')
+@XBlock.needs('bookmarks')
 class SequenceModule(SequenceFields, ProctoringFields, XModule):
     ''' Layout module which lays out content in a temporal sequence
     '''
@@ -186,7 +187,7 @@ class SequenceModule(SequenceFields, ProctoringFields, XModule):
         # We do this up here because proctored exam functionality could bypass
         # rendering after this section.
         self._capture_basic_metrics()
-        
+
         # Is this sequential part of a timed or proctored exam?
         if self.is_time_limited:
             view_html = self._time_limited_student_view(context)
