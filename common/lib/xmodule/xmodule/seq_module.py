@@ -172,7 +172,21 @@ class SequenceModule(SequenceFields, ProctoringFields, XModule):
         contents = []
 
         fragment = Fragment()
+        context = context or {}
 
+        bookmarks_service = self.runtime.service(self, "bookmarks")
+        context["username"] = self.runtime.service(self, "user").get_current_user().opt_attrs['edx-platform.username']
+
+        parent_module = self.get_parent()
+        display_names = [
+            parent_module.display_name_with_default,
+            self.display_name_with_default
+        ]
+
+        # We do this up here because proctored exam functionality could bypass
+        # rendering after this section.
+        self._capture_basic_metrics()
+        
         # Is this sequential part of a timed or proctored exam?
         if self.is_time_limited:
             view_html = self._time_limited_student_view(context)
