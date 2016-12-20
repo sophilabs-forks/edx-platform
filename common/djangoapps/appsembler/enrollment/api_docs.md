@@ -1,13 +1,15 @@
 # Bulk Enrollment API
 
 ## Authentication
-The API requires OAuth auth for grant access to the endpoints and actions.
+The API requires OAuth authentication to grant access to the endpoints and actions.
 
 All endpoint can return the following response errors if there some problem with the authentication process:
+
 ### Credentials not provided
 * Code: 401 UNAUTHORIZED
 * Content: `{ detail : "Authentication credentials were not provided." }`
 * Reason: Authentication credentials were not provided.
+
 ### Invalid Token
 * Code: 401 UNAUTHORIZED
 * Content: `{ detail : "Invalid Token." }`
@@ -15,7 +17,7 @@ All endpoint can return the following response errors if there some problem with
 
 ## Bulk Enrollment
 
-Enrollment API that allows you to enroll or unenroll multiple students into/out of multiple courses with
+Endpoint that allows you to enroll or unenroll multiple students into/out of multiple courses with
 optional email notification.
 
 * URL: `/appsembler/bulk_enroll/`
