@@ -127,7 +127,7 @@ from notification_prefs.views import enable_notifications
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.programs.utils import get_programs_for_dashboard
 
-from course_access_group.models import CourseAccessGroup
+from course_access_group.models import CourseAccessGroup, DomainBlacklist
 from salesforce_registration.models import SalesforceDomainEntry
 
 
@@ -1489,8 +1489,9 @@ def _do_create_account(form):
     #email validated by Django. assuming it's good
     email_domain = user.email.split('@')[1].lower()
     domain_entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
-
-    if not domain_entry:
+    domain_blacklist = [domain.lower() for domain in DomainBlacklist.objects.all()]
+    
+    if not domain_entry or email_domain in domain_blacklist:
         # subject = 'Metalogix Academy user not in Salesforce DB'
         # message = '''
         #     This is an automated message from the Metalogix Academy Open edX server.

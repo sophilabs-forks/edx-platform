@@ -24,3 +24,8 @@ class CourseAccessGroup(models.Model):
 	def __str__(self):
 		return self.name
 
+class DomainBlacklist(models.Model):
+	domain = models.CharField(default='', max_length=255)
+
+	def __str__(self):
+		return self.domain
