@@ -10399,7 +10399,7 @@ msgstr "Entrar"
 
 #: lms/templates/register-sidebar.html
 msgid "Welcome to {platform_name}"
-msgstr "Bem-vindo a {platform_name}"
+msgstr "Bem-vindo"
 
 #: lms/templates/register-sidebar.html
 msgid ""
@@ -10407,7 +10407,7 @@ msgid ""
 "future free courses. Not ready to take a course just yet? Registering puts "
 "you on our mailing list - we will update you as courses are added."
 msgstr ""
-"Ao registrar-se no {platform_name} você terá acesso a todos os cursos "
+"Ao registrar-se no {platform_name} você terá acesso a cursos "
 "gratuitos atuais e futuros. Ainda não está pronto para fazer um curso? Ao "
 "registrar-se, você será incluído na nossa lista de contatos e receberá "
 "informações sobre os cursos adicionados. "
@@ -10436,15 +10436,15 @@ msgid ""
 "the email?  Check your spam folder and mark {platform_name} emails as 'not "
 "spam'.  At {platform_name}, we communicate mostly through email."
 msgstr ""
-"Ao registrar-se no {platform_name}, você receberá um e-mail de ativação. "
-"Clique no link de ativação para concluir o processo. Não consegue encontrar "
-"o e-mail? Verifique se não está na sua pasta de spam e marque todas as "
-"mensagens enviadas por {platform_name} como \"não é spam\". Em "
-"{platform_name}, a nossa comunicação é realizada principalmente via e-mail. "
+"Ao registrar-se, você receberá um e-mail de ativação. Clique no link de ativação "
+" para concluir o processo. Não consegue encontrar o e-mail? Verifique se não"
+" está na sua pasta de spam e marque todas as mensagens enviadas pelo "
+"{platform_name} como \"não é spam\". "
+"A nossa comunicação é realizada principalmente via e-mail. "
 
 #: lms/templates/register-sidebar.html
 msgid "Need help in registering with {platform_name}?"
-msgstr "Precisa de ajuda para registrar-se no {platform_name}?"
+msgstr "Precisa de ajuda para registrar-se? "
 
 #: lms/templates/register-sidebar.html
 msgid "View our FAQs for answers to commonly asked questions."
@@ -10457,8 +10457,8 @@ msgid ""
 "Once registered, most questions can be answered in the course specific "
 "discussion forums or through the FAQs."
 msgstr ""
-"Após o registro, a maioria das perguntas pode ser respondida nos fóruns de "
-"discussão específicos do curso ou nas Perguntas frequentes. "
+"Caso ainda tenha dúvida, entre em contato com a nossa equipe "
+"pelo e-mail disponível no item Contato. "
 
 #: lms/templates/register.html
 msgid "Register for {platform_name}"
@@ -10474,7 +10474,7 @@ msgstr "Bem-vindo!"
 
 #: lms/templates/register.html
 msgid "Register below to create your {platform_name} account"
-msgstr "Registre-se abaixo para criar a sua conta no {platform_name} "
+msgstr "Registre-se abaixo para criar a sua conta"
 
 #. Translators: provider_name is the name of an external, third-party user
 #. authentication service (like Google or LinkedIn).
@@ -13352,7 +13352,7 @@ msgstr ""
 
 #: lms/templates/emails/activation_email_subject.txt
 msgid "Activate Your {platform_name} Account"
-msgstr ""
+msgstr "Ative sua conta no {platform_name}"
 
 #: lms/templates/emails/add_beta_tester_email_message.txt
 #: lms/templates/emails/enroll_email_enrolledmessage.txt
