@@ -1489,7 +1489,7 @@ def _do_create_account(form):
     #email validated by Django. assuming it's good
     email_domain = user.email.split('@')[1].lower()
     domain_entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
-    domain_blacklist = [domain.lower() for domain in DomainBlacklist.objects.all()]
+    domain_blacklist = [d.domain.lower() for d in DomainBlacklist.objects.all()]
     
     if not domain_entry or email_domain in domain_blacklist:
         # subject = 'Metalogix Academy user not in Salesforce DB'
