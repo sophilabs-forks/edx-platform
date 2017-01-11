@@ -979,6 +979,11 @@ urlpatterns += (
     url(r'^500$', handler500),
 )
 
+# course completion api endpoint
+urlpatters += (
+    url(r'^api/course_completion/', include('course_completion.urls')),
+)
+
 # include into our URL patterns the HTTP REST API that comes with edx-proctoring.
 urlpatterns += (
     url(r'^api/', include('edx_proctoring.urls')),
