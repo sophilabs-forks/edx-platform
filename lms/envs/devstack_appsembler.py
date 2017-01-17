@@ -3,7 +3,9 @@
 from .devstack import *
 from .appsembler import *
 
-INSTALLED_APPS += ('appsembler',)
+from taxoman_api.models import Facet
+
+INSTALLED_APPS += ('appsembler', 'taxoman_api')
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment
@@ -14,6 +16,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 DISABLE_DJANGO_TOOLBAR = True
 DISABLE_CONTRACTS = False
+
+COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
+
+if FEATURES.get('ENABLE_TAXOMAN', False):
+    COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
 if DISABLE_DJANGO_TOOLBAR:
     from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
