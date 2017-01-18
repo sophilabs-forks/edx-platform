@@ -1,0 +1,15 @@
+
+this app isn't playing nicely as a git submodule so all git references to this repo are being removed and it's simplying being added to the LMS as an app
+
+we'll fix this in the near future
+
+branch: gymnasium/eucalyptus
+commit: 14bf5088e5a1f10679d2f3310a8d4773d257fb66
+
+one minor change in queue.py (to be committed upstream)
+	change: 
+		from verify_student.models import SoftwareSecurePhotoVerification
+	to: 
+		from lms.djangoapps.verify_student.models import SoftwareSecurePhotoVerification
+
+tjk
