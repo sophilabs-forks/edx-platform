@@ -1005,5 +1005,5 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 
 if settings.FEATURES.get('ENABLE_TAXOMAN'):
     urlpatterns += (
-        url(r'^taxoman/', include('taxoman_api.urls')),
+        url(r'^api/taxoman/', include('taxoman_api.urls')),
     )
