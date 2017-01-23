@@ -16,6 +16,9 @@ COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
 
 COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
 
+CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
+CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
+
 if FEATURES.get('ENABLE_TAXOMAN', False):
     COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
