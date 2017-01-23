@@ -17,6 +17,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 DISABLE_DJANGO_TOOLBAR = True
 DISABLE_CONTRACTS = False
 
+CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
+CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
+
 COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
 
 if FEATURES.get('ENABLE_TAXOMAN', False):
