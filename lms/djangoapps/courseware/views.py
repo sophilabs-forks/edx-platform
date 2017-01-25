@@ -97,6 +97,9 @@ from eventtracking import tracker
 import analytics
 from courseware.url_helpers import get_redirect_url
 
+if settings.FEATURES.get('ENABLE_TAXOMAN', False):
+    from taxoman_api.models import Facet
+
 log = logging.getLogger("edx.courseware")
 
 template_imports = {'urllib': urllib}
@@ -135,6 +138,11 @@ def courses(request):
     """
     courses_list = []
     course_discovery_meanings = getattr(settings, 'COURSE_DISCOVERY_MEANINGS', {})
+    if settings.FEATURES.get('ENABLE_TAXOMAN', False):
+        for facet in Facet.objects.all():
+            if not course_discovery_meanings.get(facet.slug):
+                course_discovery_meanings[facet.slug] = { 'name': facet.name }
+
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user, request.META.get('HTTP_HOST'))
 
