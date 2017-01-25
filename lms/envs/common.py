@@ -1942,7 +1942,13 @@ INSTALLED_APPS = (
 
     'sorl.thumbnail',
 
+    # To support django-webpack-loader based apps, like Taxoman
+    'webpack_loader',
+
     'taxoman_api',
+
+    # Required to be here for django_startup.py to recognize the app
+    'taxoman',
 )
 
 # Migrations which are not in the standard module "migrations"
@@ -2685,3 +2691,6 @@ DEPRECATED_ADVANCED_COMPONENT_TYPES = []
 # Cutoff date for granting audit certificates
 
 AUDIT_CERT_CUTOFF_DATE = None
+
+# Django Webpack Loader
+WEBPACK_LOADER = {}
