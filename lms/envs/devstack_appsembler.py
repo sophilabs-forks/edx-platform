@@ -6,7 +6,7 @@ from .appsembler import *
 import taxoman.settings
 from taxoman_api.models import Facet
 
-INSTALLED_APPS += ('appsembler', 'taxoman_api', )
+INSTALLED_APPS += ('appsembler', )
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment

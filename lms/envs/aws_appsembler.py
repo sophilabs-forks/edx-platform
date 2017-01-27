@@ -7,7 +7,7 @@ import taxoman.settings
 from taxoman_api.models import Facet
 
 
-INSTALLED_APPS += ('appsembler', 'taxoman_api', )
+INSTALLED_APPS += ('appsembler', )
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
