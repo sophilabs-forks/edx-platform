@@ -6,6 +6,7 @@ from appsembler_api import views
 urlpatterns = patterns(
     '',
     # user API
+    url(r'^accounts/user_without_password', views.CreateUserAccountWithoutPasswordView.as_view(), name="create_user_account_without_password_api"),
     url(r'^accounts/create', views.CreateUserAccountView.as_view(), name="create_user_account_api"),
     url(r'^accounts/get-user/(?P<username>[\w.+-]+)', views.GetUserAccountView.as_view(), name="get_user_account_api"),
 
