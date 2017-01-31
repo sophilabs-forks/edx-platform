@@ -17,7 +17,7 @@ def auto_generate_username(email):
     if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
         raise ValueError("Email is a invalid format")
 
-    username = email.split('@')[0]
+    username = ''.join(e for e in email.split('@')[0] if e.isalnum())
 
     while check_account_exists(username=username):
         username = email.split('@')[0] + str(randint(100,999))
