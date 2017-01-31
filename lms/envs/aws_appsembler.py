@@ -18,6 +18,9 @@ COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
 
 COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
 
+CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
+CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
+
 if FEATURES.get('ENABLE_TAXOMAN', False):
     # Maybe we want to include taxoman and taxoman_api in INSTALLED_APPS here?
     # But we'll need to fix the django_startup.py sequence issue first
