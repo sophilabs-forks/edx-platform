@@ -25,10 +25,22 @@ ALLOWED_ORIGIN = '*'
 
 description = """
 Appembler Open edX search api. 
-
 Opens up access to Open edX'sa search infrastructure via HTTP (REST) API interfaces.
-
 """
+
+class SearchIndex(APIView):
+    authentication_classes = (
+        BasicAuthentication,
+        SessionAuthentication,
+        TokenAuthentication
+    )
+
+    permission_classes = ( IsAuthenticated, IsStaffUser, )
+    def get(self, request, format=None):
+        return Response({
+            'message': 'CMS Search API',
+            })
+
 
 class CourseIndexer(APIView):
     authentication_classes = (
