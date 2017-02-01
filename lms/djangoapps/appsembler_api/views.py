@@ -180,7 +180,7 @@ class GenerateRegistrationCodesView(APIView):
                 float(request.data.get('total_registration_codes'))
             )
 
-        course_mode = 'audit'
+        course_mode = CourseMode.DEFAULT_MODE_SLUG
 
         registration_codes = []
         for __ in range(course_code_number):
