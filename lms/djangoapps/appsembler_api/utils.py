@@ -20,7 +20,7 @@ def auto_generate_username(email):
     username = ''.join(e for e in email.split('@')[0] if e.isalnum())
 
     while check_account_exists(username=username):
-        username = email.split('@')[0] + str(randint(100,999))
+        username = ''.join(e for e in email.split('@')[0] if e.isalnum()) + str(randint(100,999))
 
     return username
 
