@@ -10,6 +10,9 @@ from taxoman_api.models import Facet
 INSTALLED_APPS += ('appsembler',)
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
+DISABLE_DJANGO_TOOLBAR = True
+DISABLE_CONTRACTS = False
+
 CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
 CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
 
