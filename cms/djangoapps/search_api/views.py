@@ -1,6 +1,7 @@
 
 import json
- 
+
+from django.conf import settings 
 from django.http import HttpResponse
 
 from rest_framework.authentication import (
@@ -20,8 +21,8 @@ from opaque_keys import InvalidKeyError
 from . import api
 from .permissions import IsStaffUser
 
-# TODO: Restrict to LMS server after we validate the rest of this works
-ALLOWED_ORIGIN = '*'
+# Restrict access to the LMS server
+ALLOWED_ORIGIN = settings.LMS_BASE
 
 description = """
 Appembler Open edX search api. 
@@ -57,14 +58,15 @@ class CourseIndexer(APIView):
             })
 
     def post(self, request, format=None):
+
+        request_data = json.loads(request.body)
+        course_id = request_data.get('course_id')
         try:
-            request_data = json.loads(request.body)
-            course_id = request_data.get('course_id')
             results = api.reindex_course(course_id)
             response_data = {
                 'course_id': course_id,
                 'status': 'OK',
-                'message': 'course reindex initiaated',
+                'message': 'course reindex initiated',
                 'results': results,
             }
             response = Response(response_data)
