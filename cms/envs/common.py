@@ -819,6 +819,8 @@ INSTALLED_APPS = (
     'lms.djangoapps.verify_student',
 
     # API Extensions
+    'rest_framework',
+    'rest_framework.authtoken',
     'search_api',
 )
 
