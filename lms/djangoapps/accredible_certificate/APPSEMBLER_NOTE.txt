@@ -4,12 +4,14 @@ this app isn't playing nicely as a git submodule so all git references to this r
 we'll fix this in the near future
 
 branch: gymnasium/eucalyptus
-commit: 14bf5088e5a1f10679d2f3310a8d4773d257fb66
+commit: 558ec529d5c48fe03b7674a6baec1d9d2834cb83
 
 one minor change in queue.py (to be committed upstream)
 	change: 
 		from verify_student.models import SoftwareSecurePhotoVerification
 	to: 
 		from lms.djangoapps.verify_student.models import SoftwareSecurePhotoVerification
+
+also needed a few other changes to views.py and queue.py; check the repo for details
 
 tjk

@@ -3,7 +3,6 @@ from dogapi import dog_stats_api
 import json
 import logging
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -14,10 +13,17 @@ from accredible_certificate.queue import CertificateGeneration
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.django import modulestore
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
+from util.db import outer_atomic
+from django.db import transaction
+from django.conf import settings
+
+from courseware.courses import (
+    get_course,
+)
 
 logger = logging.getLogger(__name__)
 
-
+@transaction.non_atomic_requests
 @csrf_exempt
 def request_certificate(request):
     """Request the on-demand creation of a certificate for some user, course.
@@ -33,14 +39,14 @@ def request_certificate(request):
             username = request.user.username
             student = User.objects.get(username=username)
             course_key = SlashSeparatedCourseKey.from_deprecated_string(request.POST.get('course_id'))
-            course = modulestore().get_course(course_key, depth=2)
+            course = get_course(course_key)
 
             status = certificate_status_for_student(student, course_key)['status']
             if status in [CertificateStatuses.unavailable, CertificateStatuses.notpassing, CertificateStatuses.error]:
                 logger.info('Grading and certification requested for user {} in course {} via /request_certificate call'.format(username, course_key))
                 status = xqci.add_cert(student, course_key, course=course)
-            return HttpResponse(json.dumps({'add_status': status}), mimetype='application/json')
-        return HttpResponse(json.dumps({'add_status': 'ERRORANONYMOUSUSER'}), mimetype='application/json')
+            return HttpResponse(json.dumps({'add_status': status}), content_type='application/json')
+        return HttpResponse(json.dumps({'add_status': 'ERRORANONYMOUSUSER'}), content_type='application/json')
 
 
 @csrf_exempt
@@ -76,7 +82,7 @@ def update_certificate(request):
             return HttpResponse(json.dumps({
                 'return_code': 1,
                 'content': 'unable to lookup key'}),
-                mimetype='application/json')
+                content_type='application/json')
 
         if 'error' in xqueue_body:
             cert.status = status.error
@@ -108,7 +114,7 @@ def update_certificate(request):
                 return HttpResponse(json.dumps({
                             'return_code': 1,
                             'content': 'invalid cert status'}),
-                             mimetype='application/json')
+                             content_type='application/json')
 
         dog_stats_api.increment(XQUEUE_METRIC_NAME, tags=[
             u'action:update_certificate',
@@ -117,4 +123,4 @@ def update_certificate(request):
 
         cert.save()
         return HttpResponse(json.dumps({'return_code': 0}),
-                            mimetype='application/json')
+                            content_type='application/json')

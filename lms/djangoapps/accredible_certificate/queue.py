@@ -18,9 +18,8 @@ import lxml.html
 from lxml.etree import XMLSyntaxError, ParserError
 import requests
 from xmodule.modulestore.django import modulestore
-
-
-
+from util.db import outer_atomic
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +66,8 @@ class CertificateGeneration(object):
         self.whitelist = CertificateWhitelist.objects.all()
         self.restricted = UserProfile.objects.filter(allow_certificate=False)
         self.api_key = api_key
-
-
+        
+    @transaction.non_atomic_requests
     def add_cert(self, student, course_id, defined_status="downloadable", course=None, forced_grade=None, template_file=None, title='None'):
         """
         Request a new certificate for a student.
@@ -114,6 +113,7 @@ class CertificateGeneration(object):
             # for every student
             if course is None:
                 course = courses.get_course_by_id(course_id)
+
             profile = UserProfile.objects.get(user=student)
             profile_name = profile.name
 
@@ -131,20 +131,19 @@ class CertificateGeneration(object):
                        break
                 except:
                     print "this course don't have " +section_key
-
+              
             if not description:
                description = "course_description"
 
 
             is_whitelisted = self.whitelist.filter(user=student, course_id=course_id, whitelist=True).exists()
-            grade = grades.grade(student, self.request, course)
+
+            grade = grades.grade(student, course)
             enrollment_mode, __ = CourseEnrollment.enrollment_mode_for_user(student, course_id)
             mode_is_verified = (enrollment_mode == GeneratedCertificate.MODES.verified)
-            user_is_verified = SoftwareSecurePhotoVerification.user_is_verified(student)
-            cert_mode = enrollment_mode
-            if (mode_is_verified and not (user_is_verified)):
-                cert_mode = GeneratedCertificate.MODES.honor
-
+            
+            cert_mode = GeneratedCertificate.MODES.honor
+            
             if forced_grade:
                 grade['grade'] = forced_grade
 
@@ -222,9 +221,9 @@ class CertificateGeneration(object):
                             }
                     payload = json.dumps(payload)
                     r = requests.post('https://api.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token=' + self.api_key, 'Content-Type':'application/json'})
-
+                    
                     if r.status_code == 200:
-                       json_response = r.json()
+                       json_response = r.json()  
                        cert.status = defined_status
                        cert.key = json_response["credential"]["id"]
                        if 'private' in json_response:
@@ -234,7 +233,7 @@ class CertificateGeneration(object):
                        cert.save()
                     else:
                         new_status = "errors"
-
+                    
 
             else:
                 cert_status = status.notpassing
@@ -242,3 +241,5 @@ class CertificateGeneration(object):
                 cert.save()
 
         return new_status
+
+
