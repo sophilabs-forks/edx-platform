@@ -174,6 +174,7 @@ class CertificateGeneration(object):
                     cert.status = new_status
                     cert.save()
                 else:
+                  
                     contents = {
                         'action': 'create',
                         'username': student.username,
@@ -197,6 +198,7 @@ class CertificateGeneration(object):
                                 "credential":
                                 {
                                     "name": course_name,
+                                    "group_name": course_name,
                                     "description": description,
                                     "achievement_id": contents['course_id'] ,
                                     "course_link": "/courses/" +contents['course_id'] + "/about",
