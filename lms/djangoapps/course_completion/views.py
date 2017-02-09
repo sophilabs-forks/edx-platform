@@ -46,9 +46,14 @@ class GetBatchCompletionDataView(APIView):
         cert_list = []
         for cert in certs:
             course = modulestore().get_course(cert.course_id)
+            if not course:
+                course_name = str(cert.course_id)
+            else: 
+                course_name = course.display_name
+
             cert_data = {
                 'email': cert.user.email,
-                'course_name': course.display_name,
+                'course_name': course_name,
                 'course_id': str(cert.course_id),
                 'grade': cert.grade,
                 'completion_date':  str(c.created_date)               
