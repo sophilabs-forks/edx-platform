@@ -980,7 +980,7 @@ urlpatterns += (
 )
 
 # course completion api endpoint
-urlpatters += (
+urlpatterns += (
     url(r'^api/course_completion/', include('course_completion.urls')),
 )
 

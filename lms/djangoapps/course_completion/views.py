@@ -34,7 +34,7 @@ class GetBatchCompletionDataView(APIView):
         updated_after = request.GET.get('updated_after','')
         updated_before = request.GET.get('updated_before','')
 
-        certs = User.objects.all()
+        certs = GeneratedCertificate.objects.all()
         if updated_after:
             min_date = parser.parse(updated_after)
             certs = certs.filter(created_date__gt=min_date)
@@ -45,13 +45,13 @@ class GetBatchCompletionDataView(APIView):
 
         cert_list = []
         for cert in certs:
-        	course = modulestore().get_course(cert.course_id)
+            course = modulestore().get_course(cert.course_id)
             cert_data = {
                 'email': cert.user.email,
                 'course_name': course.display_name,
                 'course_id': str(cert.course_id),
                 'grade': cert.grade,
- 				'completion_date':  str(c.created_date)               
+                'completion_date':  str(c.created_date)               
             }
             cert_list.append(cert_data)
 
