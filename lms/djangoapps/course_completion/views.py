@@ -56,7 +56,7 @@ class GetBatchCompletionDataView(APIView):
                 'course_name': course_name,
                 'course_id': str(cert.course_id),
                 'grade': cert.grade,
-                'completion_date':  str(c.created_date)               
+                'completion_date':  str(cert.created_date)               
             }
             cert_list.append(cert_data)
 
