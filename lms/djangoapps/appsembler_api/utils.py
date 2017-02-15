@@ -3,6 +3,8 @@ import re
 from random import randint
 
 from django.conf import settings
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 from openedx.core.djangoapps.user_api.accounts.api import check_account_exists
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -14,7 +16,9 @@ def auto_generate_username(email):
     the username exists and adds a random 3 digit int at the end to warranty
     uniqueness.
     """
-    if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
+    try:
+        validate_email(email)
+    except ValidationError:
         raise ValueError("Email is a invalid format")
 
     username = ''.join(e for e in email.split('@')[0] if e.isalnum())

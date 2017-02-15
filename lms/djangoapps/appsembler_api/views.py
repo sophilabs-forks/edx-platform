@@ -134,14 +134,16 @@ class CreateUserAccountWithoutPasswordView(APIView):
             errors = {"user_message": "User already exists"}
             return Response(errors, status=409)
 
-        username = auto_generate_username(email)
-        password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32))
-
-        data['username'] = username
-        data['password'] = password
-        data['send_activation_email'] = False
-
         try:
+            username = auto_generate_username(email)
+            password = ''.join(random.choice(
+                string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                               for _ in range(32))
+
+            data['username'] = username
+            data['password'] = password
+            data['send_activation_email'] = False
+
             user = create_account_with_params(request, data)
             # set the user as inactive
             user.is_active = False
@@ -153,6 +155,9 @@ class CreateUserAccountWithoutPasswordView(APIView):
             assert NON_FIELD_ERRORS not in err.message_dict
             # Only return first error for each field
             errors = {"user_message": "Wrong parameters on user creation"}
+            return Response(errors, status=400)
+        except ValueError as err:
+            errors = {"user_message": "Wrong email format"}
             return Response(errors, status=400)
 
         response = Response({'user_id': user_id, 'username': username}, status=200)
