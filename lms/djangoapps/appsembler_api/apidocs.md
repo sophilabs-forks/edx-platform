@@ -64,7 +64,7 @@ Cache-Control: no-cache
 
 ### Create User Account Without Username And Password
 This endpoint has a different set of parameters and more complex workflow than `Create User Account`.
-This endpoint creates an user account with minimal parameters, the endpoint is capable to create an user account only with the email address and a person Name (not username).
+This endpoint creates a user account with minimal parameters, the endpoint is capable to create an user account only with the email address and a person Name (not username).
 #### Workflow description:
 1. The endpoint is called with an email and a person name.
 2. The endpoint autogenerates a password and an username.
