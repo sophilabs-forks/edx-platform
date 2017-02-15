@@ -16,7 +16,7 @@ DISABLE_CONTRACTS = False
 CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
 CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
 
-COURSE_DISCOVERY_FILTERS = ["org", "language",]
+COURSE_DISCOVERY_FILTERS = []
 
 if FEATURES.get('ENABLE_TAXOMAN', False):
     # Maybe we want to include taxoman and taxoman_api in INSTALLED_APPS here?
