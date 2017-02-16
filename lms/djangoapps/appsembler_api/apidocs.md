@@ -62,6 +62,61 @@ Cache-Control: no-cache
 }
 ```
 
+### Create User Account Without Username And Password
+This endpoint has a different set of parameters and more complex workflow than `Create User Account`.
+This endpoint creates a user account with minimal parameters, the endpoint is capable to create an user account only with the email address and a person Name (not username).
+#### Workflow description:
+1. The endpoint is called with an email and a person name.
+2. The endpoint autogenerates a password and an username.
+3. After created the user in a non active state, an email is sent to the user, with a set password link.
+4. After the user follows the link and set a new password, the account becomes active, and the new password is save.
+
+* URL: `/appsembler_api/v0/accounts/user_without_password`
+* Method: `POST`
+* Data Params
+	* Required:
+		* 'email'
+		* 'name'
+	* Optional:
+	    * 'country'
+	    * 'city'
+	    * 'gender'
+	    * 'goals'
+	    * 'level_of_education'
+	    * 'year_of_birth'
+
+* Success Response
+	* Code: 200
+	* Content:
+```
+{
+    "username": "honor906", # the generated username
+    "user_id ": 65 # the id of the new user
+}
+```
+
+* Error Responses:
+	* Code: 400
+	* Content: `{"user_message": "Wrong parameters on user creation"}`
+	* Reason: Wrong parameters on user creation
+
+	* Code: 409
+	* Content: `{"user_message": "User already exists"}`
+	* Reason: User already exists
+
+* Example call:
+```
+POST /appsembler_api/v0/accounts/create
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer cbf6a5de322cf6a4323c957a882xy1s321c954b86
+Cache-Control: no-cache
+{
+    "email": "staff58@example.com",
+    "name": "stafftest"
+}
+```
+
 ### Check Existing Username
 
 This endpoint is a tool to check if an user exists given the username.
