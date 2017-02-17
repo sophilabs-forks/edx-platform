@@ -305,7 +305,7 @@ msgstr[1] "(%(earned)s/%(possible)s pontos)"
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
 msgid "(%(num_points)s point possible)"
 msgid_plural "(%(num_points)s points possible)"
-msgstr[0] "(%(num_points) ponto possível)"
+msgstr[0] "(%(num_points)s ponto possível)"
 msgstr[1] "(%(num_points)s pontos possíveis)"
 
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
