@@ -2,7 +2,7 @@
 # edX translation file.
 # Copyright (C) 2015 EdX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Álex Filipe <alexfilipe@outlook.com>, 2014
 # Allan Melo <allmelo@gmail.com>, 2015
@@ -57,7 +57,7 @@
 # edX translation file.
 # Copyright (C) 2015 EdX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Alexander Rodrigo Ferreira <dr.alexander.ferreira@hotmail.com>, 2015
 # Álex Filipe <alexfilipe@outlook.com>, 2014
@@ -97,7 +97,7 @@
 # edX translation file
 # Copyright (C) 2015 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Alan Mól <alan3df@gmail.com>, 2015
 # Andrea Z. Bitencourt <azbitencourt@gmail.com>, 2015
@@ -124,7 +124,7 @@
 # edX translation file
 # Copyright (C) 2015 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Bruno Sette <brunosette@gmail.com>, 2015
 # Cleomir Waiczyk <w.cleomir@gmail.com>, 2015
@@ -305,7 +305,7 @@ msgstr[1] "(%(earned)s/%(possible)s pontos)"
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
 msgid "(%(num_points)s point possible)"
 msgid_plural "(%(num_points)s points possible)"
-msgstr[0] "(%(num_points) ponto possível)"
+msgstr[0] "(%(num_points)s ponto possível)"
 msgstr[1] "(%(num_points)s pontos possíveis)"
 
 #: common/lib/xmodule/xmodule/js/src/capa/display.js
