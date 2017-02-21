@@ -1026,10 +1026,10 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 
 # allow inclusion of urls from arbitrary packages
 # as specified in ENV config.
-if hasattr(settings, 'APPSEMBLER_FEATURES') and 
+if hasattr(settings, 'APPSEMBLER_FEATURES') and \
         settings.APPSEMBLER_FEATURES.get('LMS_URLS_INCLUDE', []):
     import importlib
-    for dotted_path in LMS_URLS_INCLUDE:
+    for dotted_path in settings.APPSEMBLER_FEATURES.get('LMS_URLS_INCLUDE'):
         try:
             urls_module = importlib.import_module(dotted_path) 
             urlpatterns += urls_module.urlpatterns
