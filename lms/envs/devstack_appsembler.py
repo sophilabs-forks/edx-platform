@@ -32,7 +32,8 @@ if FEATURES.get('ENABLE_TAXOMAN', False):
         'STATS_FILE': taxoman.settings.stats_file,
     }
 
-    COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
+    # Do not add facets to COURSE_DISCOVERY_FILTERS
+    # facets will be added via the taxoman-integration branch of edx-search
 
 if DISABLE_DJANGO_TOOLBAR:
     from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
