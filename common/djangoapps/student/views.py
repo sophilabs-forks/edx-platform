@@ -115,6 +115,8 @@ from embargo import api as embargo_api
 import analytics
 from eventtracking import tracker
 
+from organizations.models import UserOrganizationMapping
+
 # Note that this lives in LMS, so this dependency should be refactored.
 from notification_prefs.views import enable_notifications
 
@@ -1736,6 +1738,12 @@ def create_account_with_params(request, params):
     REGISTER_USER.send(sender=None, user=user, profile=profile)
 
     create_comments_service_user(user)
+
+    # Add user to organization for the current microsite
+    organization = request.site.organization
+
+    if organization:
+        UserOrganizationMapping.objects.get_or_create(user=user, organization=organization)
 
     # Don't send email if we are:
     #
