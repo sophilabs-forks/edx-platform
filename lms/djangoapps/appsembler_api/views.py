@@ -164,6 +164,56 @@ class CreateUserAccountWithoutPasswordView(APIView):
         return response
 
 
+class UserAccountConnect(APIView):
+    authentication_classes = OAuth2AuthenticationAllowInactiveUser,
+    permission_classes = IsStaffOrOwner,
+
+    def post(self, request):
+        """
+        Connects an existing Open edX user account to one in an external system
+        changing the user password.
+
+        URL: /appsembler_api/v0/accounts/connect
+        Arguments:
+            request (HttpRequest)
+            JSON (application/json)
+            {
+                "email": "staff4@example.com",
+                "password": "edx",
+            }
+        Returns:
+            HttpResponse: 200 on success, {"user_id ": 60}
+            HttpResponse: 404 if the doesn't exists
+            HttpResponse: 400 Incorrect parameters, basically if the password
+                          is empty.
+        """
+        data = request.data
+
+        email = data.get('email', '')
+        new_password = data.get('password', '')
+
+        try:
+            user = User.objects.get(email=email)
+
+            if not new_password.strip():
+                raise ValidationError('Password is empty')
+
+            user.set_password(new_password)
+            print user.password
+            user.save()
+
+        except User.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValidationError:
+            errors = {"user_message": "Wrong parameters on user connection"}
+            return Response(errors, status=400)
+
+        response = Response({'user_id': user.id}, status=200)
+        return response
+
+
 class GetUserAccountView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
