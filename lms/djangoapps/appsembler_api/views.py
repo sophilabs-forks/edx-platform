@@ -199,7 +199,6 @@ class UserAccountConnect(APIView):
                 raise ValidationError('Password is empty')
 
             user.set_password(new_password)
-            print user.password
             user.save()
 
         except User.DoesNotExist:
