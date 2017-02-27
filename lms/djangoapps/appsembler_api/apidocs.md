@@ -117,6 +117,50 @@ Cache-Control: no-cache
 }
 ```
 
+
+
+### Connect User Account
+This endpoint connects an existing Open edX user account to one in an external system. The endpoint basically set a new password for the user.
+
+* URL: `/appsembler_api/v0/accounts/connect`
+* Method: `POST`
+* Data Params
+    * Required:
+        * `password`
+        * `email`
+
+* Success Response
+    * Code: 200
+    * Content:
+```
+{
+    "user_id ": 65, # the id of the existing user
+}
+```
+
+
+* Error Responses:
+    * Code: 400
+    * Content: `{"user_message": "Wrong parameters on user connection"}`
+    * Reason: Wrong parameters on user connection
+
+    * Code: 404
+    * Content: {"user_message": "User not found"}
+    * Reason: No user exists with the provided email address.
+
+* Example call:
+```
+POST /appsembler_api/v0/accounts/connect
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer cbf6a5de322cf6a4323c957a882xy1s321c954b86
+Cache-Control: no-cache
+{
+    "password": "edx",
+    "email": "staff55@example.com",
+}
+```
+
 ### Check Existing Username
 
 This endpoint is a tool to check if an user exists given the username.
