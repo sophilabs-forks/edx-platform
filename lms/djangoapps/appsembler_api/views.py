@@ -1,5 +1,7 @@
 import json
 import logging
+import string
+import random
 
 from dateutil import parser
 
@@ -45,6 +47,7 @@ from opaque_keys.edx.keys import CourseKey
 from certificates.models import GeneratedCertificate
 
 from .serializers import BulkEnrollmentSerializer
+from .utils import auto_generate_username, send_activation_email
 
 log = logging.getLogger(__name__)
 
@@ -103,6 +106,110 @@ class CreateUserAccountView(APIView):
             return Response(errors, status=400)
 
         response = Response({'user_id ': user_id }, status=200)
+        return response
+
+
+class CreateUserAccountWithoutPasswordView(APIView):
+    authentication_classes = OAuth2AuthenticationAllowInactiveUser,
+    permission_classes = IsStaffOrOwner,
+
+
+    def post(self, request):
+        """
+
+        """
+        data = request.data
+
+        # set the honor_code and honor_code like checked,
+        # so we can use the already defined methods for creating an user
+        data['honor_code'] = "True"
+        data['terms_of_service'] = "True"
+
+        email = request.data.get('email')
+
+
+        # Handle duplicate email/username
+        conflicts = check_account_exists(email=email)
+        if conflicts:
+            errors = {"user_message": "User already exists"}
+            return Response(errors, status=409)
+
+        try:
+            username = auto_generate_username(email)
+            password = ''.join(random.choice(
+                string.ascii_uppercase + string.ascii_lowercase + string.digits)
+                               for _ in range(32))
+
+            data['username'] = username
+            data['password'] = password
+            data['send_activation_email'] = False
+
+            user = create_account_with_params(request, data)
+            # set the user as inactive
+            user.is_active = False
+            user.save()
+            user_id = user.id
+            send_activation_email(request)
+        except ValidationError as err:
+            # Should only get non-field errors from this function
+            assert NON_FIELD_ERRORS not in err.message_dict
+            # Only return first error for each field
+            errors = {"user_message": "Wrong parameters on user creation"}
+            return Response(errors, status=400)
+        except ValueError as err:
+            errors = {"user_message": "Wrong email format"}
+            return Response(errors, status=400)
+
+        response = Response({'user_id': user_id, 'username': username}, status=200)
+        return response
+
+
+class UserAccountConnect(APIView):
+    authentication_classes = OAuth2AuthenticationAllowInactiveUser,
+    permission_classes = IsStaffOrOwner,
+
+    def post(self, request):
+        """
+        Connects an existing Open edX user account to one in an external system
+        changing the user password.
+
+        URL: /appsembler_api/v0/accounts/connect
+        Arguments:
+            request (HttpRequest)
+            JSON (application/json)
+            {
+                "email": "staff4@example.com",
+                "password": "edx",
+            }
+        Returns:
+            HttpResponse: 200 on success, {"user_id ": 60}
+            HttpResponse: 404 if the doesn't exists
+            HttpResponse: 400 Incorrect parameters, basically if the password
+                          is empty.
+        """
+        data = request.data
+
+        email = data.get('email', '')
+        new_password = data.get('password', '')
+
+        try:
+            user = User.objects.get(email=email)
+
+            if not new_password.strip():
+                raise ValidationError('Password is empty')
+
+            user.set_password(new_password)
+            user.save()
+
+        except User.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValidationError:
+            errors = {"user_message": "Wrong parameters on user connection"}
+            return Response(errors, status=400)
+
+        response = Response({'user_id': user.id}, status=200)
         return response
 
 
@@ -180,7 +287,7 @@ class GenerateRegistrationCodesView(APIView):
                 float(request.data.get('total_registration_codes'))
             )
 
-        course_mode = 'audit'
+        course_mode = CourseMode.DEFAULT_MODE_SLUG
 
         registration_codes = []
         for __ in range(course_code_number):
