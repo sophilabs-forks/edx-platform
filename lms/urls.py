@@ -17,6 +17,7 @@ from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.views import LogoutView
 
+
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
@@ -1026,14 +1027,7 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 
 # allow inclusion of urls from arbitrary packages
 # as specified in ENV config.
-if hasattr(settings, 'APPSEMBLER_FEATURES') and \
-        settings.APPSEMBLER_FEATURES.get('LMS_URLS_INCLUDE', []):
-    import importlib
-    for dotted_path in settings.APPSEMBLER_FEATURES.get('LMS_URLS_INCLUDE'):
-        try:
-            urls_module = importlib.import_module(dotted_path) 
-            urlpatterns += urls_module.urlpatterns
-        except (ImportError, AttributeError):
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.warn('lms.urls Could not import urls from {}.  Ignoring.'.format(dotted_path))
+if 'appsembler' in settings.INSTALLED_APPS:
+    urlpatterns += ( 
+        url('', include('appsembler.urls')),
+    )
