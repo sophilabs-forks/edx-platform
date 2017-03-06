@@ -204,7 +204,7 @@ class ProviderConfig(ConfigurationModel):
         # TPA_CLEAN_USERNAMES_REPLACER_CHAR: ""
         # TPA_CLEAN_USERNAMES_ADD_RANDOM_INT: false
         # You can override this three in your settings.
-        if settings.FEATURES.get("ENABLE_THIRD_PARTY_AUTH_CLEAN_USERNAMES"):
+        if settings.APPSEMBLER_FEATURES.get("ENABLE_THIRD_PARTY_AUTH_CLEAN_USERNAMES"):
             if not settings.TPA_CLEAN_USERNAMES_KEEP_DOMAIN_PART:
                 if len(
                     re.findall(r'[^@]+@[^@]+\.[^@]+', suggested_username)
