@@ -54,8 +54,8 @@ def request_certificate(request):
         if request.user.is_authenticated():
             username = request.user.username
             student = User.objects.get(username=username)
-            course_key = SlashSeparatedCourseKey.from_deprecated_string(request.POST.get('course_id'))
-            course = modulestore().get_course(course_key, depth=2)
+            course_key = CourseKey.from_string(request.POST.get('course_id'))
+            course = modulestore().get_course(course_key, depth=0)
 
             status = certificate_status_for_student(student, course_key)['status']
             if status in [CertificateStatuses.unavailable, CertificateStatuses.notpassing, CertificateStatuses.error]:
