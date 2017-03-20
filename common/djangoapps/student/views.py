@@ -1757,7 +1757,8 @@ def create_account_with_params(request, params):
         not (
             third_party_provider and third_party_provider.skip_email_verification and
             user.email == running_pipeline['kwargs'].get('details', {}).get('email')
-        )
+        ) and
+        params.get('send_activation_email', True) == True
     )
     if send_email:
         context = {
@@ -2517,7 +2518,12 @@ class LogoutView(TemplateView):
     template_name = 'logout.html'
 
     # Keep track of the page to which the user should ultimately be redirected.
-    target = reverse_lazy('cas-logout') if settings.FEATURES.get('AUTH_USE_CAS') else '/'
+    if settings.FEATURES.get('AUTH_USE_CAS'):
+        target = reverse_lazy('cas-logout')
+    elif hasattr(settings, 'CUSTOM_LOGOUT_REDIRECT_URL'):
+        target = settings.CUSTOM_LOGOUT_REDIRECT_URL
+    else:
+        target = '/'
 
     def dispatch(self, request, *args, **kwargs):  # pylint: disable=missing-docstring
         # We do not log here, because we have a handler registered to perform logging on successful logouts.

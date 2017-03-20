@@ -17,6 +17,7 @@ from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from student.views import LogoutView
 
+
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
@@ -79,6 +80,7 @@ urlpatterns = (
 
     # Enrollment API RESTful endpoints
     url(r'^api/enrollment/v1/', include('enrollment.urls')),
+    url(r'^appsembler_api/v0/', include('appsembler_api.urls')),
 
     # Courseware search endpoints
     url(r'^search/', include('search.urls')),
@@ -1028,4 +1030,11 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             'courseware.views.views.financial_assistance_request',
             name='submit_financial_assistance_request'
         )
+    )
+
+# allow inclusion of urls from arbitrary packages
+# as specified in ENV config.
+if 'appsembler' in settings.INSTALLED_APPS:
+    urlpatterns += ( 
+        url('', include('appsembler.urls')),
     )
