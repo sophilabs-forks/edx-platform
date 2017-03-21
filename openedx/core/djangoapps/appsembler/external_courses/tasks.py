@@ -52,6 +52,18 @@ def fetch_courses():
             ),
             headers=headers)
 
+        if response.status_code != 200:
+            log.info(
+                'Error in request, the endpoint returned an invalid status code: {code} for the catalog id: {catalog_id}'.format(
+                    code=response.status_code, catalog_id=catalog_id
+                )
+            )
+            continue
+
+        if not response.json()['results'] or len(response.json()['results']) <= 0:
+            log.info('No results were found for catalog %s' % catalog_id)
+            continue
+
         for course in response.json()['results']:
 
             course_key = course['key']
