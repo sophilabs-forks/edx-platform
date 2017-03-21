@@ -24,6 +24,9 @@ def fetch_courses():
     num_failed = 0
     num_deleted = 0
 
+    if not settings.EDX_ORG_COURSE_API_CATALOG_IDS:
+        raise Exception("EDX_ORG_COURSE_API_CATALOG_IDS variable is undefined")
+
     for catalog_id in settings.EDX_ORG_COURSE_API_CATALOG_IDS:
         client = BackendApplicationClient(
             client_id=settings.EDX_ORG_COURSE_API_CLIENT_ID
