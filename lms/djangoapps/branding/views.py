@@ -20,7 +20,6 @@ from edxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
 from util.json_request import JsonResponse
 import branding.api as branding_api
-from branding.decorators import courses_login_required
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 
 log = logging.getLogger(__name__)
@@ -62,7 +61,7 @@ def index(request):
             return redirect(reverse('dashboard'))
 
     if settings.FEATURES.get('AUTH_USE_CERTIFICATES'):
-        from external_auth.views import ssl_login
+        from openedx.core.djangoapps.external_auth.views import ssl_login
         # Set next URL to dashboard if it isn't set to avoid
         # caching a redirect to / that causes a redirect loop on logout
         if not request.GET.get('next'):
@@ -77,7 +76,11 @@ def index(request):
     )
 
     if enable_mktg_site:
-        return redirect(settings.MKTG_URLS.get('ROOT'))
+        marketing_urls = configuration_helpers.get_value(
+            'MKTG_URLS',
+            settings.MKTG_URLS
+        )
+        return redirect(marketing_urls.get('ROOT'))
 
     domain = request.META.get('HTTP_HOST')
 
@@ -91,7 +94,6 @@ def index(request):
     return student.views.index(request, user=request.user)
 
 
-@courses_login_required
 @ensure_csrf_cookie
 @cache_if_anonymous()
 def courses(request):
