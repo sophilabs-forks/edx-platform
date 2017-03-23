@@ -120,14 +120,17 @@ Cache-Control: no-cache
 
 
 ### Connect User Account
-This endpoint connects an existing Open edX user account to one in an external system. The endpoint basically set a new password for the user.
+This endpoint connects an existing Open edX user account to one in an external system. The endpoint basically has the ability to given a username, change the user email, password and name.
 
 * URL: `/appsembler_api/v0/accounts/connect`
 * Method: `POST`
 * Data Params
     * Required:
-        * `password`
+        * `username`
+    * Optional:
         * `email`
+        * `password`
+        * `name`
 
 * Success Response
     * Code: 200
@@ -148,6 +151,14 @@ This endpoint connects an existing Open edX user account to one in an external s
     * Content: {"user_message": "User not found"}
     * Reason: No user exists with the provided email address.
 
+    * Code: 409
+    * Content: ["user_message": "The email test@example.com is already in user"}
+    * Reason: The email that you're trying to set, already exist for other user.
+
+    * Code: 409
+    * Content: ["user_message": "Invalid email format"}
+    * Reason: Error in the email format.
+
 * Example call:
 ```
 POST /appsembler_api/v0/accounts/connect
@@ -156,8 +167,10 @@ Content-Type: application/json
 Authorization: Bearer cbf6a5de322cf6a4323c957a882xy1s321c954b86
 Cache-Control: no-cache
 {
-    "password": "edx",
-    "email": "staff55@example.com",
+    "username": "test_user",
+	"name": "Test User",
+	"email": "test_user@example.com",
+	"password": "new@pass"
 }
 ```
 
