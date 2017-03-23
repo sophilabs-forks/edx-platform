@@ -1941,6 +1941,8 @@ INSTALLED_APPS = (
     'openedx.core.djangoapps.self_paced',
 
     'sorl.thumbnail',
+
+    'taxoman_api',
 )
 
 # Migrations which are not in the standard module "migrations"

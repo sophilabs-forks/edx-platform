@@ -1005,4 +1005,10 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 
 urlpatterns += (
     url(r'^reporting/', include('appsembler_reporting.urls')),
-)   
+)
+
+if settings.FEATURES.get('ENABLE_TAXOMAN'):
+    urlpatterns += (
+        url(r'^api/taxoman/', include('taxoman_api.urls')),
+    )
+
