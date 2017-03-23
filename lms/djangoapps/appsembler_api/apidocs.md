@@ -19,7 +19,7 @@ All endpoints can return the following response errors if there is a problem wit
 
 ### Create User Account
 
-This endpoint creates a new edX user.
+This endpoint creates a new edX user. It's possible to avoid the activation email sending using the `send_activation_email` set to "False"
 
 * URL: `/appsembler_api/v0/accounts/create`
 * Method: `POST`
@@ -29,6 +29,7 @@ This endpoint creates a new edX user.
 		* 'password'
 		* 'email'
 		* 'name'
+		* 'send_activation_email' (True or False)
 
 * Success Response
 	* Code: 200

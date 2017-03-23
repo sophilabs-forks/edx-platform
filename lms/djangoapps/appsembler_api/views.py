@@ -83,6 +83,11 @@ class CreateUserAccountView(APIView):
         data['honor_code'] = "True"
         data['terms_of_service'] = "True"
 
+        if 'send_activation_email' in data and data['send_activation_email'] == "False":
+            data['send_activation_email'] = False
+        else:
+            data['send_activation_email'] = True
+
         email = request.data.get('email')
         username = request.data.get('username')
 
