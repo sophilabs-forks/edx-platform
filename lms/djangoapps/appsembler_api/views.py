@@ -482,25 +482,28 @@ class GetBatchEnrollmentDataView(APIView):
         course_id = request.GET.get('course_id')
         username = request.GET.get('username')
 
+        query_filter = {}
+
         if course_id:
             course_id= course_id.replace(' ', '+')
         # the replace function is because Django encodes '+' or '%2B' as spaces
-        enrollments = CourseEnrollment.objects.all()
 
         if course_id:
             course_key = CourseKey.from_string(course_id)
-            enrollments = enrollments.filter(course_id=course_key)
+            query_filter['course_id'] = course_key
 
         if username:
-            enrollments = enrollments.filter(user__username=username)
+            query_filter['user__username'] = username
 
         if updated_min:
             min_date = parser.parse(updated_min)
-            enrollments = enrollments.filter(created__gt=min_date)
+            query_filter['created__gt'] = min_date
 
         if updated_max:
             max_date = parser.parse(updated_max)
-            enrollments = enrollments.filter(created__lt=max_date)
+            query_filter['created__lt'] = max_date
+
+        enrollments = CourseEnrollment.objects.filter(**query_filter)
 
         enrollment_list = []
         for enrollment in enrollments:
