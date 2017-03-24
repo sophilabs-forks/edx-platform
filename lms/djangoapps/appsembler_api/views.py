@@ -480,6 +480,7 @@ class GetBatchEnrollmentDataView(APIView):
         updated_min = request.GET.get('updated_min', '')
         updated_max = request.GET.get('updated_max', '')
         course_id = request.GET.get('course_id')
+        username = request.GET.get('username')
 
         if course_id:
             course_id= course_id.replace(' ', '+')
@@ -489,6 +490,9 @@ class GetBatchEnrollmentDataView(APIView):
         if course_id:
             course_key = CourseKey.from_string(course_id)
             enrollments = enrollments.filter(course_id=course_key)
+
+        if username:
+            enrollments = enrollments.filter(user__username=username)
 
         if updated_min:
             min_date = parser.parse(updated_min)
