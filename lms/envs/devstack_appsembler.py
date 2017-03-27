@@ -10,7 +10,7 @@ OAUTH_ENFORCE_SECURE = False
 for cache_key in CACHES.keys():
     # CACHES[cache_key]['BACKEND'] = 'django.core.cache.backends.dummy.DummyCache'
     CACHES[cache_key]['BACKEND'] = 'django.core.cache.backends.db.DatabaseCache'
-    CACHES[cache_key]['LOCATION'] = '/var/tmp/{}_django_cache'.format(cache_key)
+    CACHES[cache_key]['LOCATION'] = 'cache_{}'.format(cache_key)
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
