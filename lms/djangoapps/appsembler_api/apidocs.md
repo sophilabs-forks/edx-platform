@@ -436,14 +436,14 @@ This endpoint provides information about user accounts. Can be called with filte
 
 ### Enrollments
 
-This endpoint provides information about course enrollment. Can be called with filters for course, start date, and end date, username or can be called without parameters to get information for all enrollments. If the student has finished the course and requested a certificate in a certain course, the information will be included.
+This endpoint provides information about course enrollment. Can be called with filters for course, start date and end date (the user enrollment date), username or can be called without parameters to get information for all enrollments. If the student has finished the course and requested a certificate in a certain course, the information will be included.
 
 * URL: `/appsembler_api/v0/analytics/enrollment/batch`
 * Method: `GET`
 * Optional URL Params:
 	* `course_id` (course-v1:Org+Course+Run)
-	* `updated_min` (YYYY-MM-DD) Start date
-	* `updated_max` (YYYY-MM-DD) End date
+	* `updated_min` (YYYY-MM-DD) User enrollment start date
+	* `updated_max` (YYYY-MM-DD) User enrollment end date
 	* `username` (staff)
 
 * Success Response
