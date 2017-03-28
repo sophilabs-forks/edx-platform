@@ -19,7 +19,7 @@ All endpoints can return the following response errors if there is a problem wit
 
 ### Create User Account
 
-This endpoint creates a new edX user.
+This endpoint creates a new edX user. It's possible to avoid the activation email sending using the `send_activation_email` set to "False"
 
 * URL: `/appsembler_api/v0/accounts/create`
 * Method: `POST`
@@ -29,6 +29,7 @@ This endpoint creates a new edX user.
 		* 'password'
 		* 'email'
 		* 'name'
+		* 'send_activation_email' (True or False)
 
 * Success Response
 	* Code: 200
@@ -435,14 +436,15 @@ This endpoint provides information about user accounts. Can be called with filte
 
 ### Enrollments
 
-This endpoint provides information about course enrollment. Can be called with filters for course, start date, and end date, or can be called without parameters to get information for all enrollments. If the student has finished the course and requested a certificate in a certain course, the information will be included.
+This endpoint provides information about course enrollment. Can be called with filters for course, start date and end date (the user enrollment date), username or can be called without parameters to get information for all enrollments. If the student has finished the course and requested a certificate in a certain course, the information will be included.
 
 * URL: `/appsembler_api/v0/analytics/enrollment/batch`
 * Method: `GET`
 * Optional URL Params:
 	* `course_id` (course-v1:Org+Course+Run)
-	* `updated_min` (YYYY-MM-DD) Start date
-	* `updated_max` (YYYY-MM-DD) End date
+	* `updated_min` (YYYY-MM-DD) User enrollment start date
+	* `updated_max` (YYYY-MM-DD) User enrollment end date
+	* `username` (staff)
 
 * Success Response
 	* Code: 200
