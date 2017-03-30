@@ -42,7 +42,7 @@ from .accounts import (
 from .accounts.api import check_account_exists
 from .serializers import CountryTimeZoneSerializer, UserSerializer, UserPreferenceSerializer
 
-from cors_csrf.decorators import ensure_csrf_cookie_cross_domain
+from openedx.core.djangoapps.cors_csrf.decorators import ensure_csrf_cookie_cross_domain
 
 class LoginSessionView(APIView):
     """HTTP end-points for logging in users. """
