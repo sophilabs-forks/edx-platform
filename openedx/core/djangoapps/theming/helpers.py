@@ -201,6 +201,18 @@ def get_current_theme():
         return None
 
 
+def current_request_has_associated_site_theme():
+    """
+    True if current request has an associated SiteTheme, False otherwise.
+
+    Returns:
+        True if current request has an associated SiteTheme, False otherwise
+    """
+    request = get_current_request()
+    site_theme = getattr(request, 'site_theme', None)
+    return bool(site_theme and site_theme.id)
+
+
 def get_theme_base_dir(theme_dir_name, suppress_error=False):
     """
     Returns absolute path to the directory that contains the given theme.
@@ -309,7 +321,12 @@ def is_comprehensive_theming_enabled():
     Returns:
          (bool): True if comprehensive theming is enabled else False
     """
+    # We need to give priority to theming over microsites
+    if settings.ENABLE_COMPREHENSIVE_THEMING and current_request_has_associated_site_theme():
+        return True
+
     # Disable theming for microsites
+    # Microsite configurations take priority over the default site theme.
     if microsite.is_request_in_microsite():
         return False
 
