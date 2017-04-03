@@ -58,3 +58,7 @@ if APPSEMBLER_FEATURES.get('ENABLE_EXTERNAL_COURSES', False):
                 hours=ENV_TOKENS.get('EXTERNAL_COURSES_FETCH_PERIOD_HOURS', 24)
             ),
         }
+
+if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
+    INSTALLED_APPS += ('souvenirs',)
+    MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)

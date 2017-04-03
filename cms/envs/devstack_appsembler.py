@@ -22,3 +22,15 @@ EDX_ORG_COURSE_API_CLIENT_ID = AUTH_TOKENS.get('EDX_ORG_COURSE_API_CLIENT_ID', F
 EDX_ORG_COURSE_API_CLIENT_SECRET = AUTH_TOKENS.get('EDX_ORG_COURSE_API_CLIENT_SECRET', False)
 EDX_ORG_COURSE_API_TOKEN_TYPE = AUTH_TOKENS.get('EDX_ORG_COURSE_API_TOKEN_TYPE', False)
 EDX_ORG_COURSE_API_CATALOG_IDS = ENV_TOKENS.get('EDX_ORG_COURSE_API_CATALOG_IDS', False)
+
+if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
+    INSTALLED_APPS += ('souvenirs',)
+    MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)
+
+    # appsembler devstack has dummy caches, but souvenirs needs a real cache
+    # for rate-limiting writes to DB.
+    SOUVENIRS_CACHE_NAME = 'souvenirs'
+    CACHES[SOUVENIRS_CACHE_NAME] = {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'souvenirs',
+    }

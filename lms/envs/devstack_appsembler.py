@@ -46,3 +46,15 @@ if APPSEMBLER_FEATURES.get('ENABLE_EXTERNAL_COURSES', False):
                 hours=ENV_TOKENS.get('EXTERNAL_COURSES_FETCH_PERIOD_HOURS', 24)
             ),
         }
+
+if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
+    INSTALLED_APPS += ('souvenirs',)
+    MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)
+
+    # appsembler devstack has dummy caches, but souvenirs needs a real cache
+    # for rate-limiting writes to DB.
+    SOUVENIRS_CACHE_NAME = 'souvenirs'
+    CACHES[SOUVENIRS_CACHE_NAME] = {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'souvenirs',
+    }
