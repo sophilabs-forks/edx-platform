@@ -59,6 +59,44 @@ if APPSEMBLER_FEATURES.get('ENABLE_EXTERNAL_COURSES', False):
             ),
         }
 
-if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
-    INSTALLED_APPS += ('souvenirs',)
-    MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)
+if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
+    APPSEMBLER_FEATURES.get('ENABLE_USAGE_AGGREGATION', False)
+):
+    # enable both apps for either feature flag, because
+    #
+    # * appsembler_usage depends on souvenirs models
+    #
+    # * appsembler_usage adds backfill_usage and email_usage management
+    #   commands even if the aggregation DB isn't available.
+    #
+    INSTALLED_APPS += (
+        'souvenirs',
+        'appsembler_usage',
+    )
+
+    if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
+        # enable live usage tracking via middleware
+        MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)
+
+    # router to send aggregation to cloud sql.
+    # this should be enabled even if the aggregation DB isn't available,
+    # to avoid trying to run migrations or store aggregation data in MySQL.
+    DATABASE_ROUTERS += ['appsembler_usage.routers.AppsemblerUsageRouter']
+
+    # operator can override DB auth for migrations
+    if ('appsembler_usage' in DATABASES and
+        os.environ.get('APPSEMBLER_USAGE_DB_AUTH')
+    ):
+        _user, _password = os.environ['APPSEMBLER_USAGE_DB_AUTH'].split(':', 1)
+        DATABASES['appsembler_usage'].update({
+            'USER': _user,
+            'PASSWORD': _password,
+        })
+
+    # custom reports function to count learners, staff, etc.
+    SOUVENIRS_USAGE_REPORTS_FUNCTION = 'appsembler_usage.reports.usage_for_periods'
+
+elif 'appsembler_usage' in DATABASES:
+    # if the AppsemblerUsageRouter isn't enabled, then avoid mistakes by
+    # removing the database alias
+    del DATABASES['appsembler_usage']
