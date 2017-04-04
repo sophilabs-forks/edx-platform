@@ -172,7 +172,7 @@ class UserAccountConnect(APIView):
     def post(self, request):
         """
         Connects an existing Open edX user account to one in an external system
-        changing the user password, email or Full Name.
+        changing the user password, email or full name.
 
         URL: /appsembler_api/v0/accounts/connect
         Arguments:
@@ -209,7 +209,7 @@ class UserAccountConnect(APIView):
 
                     if check_account_exists(email=new_email):
                         errors = {
-                            "user_message": "The email %s is already in user" % (
+                            "user_message": "The email %s is in use by another user" % (
                             new_email)}
                         return Response(errors, status=409)
 
