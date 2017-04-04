@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from souvenirs.control import count_active_users
 from souvenirs.models import Souvenir
 from souvenirs.reports import _usage_for_periods
@@ -15,36 +16,51 @@ def usage_for_periods(periods):
 
     """
     for d in _usage_for_periods(periods):
-        d['usage'].update(registered_learners_and_staff_as_of(d['period']['end']))
-        d['usage'].update(count_active_learners_and_staff(start=d['period']['start'],
-                                                          end=d['period']['end']))
+        d['usage'].update(learners_and_staff(start=d['period']['start'],
+                                             end=d['period']['end']))
         yield d
 
 
-def registered_learners_and_staff_as_of(date):
+def learners_and_staff(start, end):
     """
-    Return a dict counting the registered learners and staff as of the given
-    date. See also souvenirs.reports.registered_users_as_of
+    Return a dict counting the registered, activated and active learners and
+    staff as of the given date. See also souvenirs.reports.registered_users_as_of
     """
-    User = get_user_model()
-    users = User.objects.filter(date_joined__lt=date)
-    learners = users.filter(is_staff=False)
-    staff = users.filter(is_staff=True)
-    return dict(
-        registered_learners=learners.count(),
-        activated_learners=learners.filter(is_active=True).count(),
-        registered_staff=staff.count(),
-        activated_staff=staff.filter(is_active=True).count(),
-    )
+    users = get_user_model().objects.filter(date_joined__lt=end)
 
+    is_admin = Q(is_superuser=True)
+    none_of_the_above = ~is_admin
 
-def count_active_learners_and_staff(start=None, end=None):
-    """
-    Return a dict counting the active learners and staff between start and end
-    datetimes, inclusive and exclusive respectively.
-    """
-    qs = Souvenir.objects.all()
+    is_global_staff = Q(is_staff=True) & none_of_the_above
+    none_of_the_above = none_of_the_above | ~is_global_staff
+
+    is_course_staff = Q(courseaccessrole__role='staff') & none_of_the_above
+    none_of_the_above = none_of_the_above | ~is_course_staff
+
+    is_instructor = Q(courseaccessrole__role='instructor') & none_of_the_above
+    none_of_the_above = none_of_the_above | ~is_instructor
+
+    is_learner = none_of_the_above
+
+    registered = lambda q: users.filter(q).count()
+    activated = lambda q: users.filter(is_active=True).filter(q).count()
+    active = lambda q: count_active_users(
+        start, end, qs=Souvenir.objects.filter(user=users.filter(q)))
+
     return dict(
-        active_learners=count_active_users(start, end, qs=qs.filter(user__is_staff=False)),
-        active_staff=count_active_users(start, end, qs=qs.filter(user__is_staff=True)),
+        registered_admins=registered(is_admin),
+        activated_admins=activated(is_admin),
+        active_admins=active(is_admin),
+
+        registered_staff=registered(is_global_staff | is_course_staff),
+        activated_staff=activated(is_global_staff | is_course_staff),
+        active_staff=active(is_global_staff | is_course_staff),
+
+        registered_instructors=registered(is_instructor),
+        activated_instructors=activated(is_instructor),
+        active_instructors=active(is_instructor),
+
+        registered_learners=registered(is_learner),
+        activated_learners=activated(is_learner),
+        active_learners=active(is_learner),
     )

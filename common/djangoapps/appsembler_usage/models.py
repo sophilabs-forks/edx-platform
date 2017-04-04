@@ -30,15 +30,26 @@ class UsageMixin(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     period_start = models.DateTimeField()
     period_end = models.DateTimeField()
+
     sum_registered_users = models.IntegerField()
-    sum_registered_learners = models.IntegerField()
-    sum_registered_staff = models.IntegerField()
     sum_activated_users = models.IntegerField()
-    sum_activated_learners = models.IntegerField()
-    sum_activated_staff = models.IntegerField()
     sum_active_users = models.IntegerField()
-    sum_active_learners = models.IntegerField()
+
+    sum_registered_admins = models.IntegerField()
+    sum_activated_admins = models.IntegerField()
+    sum_active_admins = models.IntegerField()
+
+    sum_registered_staff = models.IntegerField()
+    sum_activated_staff = models.IntegerField()
     sum_active_staff = models.IntegerField()
+
+    sum_registered_instructors = models.IntegerField()
+    sum_activated_instructors = models.IntegerField()
+    sum_active_instructors = models.IntegerField()
+
+    sum_registered_learners = models.IntegerField()
+    sum_activated_learners = models.IntegerField()
+    sum_active_learners = models.IntegerField()
 
     class Meta:
         abstract = True

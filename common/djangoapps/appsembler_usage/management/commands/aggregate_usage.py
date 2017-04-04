@@ -141,15 +141,21 @@ class Command(BaseCommand):
 def map_fields(d):
     # period_start=d['period']['start'],
     # period_end=d['period']['end'],
-    # sum_registered_users=d['usage']['registered_users'],
-    # sum_registered_learners=d['usage']['registered_learners'],
-    # sum_registered_staff=d['usage']['registered_staff'],
-    # sum_activated_users=d['usage']['activated_users'],
-    # sum_activated_learners=d['usage']['activated_learners'],
-    # sum_activated_staff=d['usage']['activated_staff'],
-    # sum_active_users=d['usage']['active_users'],
-    # sum_active_learners=d['usage']['active_learners'],
-    # sum_active_staff=d['usage']['active_staff'],
+    # sum_registered_users=d['usage']['registered_users']
+    # sum_activated_users=d['usage']['activated_users']
+    # sum_active_users=d['usage']['active_users']
+    # sum_registered_admins=d['usage']['registered_admins']
+    # sum_activated_admins=d['usage']['activated_admins']
+    # sum_active_admins=d['usage']['active_admins']
+    # sum_registered_staff=d['usage']['registered_staff']
+    # sum_activated_staff=d['usage']['activated_staff']
+    # sum_active_staff=d['usage']['active_staff']
+    # sum_registered_instructors=d['usage']['registered_instructors']
+    # sum_activated_instructors=d['usage']['activated_instructors']
+    # sum_active_instructors=d['usage']['active_instructors']
+    # sum_registered_learners=d['usage']['registered_learners']
+    # sum_activated_learners=d['usage']['activated_learners']
+    # sum_active_learners=d['usage']['active_learners']
     mapped = {'sum_{}'.format(key): value for key, value in d['usage'].items()}
     mapped.update(
         period_start=d['period']['start'],
