@@ -71,7 +71,7 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
     #
     INSTALLED_APPS += (
         'souvenirs',
-        'openedx.core.djangoapps.appsembler.appsembler_usage',
+        'openedx.core.djangoapps.appsembler.usage',  # appsembler_usage
     )
 
     if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
@@ -84,7 +84,7 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
     # this should be enabled even if the aggregation DB isn't available,
     # to avoid trying to run migrations or store aggregation data in MySQL.
     DATABASE_ROUTERS += [
-        'openedx.core.djangoapps.appsembler.appsembler_usage.routers.AppsemblerUsageRouter',
+        'openedx.core.djangoapps.appsembler.usage.routers.AppsemblerUsageRouter',
     ]
 
     # operator can override DB auth for migrations
@@ -98,7 +98,7 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
         })
 
     # custom reports function to count learners, staff, etc.
-    SOUVENIRS_USAGE_REPORTS_FUNCTION = 'openedx.core.djangoapps.appsembler.appsembler_usage.reports.usage_for_periods'
+    SOUVENIRS_USAGE_REPORTS_FUNCTION = 'openedx.core.djangoapps.appsembler.usage.reports.usage_for_periods'
 
 elif 'appsembler_usage' in DATABASES:
     # if the AppsemblerUsageRouter isn't enabled, then avoid mistakes by

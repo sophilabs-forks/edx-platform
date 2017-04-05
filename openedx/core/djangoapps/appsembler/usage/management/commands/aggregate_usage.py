@@ -6,7 +6,7 @@ from souvenirs.reports import (daily_usage, customer_monthly_usage,
                                customer_quarterly_usage,
                                customer_yearly_usage,
                                calendar_monthly_usage)
-from openedx.core.djangoapps.appsembler.appsembler_usage.models import (
+from openedx.core.djangoapps.appsembler.usage.models import (
     Customer, UsageDaily, UsageCustomerMonthly, UsageCustomerQuarterly,
     UsageCustomerYearly, UsageCalendarMonthly)
 from ._helpers import DateAction
