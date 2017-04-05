@@ -35,17 +35,21 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
     #
     INSTALLED_APPS += (
         'souvenirs',
-        'appsembler_usage',
+        'openedx.core.djangoapps.appsembler.appsembler_usage',
     )
 
     if APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False):
         # enable live usage tracking via middleware
-        MIDDLEWARE_CLASSES += ('souvenirs.middleware.SouvenirsMiddleware',)
+        MIDDLEWARE_CLASSES += (
+            'souvenirs.middleware.SouvenirsMiddleware',
+        )
 
     # router to send aggregation to cloud sql.
     # this should be enabled even if the aggregation DB isn't available,
     # to avoid trying to run migrations or store aggregation data in MySQL.
-    DATABASE_ROUTERS += ['appsembler_usage.routers.AppsemblerUsageRouter']
+    DATABASE_ROUTERS += [
+        'openedx.core.djangoapps.appsembler.appsembler_usage.routers.AppsemblerUsageRouter',
+    ]
 
     # appsembler devstack has dummy caches, but souvenirs needs a real cache
     # for rate-limiting writes to DB.
@@ -66,7 +70,7 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
         })
 
     # custom reports function to count learners, staff, etc.
-    SOUVENIRS_USAGE_REPORTS_FUNCTION = 'appsembler_usage.reports.usage_for_periods'
+    SOUVENIRS_USAGE_REPORTS_FUNCTION = 'openedx.core.djangoapps.appsembler.appsembler_usage.reports.usage_for_periods'
 
 elif 'appsembler_usage' in DATABASES:
     # if the AppsemblerUsageRouter isn't enabled, then avoid mistakes by

@@ -1,19 +1,14 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from django.db import router
 from django.utils import timezone
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from souvenirs.reports import (daily_usage, customer_monthly_usage,
                                customer_quarterly_usage,
                                customer_yearly_usage,
                                calendar_monthly_usage)
-from appsembler_usage.models import (Customer, UsageDaily, UsageCustomerMonthly,
-                                     UsageCustomerQuarterly, UsageCustomerYearly,
-                                     UsageCalendarMonthly)
+from openedx.core.djangoapps.appsembler.appsembler_usage.models import (
+    Customer, UsageDaily, UsageCustomerMonthly, UsageCustomerQuarterly,
+    UsageCustomerYearly, UsageCalendarMonthly)
 from ._helpers import DateAction
 
 
