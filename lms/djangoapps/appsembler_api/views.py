@@ -9,6 +9,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.core.validators import validate_email
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -82,6 +83,11 @@ class CreateUserAccountView(APIView):
         # so we can use the already defined methods for creating an user
         data['honor_code'] = "True"
         data['terms_of_service'] = "True"
+
+        if 'send_activation_email' in data and data['send_activation_email'] == "False":
+            data['send_activation_email'] = False
+        else:
+            data['send_activation_email'] = True
 
         email = request.data.get('email')
         username = request.data.get('username')
@@ -171,15 +177,17 @@ class UserAccountConnect(APIView):
     def post(self, request):
         """
         Connects an existing Open edX user account to one in an external system
-        changing the user password.
+        changing the user password, email or full name.
 
         URL: /appsembler_api/v0/accounts/connect
         Arguments:
             request (HttpRequest)
             JSON (application/json)
             {
-                "email": "staff4@example.com",
+                "username": "staff4@example.com", # mandatory, the lookup param
                 "password": "edx",
+                "email": staff@example.com,
+                "name": "Staff edX"
             }
         Returns:
             HttpResponse: 200 on success, {"user_id ": 60}
@@ -189,16 +197,36 @@ class UserAccountConnect(APIView):
         """
         data = request.data
 
-        email = data.get('email', '')
+        username = data.get('username', '')
+        new_email = data.get('email', '')
         new_password = data.get('password', '')
+        new_name = data.get('name', '')
 
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(username=username)
 
-            if not new_password.strip():
-                raise ValidationError('Password is empty')
+            if new_password.strip() != "":
+                user.set_password(new_password)
 
-            user.set_password(new_password)
+            if new_email.strip() != "":
+                try:
+                    validate_email(new_email)
+
+                    if check_account_exists(email=new_email):
+                        errors = {
+                            "user_message": "The email %s is in use by another user" % (
+                            new_email)}
+                        return Response(errors, status=409)
+
+                    user.email = new_email
+                except ValidationError:
+                    errors = {"user_message": "Invalid email format"}
+                    return Response(errors, status=409)
+
+            if new_name.strip() != "":
+                user.profile.name = new_name
+                user.profile.save()
+
             user.save()
 
         except User.DoesNotExist:
@@ -475,23 +503,30 @@ class GetBatchEnrollmentDataView(APIView):
         updated_min = request.GET.get('updated_min', '')
         updated_max = request.GET.get('updated_max', '')
         course_id = request.GET.get('course_id')
+        username = request.GET.get('username')
+
+        query_filter = {}
 
         if course_id:
             course_id= course_id.replace(' ', '+')
         # the replace function is because Django encodes '+' or '%2B' as spaces
-        enrollments = CourseEnrollment.objects.all()
 
         if course_id:
             course_key = CourseKey.from_string(course_id)
-            enrollments = enrollments.filter(course_id=course_key)
+            query_filter['course_id'] = course_key
+
+        if username:
+            query_filter['user__username'] = username
 
         if updated_min:
             min_date = parser.parse(updated_min)
-            enrollments = enrollments.filter(created__gt=min_date)
+            query_filter['created__gt'] = min_date
 
         if updated_max:
             max_date = parser.parse(updated_max)
-            enrollments = enrollments.filter(created__lt=max_date)
+            query_filter['created__lt'] = max_date
+
+        enrollments = CourseEnrollment.objects.filter(**query_filter)
 
         enrollment_list = []
         for enrollment in enrollments:
