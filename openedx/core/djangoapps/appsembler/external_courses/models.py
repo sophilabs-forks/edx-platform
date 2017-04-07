@@ -32,4 +32,4 @@ class ExternalCourseTile(models.Model):
             return 'Self-Paced'
         else:
             weeks = int(self.ends.strftime("%V")) - int(self.starts.strftime("%V"))
-            return '%s Weeks Commitment' % str(weeks)
+            return '%s Week Commitment' % str(weeks)
