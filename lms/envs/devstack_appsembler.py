@@ -7,6 +7,7 @@ import taxoman.settings
 from taxoman_api.models import Facet
 
 INSTALLED_APPS += ('appsembler', )
+
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment
@@ -31,8 +32,10 @@ if FEATURES.get('ENABLE_TAXOMAN', False):
         'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
         'STATS_FILE': taxoman.settings.stats_file,
     }
+    # Delete this after testing. It is here as a both reminder and quick test
+    # for showing the facets
+    #COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
-    COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
 if DISABLE_DJANGO_TOOLBAR:
     from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
