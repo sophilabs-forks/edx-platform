@@ -208,7 +208,7 @@ class UserAccountConnect(APIView):
             if new_password.strip() != "":
                 user.set_password(new_password)
 
-            if new_email.strip() != "":
+            if new_email.strip() != "" and new_email != user.email:
                 try:
                     validate_email(new_email)
 
