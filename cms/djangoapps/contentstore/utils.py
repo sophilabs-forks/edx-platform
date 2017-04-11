@@ -5,6 +5,7 @@ Common utility functions useful throughout the contentstore
 import logging
 from datetime import datetime
 from pytz import UTC
+import re
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -12,6 +13,7 @@ from django.utils.translation import ugettext as _
 from django_comment_common.models import assign_default_role
 from django_comment_common.utils import seed_permissions_roles
 
+from openedx.core.djangoapps.appsembler.sites.utils import get_lms_link_from_course_key
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 
@@ -110,9 +112,45 @@ def get_lms_link_for_item(location, preview=False):
         )
 
     return u"//{lms_base}/courses/{course_key}/jump_to/{location}".format(
-        lms_base=lms_base,
+        lms_base=get_lms_link_from_course_key(lms_base, location.course_key),
         course_key=location.course_key.to_deprecated_string(),
         location=location.to_deprecated_string(),
+    )
+
+
+def get_lms_link_for_about_page(course_key):
+    """
+    Returns the url to the course about page from the location tuple.
+    """
+
+    assert isinstance(course_key, CourseKey)
+
+    if settings.FEATURES.get('ENABLE_MKTG_SITE', False):
+        if not hasattr(settings, 'MKTG_URLS'):
+            log.exception("ENABLE_MKTG_SITE is True, but MKTG_URLS is not defined.")
+            return None
+
+        marketing_urls = settings.MKTG_URLS
+
+        # Root will be "https://www.edx.org". The complete URL will still not be exactly correct,
+        # but redirects exist from www.edx.org to get to the Drupal course about page URL.
+        about_base = marketing_urls.get('ROOT', None)
+
+        if about_base is None:
+            log.exception('There is no ROOT defined in MKTG_URLS')
+            return None
+
+        # Strip off https:// (or http://) to be consistent with the formatting of LMS_BASE.
+        about_base = re.sub(r"^https?://", "", about_base)
+
+    elif settings.LMS_BASE is not None:
+        about_base = settings.LMS_BASE
+    else:
+        return None
+
+    return u"//{about_base_url}/courses/{course_key}/about".format(
+        about_base_url=get_lms_link_from_course_key(about_base, course_key),
+        course_key=course_key.to_deprecated_string()
     )
 
 
@@ -130,7 +168,7 @@ def get_lms_link_for_certificate_web_view(user_id, course_key, mode):
         return None
 
     return u"//{certificate_web_base}/certificates/user/{user_id}/course/{course_id}?preview={mode}".format(
-        certificate_web_base=lms_base,
+        certificate_web_base=get_lms_link_from_course_key(settings.LMS_BASE, course_key),
         user_id=user_id,
         course_id=unicode(course_key),
         mode=mode
