@@ -170,8 +170,13 @@ class SiteConfiguration(models.Model):
         else:
             theme_folder = os.path.join(settings.STATIC_ROOT, '..', 'customer_themes')
         theme_file = os.path.join(theme_folder, '{}.css'.format(domain_without_port_number))
+
+        new_file = not os.path.exists(theme_file)
         with open(theme_file, 'w') as f:
             f.write(css_output.encode('utf-8'))
+
+        # only try once, it caused errors if we tried to reapply permissions
+        if new_file:
             os.chmod(theme_file, 0777)
 
     def set_sass_variables(self, entries):
@@ -188,8 +193,10 @@ class SiteConfiguration(models.Model):
         css_file = self.values.get('css_overrides_file')
         if css_file:
             try:
-                os.remove(os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], css_file))
-                os.remove(os.path.join(settings.STATIC_ROOT, '..', 'customer_themes', css_file))
+                if settings.DEBUG:
+                    os.remove(os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], css_file))
+                else:
+                    os.remove(os.path.join(settings.STATIC_ROOT, '..', 'customer_themes', css_file))
             except OSError:
                 logger.warning("Can't delete CSS file {}".format(css_file))
 
@@ -204,9 +211,9 @@ class SiteConfiguration(models.Model):
     def _get_initial_microsite_values(self):
         domain_without_port_number = self.site.domain.split(':')[0]
         if settings.DEBUG:
-            css_overrides_file = "customer_themes/{}.css".format(domain_without_port_number),
+            css_overrides_file = "customer_themes/{}.css".format(domain_without_port_number)
         else:
-            css_overrides_file = "{}.css".format(domain_without_port_number),
+            css_overrides_file = "{}.css".format(domain_without_port_number)
         return {
             'platform_name': self.site.name,
             'css_overrides_file': css_overrides_file,
