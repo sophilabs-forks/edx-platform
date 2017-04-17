@@ -22,6 +22,7 @@ from student.views import create_account_with_params
 #for password/username creation
 import random
 import string
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,7 @@ def endpoint(request):
 
             #filter out any spaces and punctuation
             username = ''.join(ch for ch in full_name if ch.isalnum())
+            username = ''.join(x for x in unicodedata.normalize('NFKD', username) if x in string.ascii_letters).lower()
             #make sure username is unique
             while User.objects.filter(username=username):
                 username = username + str(random.randint(1,9))
