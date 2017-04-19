@@ -504,6 +504,8 @@ class SAMLConfiguration(ConfigurationModel):
             return contact
         if name == "LOGOUT_REDIRECT_URL":
             return self.slo_redirect_url
+        if name == "SP_SAML_RESTRICT_MODE":
+            return getattr(settings, 'SP_SAML_RESTRICT_MODE', True)
         return other_config[name]  # SECURITY_CONFIG, SP_EXTRA, or similar extra settings
 
 

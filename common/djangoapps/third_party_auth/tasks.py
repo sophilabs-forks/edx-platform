@@ -137,7 +137,6 @@ def _parse_metadata_xml(xml, entity_id):
     except KeyError:
         slo_url = ""
         log.info("Unable to find SLO URL with HTTP-Redirect binding.")
-    log.info(slo_url)
     return public_key, sso_url, slo_url, expires_at
 
 
