@@ -17,6 +17,7 @@ define(['backbone'], function (Backbone) {
             start: '',
             image_url: '',
             org: '',
+            display_org_with_default: '',
             id: ''
         }
     });
