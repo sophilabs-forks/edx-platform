@@ -1,5 +1,4 @@
 # devstack_appsembler.py
-# NOTE: 
 
 from .devstack import *
 from .appsembler import *
@@ -9,6 +8,12 @@ from taxoman_api.models import Facet
 
 INSTALLED_APPS += ('appsembler',)
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
+
+# disable caching in dev environment
+for cache_key in CACHES.keys():
+    CACHES[cache_key]['BACKEND'] = 'django.core.cache.backends.dummy.DummyCache'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 DISABLE_DJANGO_TOOLBAR = True
 DISABLE_CONTRACTS = False
@@ -44,3 +49,8 @@ if DISABLE_DJANGO_TOOLBAR:
     ])
 
     DEBUG_TOOLBAR_MONGO_STACKTRACES = False
+
+if DISABLE_CONTRACTS:
+    import contracts
+    contracts.disable_all()
+
