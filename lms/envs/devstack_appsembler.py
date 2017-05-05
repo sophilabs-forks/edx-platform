@@ -3,7 +3,6 @@
 from .devstack import *
 from .appsembler import *
 
-INSTALLED_APPS += ('appsembler',)
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment
@@ -34,3 +33,5 @@ if DISABLE_DJANGO_TOOLBAR:
 if DISABLE_CONTRACTS:
     import contracts
     contracts.disable_all()
+
+INSTALLED_APPS += ('appsembler', 'study_location',)
