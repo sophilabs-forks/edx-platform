@@ -8,5 +8,13 @@ from study_location.models import (
     StudyLocationConfiguration,
 )
 
-admin.site.register(StudyLocation)
+
+class StudyLocationAdmin(admin.ModelAdmin):
+    """
+    Django admin customizations for StudyLocation model
+    """
+    list_display = ('location', 'contact_email',)
+
+
+admin.site.register(StudyLocation, StudyLocationAdmin)
 admin.site.register(StudyLocationConfiguration, ConfigurationModelAdmin)
