@@ -3,6 +3,8 @@
 from .devstack import *
 from .appsembler import *
 
+INSTALLED_APPS += ('appsembler', )
+
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment
@@ -15,7 +17,7 @@ DISABLE_DJANGO_TOOLBAR = True
 DISABLE_CONTRACTS = False
 
 if DISABLE_DJANGO_TOOLBAR:
-    from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
+    from .common import MIDDLEWARE_CLASSES
 
     def tuple_without(source_tuple, exclusion_list):
         """Return new tuple excluding any entries in the exclusion list. Needed because tuples
@@ -33,5 +35,3 @@ if DISABLE_DJANGO_TOOLBAR:
 if DISABLE_CONTRACTS:
     import contracts
     contracts.disable_all()
-
-INSTALLED_APPS += ('appsembler', 'study_location',)

@@ -86,6 +86,14 @@ class StudyLocationConfiguration(ConfigurationModel):
     )
 
     @classmethod
+    def display_name(cls):
+        instance = cls.current()
+        if instance.enabled:
+            return instance.display_name
+        else:
+            return cls.fields['display_name'].default
+
+    @classmethod
     def is_enabled(cls):
         instance = cls.current()
         if instance:
