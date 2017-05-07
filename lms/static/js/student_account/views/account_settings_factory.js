@@ -199,29 +199,23 @@
                     sectionsData[0].fields.push(field); // add to basic information
                 });
 
-                    // var accountSettingsView = new AccountSettingsView({
-                    //     model: userAccountModel,
-                    //     accountUserId: accountUserId,
-                    //     el: accountSettingsElement,
-                    //     sectionsData: sectionsData
-                    // });
+                // move the model fetching inside the 
+                // extension fields require() async call.
+                userAccountModel.fetch({
+                    success: function () {
+                        // Fetch the user preferences model
+                        userPreferencesModel.fetch({
+                            success: function() {
+                                showAccountFields();
+                                fetchAccountExtensionModels();
+                            },
+                            error: showLoadingError
+                        });
+                    },
+                    error: showLoadingError
+                });
 
-                    // accountSettingsView.render();
-                    // userAccountModel.fetch({
-                    //     success: function () {
-                    //         // Fetch the user preferences model
-                    //         userPreferencesModel.fetch({
-                    //             success: function() {
-                    //                 showAccountFields();
-                    //                 fetchAccountExtensionModels();
-                    //             },
-                    //             error: showLoadingError
-                    //         });
-                    //     },
-                    //     error: showLoadingError
-                    // });
-
-            });
+            }); // end of extension fields require() async
 
             var accountSettingsView = new AccountSettingsView({
                 model: userAccountModel,
@@ -231,21 +225,6 @@
             });
 
             accountSettingsView.render();
-
-            userAccountModel.fetch({
-                success: function () {
-                    // Fetch the user preferences model
-                    userPreferencesModel.fetch({
-                        success: function() {
-                            showAccountFields();
-                            fetchAccountExtensionModels();
-                        },
-                        error: showLoadingError
-                    });
-                },
-                error: showLoadingError
-            });
-
 
             var showLoadingError = function () {
                 accountSettingsView.showLoadingError();
@@ -267,7 +246,7 @@
                 //fetch each of the extension field models
                 // TODO: is it important to chain these as on success callbacks?
                 _.each(ext_fields, function (el, index, list) {
-                    el.model.fetch({error: showLoadingError});
+                    el.view.model.fetch({error: showLoadingError});
                 });
             };
 
