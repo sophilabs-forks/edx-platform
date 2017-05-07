@@ -455,6 +455,7 @@ def get_account_settings_extension_config(request):
     # this would normally look at the config to get the real fields
     return [ 
         {
+            'id': 'fake_dev_field',
             'js_model': 'js/student_account/models/user_account_model',
             # the config can't user reverse() etc. will have to be done in this method
             'api_url': reverse("accounts_api", kwargs={'username': request.user.username}),

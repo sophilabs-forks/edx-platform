@@ -1,14 +1,26 @@
 ;(function (define, undefined) {
     'use strict';
+
+    define('extension_deps', ['underscore'], function(_) {
+        return function(extensionFieldsData) {
+            var ext_deps = {};
+            _.each(extensionFieldsData, function(extfield) {
+                ext_deps[extfield.id] = extfield.js_model;
+            });
+            return ext_deps;
+        }
+    });
+
     define([
         'gettext', 'jquery', 'underscore', 'backbone', 'logger',
         'js/views/fields',
         'js/student_account/models/user_account_model',
         'js/student_account/models/user_preferences_model',
         'js/student_account/views/account_settings_fields',
-        'js/student_account/views/account_settings_view'
+        'js/student_account/views/account_settings_view',
+        'extension_deps'
     ], function (gettext, $, _, Backbone, Logger, FieldViews, UserAccountModel, UserPreferencesModel,
-                 AccountSettingsFieldViews, AccountSettingsView) {
+                 AccountSettingsFieldViews, AccountSettingsView, extension_deps) {
 
         return function (fieldsData, extensionFieldsData, authData, userAccountsApiUrl, userPreferencesApiUrl, accountUserId, platformName) {
 
@@ -135,31 +147,6 @@
                 }
             ];
 
-            // extension fields
-            var ext_fields = _.map(extensionFieldsData, function(extfield) {
-                // pass field's js_model attribute as string to define a class
-                var field_model_instance;
-                define([extfield.js_model], function(extfieldModelClass) {
-                    field_model_instance = new extfieldModelClass();
-                    field_model_instance.url = extfield.api_url;
-                });
-
-                return {
-                    'view': new AccountSettingsFieldViews.DropdownFieldView({ // TODO: determine which view
-                        model: field_model_instance,
-                        api_url: extfield.api_url,
-                        title: extfield.title,
-                        valueAttribute: extfield.valueAttribute,
-                        options: extfield.options,
-                        persistChanges: extfield.persistChanges,
-                        helpMessage: extfield.helpMessage
-                        // TODO: screenReaderTitle
-                    })
-                };
-            });
-
-            sectionsData[0].push(ext_fields); // add to basic information
-
             if (_.isArray(authData.providers)) {
                 var accountsSectionData = {
                     title: gettext('Connected Accounts'),
@@ -183,6 +170,59 @@
                 sectionsData.push(accountsSectionData);
             }
 
+            // extension fields
+            var deps, ext_fields;
+            var ext_deps_config = extension_deps(extensionFieldsData);
+
+            // http://stackoverflow.com/a/17448869
+            RequireJS.require(_.values(ext_deps_config), function() {
+                // TODO: some defensive type checking
+                deps = _.object(_.keys(ext_deps_config), arguments);
+                ext_fields = _.map(extensionFieldsData, function(extfield) {
+                    var model_inst, field_view;
+                    model_inst = new deps[extfield.id]();
+                    model_inst.url = extfield.api_url;
+                    return {
+                        'view': new FieldViews.DropdownFieldView({ // TODO: determine which view
+                            model: model_inst,
+                            api_url: model_inst.url,
+                            title: extfield.title,
+                            valueAttribute: extfield.valueAttribute,
+                            options: extfield.options,
+                            persistChanges: extfield.persistChanges,
+                            helpMessage: extfield.helpMessage
+                            // TODO: screenReaderTitle
+                        })
+                    };
+                });
+                _.each(ext_fields, function(field) { 
+                    sectionsData[0].fields.push(field); // add to basic information
+                });
+
+                    // var accountSettingsView = new AccountSettingsView({
+                    //     model: userAccountModel,
+                    //     accountUserId: accountUserId,
+                    //     el: accountSettingsElement,
+                    //     sectionsData: sectionsData
+                    // });
+
+                    // accountSettingsView.render();
+                    // userAccountModel.fetch({
+                    //     success: function () {
+                    //         // Fetch the user preferences model
+                    //         userPreferencesModel.fetch({
+                    //             success: function() {
+                    //                 showAccountFields();
+                    //                 fetchAccountExtensionModels();
+                    //             },
+                    //             error: showLoadingError
+                    //         });
+                    //     },
+                    //     error: showLoadingError
+                    // });
+
+            });
+
             var accountSettingsView = new AccountSettingsView({
                 model: userAccountModel,
                 accountUserId: accountUserId,
@@ -191,6 +231,21 @@
             });
 
             accountSettingsView.render();
+
+            userAccountModel.fetch({
+                success: function () {
+                    // Fetch the user preferences model
+                    userPreferencesModel.fetch({
+                        success: function() {
+                            showAccountFields();
+                            fetchAccountExtensionModels();
+                        },
+                        error: showLoadingError
+                    });
+                },
+                error: showLoadingError
+            });
+
 
             var showLoadingError = function () {
                 accountSettingsView.showLoadingError();
@@ -215,20 +270,6 @@
                     el.model.fetch({error: showLoadingError});
                 });
             };
-
-            userAccountModel.fetch({
-                success: function () {
-                    // Fetch the user preferences model
-                    userPreferencesModel.fetch({
-                        success: function() {
-                            showAccountFields();
-                            fetchAccountExtensionModels();
-                        },
-                        error: showLoadingError
-                    });
-                },
-                error: showLoadingError
-            });
 
             return {
                 userAccountModel: userAccountModel,
