@@ -394,6 +394,10 @@ def account_settings_context(request):
         'disable_courseware_js': True,
     }
 
+    # extend to add keys to fields based on extension account settings fields
+    extension_field_config = get_account_settings_extension_config(request)
+    context['extension_fields'] = extension_field_config
+
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,
         # we display a message to the user.
@@ -420,3 +424,45 @@ def account_settings_context(request):
         } for state in auth_states]
 
     return context
+
+
+def get_account_settings_extension_config(request):
+    """ Return any optional configuration for additional account settings fields
+
+        Args:
+        request: The request object.
+
+        Returns:
+        list of dicts like ['field_name': {'options'|'url'}, ]
+    
+    """
+    # TODO: be microsite middleware aware
+
+    # ACCOUNT_SETTINGS_EXTENSION_FIELDS should be defined like
+    # [{'model': dotted_path_to_model, ..... TODO }]
+    # TODO: could potentially also have 'meta_key': key defined in JSON 'meta' field on UserProfile model
+
+    # model must subclass AccountSettingsExtensionModel
+    # by which it will have methods to return options, 
+    # possibly define visibility (shareable|public|admin) of fields
+
+    # model must have a way to return a static file URL to the corresponding Backbone model 
+
+    # extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
+    # for key, val in extension_config.iteritems():
+
+    # dummy for dev
+    # this would normally look at the config to get the real fields
+    return [ 
+        {
+            'js_model': 'js/student_account/models/user_account_model',
+            # the config can't user reverse() etc. will have to be done in this method
+            'api_url': reverse("accounts_api", kwargs={'username': request.user.username}),
+            'title': 'Fake Dev Field',
+            'helpMessage': 'Here\'s a nice help message',
+            'valueAttribute': 'fake_dev_field',
+            'options': [(1, 'One')],
+            'persistChanges': True,
+        },
+    ]
+

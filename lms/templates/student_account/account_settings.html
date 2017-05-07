@@ -29,11 +29,12 @@ from microsite_configuration import microsite
 <%block name="js_extra">
 <%static:require_module module_name="js/student_account/views/account_settings_factory" class_name="AccountSettingsFactory">
     var fieldsData = ${ json.dumps(fields) };
+    var extensionFieldsData = ${ json.dumps(extension_fields) };
     var authData = ${ json.dumps(auth) };
     var platformName = ${ json.dumps(microsite.get_value('platform_name', settings.PLATFORM_NAME))};
 
     AccountSettingsFactory(
-        fieldsData, authData, '${user_accounts_api_url}', '${user_preferences_api_url}', ${user.id}, platformName
+        fieldsData, extensionFieldsData, authData, '${user_accounts_api_url}', '${user_preferences_api_url}', ${user.id}, platformName
     );
 </%static:require_module>
 </%block>

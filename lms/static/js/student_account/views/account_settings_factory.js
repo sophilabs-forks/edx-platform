@@ -10,7 +10,7 @@
     ], function (gettext, $, _, Backbone, Logger, FieldViews, UserAccountModel, UserPreferencesModel,
                  AccountSettingsFieldViews, AccountSettingsView) {
 
-        return function (fieldsData, authData, userAccountsApiUrl, userPreferencesApiUrl, accountUserId, platformName) {
+        return function (fieldsData, extensionFieldsData, authData, userAccountsApiUrl, userPreferencesApiUrl, accountUserId, platformName) {
 
             var accountSettingsElement = $('.wrapper-account-settings');
 
@@ -135,6 +135,31 @@
                 }
             ];
 
+            // extension fields
+            var ext_fields = _.map(extensionFieldsData, function(extfield) {
+                // pass field's js_model attribute as string to define a class
+                var field_model_instance;
+                define([extfield.js_model], function(extfieldModelClass) {
+                    field_model_instance = new extfieldModelClass();
+                    field_model_instance.url = extfield.api_url;
+                });
+
+                return {
+                    'view': new AccountSettingsFieldViews.DropdownFieldView({ // TODO: determine which view
+                        model: field_model_instance,
+                        api_url: extfield.api_url,
+                        title: extfield.title,
+                        valueAttribute: extfield.valueAttribute,
+                        options: extfield.options,
+                        persistChanges: extfield.persistChanges,
+                        helpMessage: extfield.helpMessage
+                        // TODO: screenReaderTitle
+                    })
+                };
+            });
+
+            sectionsData[0].push(ext_fields); // add to basic information
+
             if (_.isArray(authData.providers)) {
                 var accountsSectionData = {
                     title: gettext('Connected Accounts'),
@@ -183,11 +208,22 @@
                 accountSettingsView.renderFields();
             };
 
+            var fetchAccountExtensionModels = function () {
+                //fetch each of the extension field models
+                // TODO: is it important to chain these as on success callbacks?
+                _.each(ext_fields, function (el, index, list) {
+                    el.model.fetch({error: showLoadingError});
+                });
+            };
+
             userAccountModel.fetch({
                 success: function () {
                     // Fetch the user preferences model
                     userPreferencesModel.fetch({
-                        success: showAccountFields,
+                        success: function() {
+                            showAccountFields();
+                            fetchAccountExtensionModels();
+                        },
                         error: showLoadingError
                     });
                 },
