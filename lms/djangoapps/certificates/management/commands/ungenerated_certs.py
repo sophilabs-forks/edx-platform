@@ -14,7 +14,7 @@ from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from xmodule.modulestore.django import modulestore
-from certificates.models import CertificateStatuses
+from certificates.models import CertificateStatuses, GeneratedCertificate
 
 
 LOGGER = logging.getLogger(__name__)
@@ -59,8 +59,9 @@ class Command(BaseCommand):
                     default=False,
                     help='Will generate new certificates for only those users '
                     'whose entry in the certificate table matches STATUS. '
-                    'STATUS can be generating, unavailable, deleted, error '
-                    'or notpassing.'),
+                    'STATUS can be generating, unavailable, deleted, error, '
+                    'notpassing, or downloadable (to fix downloadable without a'
+                    'download_url.'),
     )
 
     def handle(self, *args, **options):
@@ -142,6 +143,18 @@ class Command(BaseCommand):
                 )
 
                 if cert_status in valid_statuses:
+
+                    if cert_status == 'downloadable':
+                        # PDF certs can get be in 'downloadable' without a download url if 
+                        # xqueue is running but certs process is not
+                        cert = GeneratedCertificate.objects.get(course_id=course_key, user=student.id)
+                        if cert.download_url:
+                            LOGGER.info(
+                                (
+                                    "skipping {} for student {} since download_url is not "
+                                    "empty").format(unicode(course_key), student.id)
+                                )
+                            continue                    
 
                     if not options['noop']:
                         # Add the certificate request to the queue
