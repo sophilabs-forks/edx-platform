@@ -3,6 +3,7 @@
 import logging
 import json
 import urlparse
+import importlib
 
 from django.conf import settings
 from django.contrib import messages
@@ -39,6 +40,8 @@ from util.bad_request_rate_limiter import BadRequestRateLimiter
 
 from openedx.core.djangoapps.user_api.accounts.api import request_password_change
 from openedx.core.djangoapps.user_api.errors import UserNotFound
+
+from student_account.fields import AccountSettingsExtensionField
 
 
 AUDIT_LOG = logging.getLogger("audit")
@@ -448,8 +451,32 @@ def get_account_settings_extension_config(request):
 
     # model must have a way to return a static file URL to the corresponding Backbone model 
 
-    # extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
-    # for key, val in extension_config.iteritems():
+    extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
+    ext_fields = []
+
+    for fields in extension_config:
+        module, klass = field.rsplit('.', 1)
+        module = import_module(module)
+        try:
+            assert issubclass(klass, AccountSettingsExtensionField)
+            ext_field = getattr(module, klass)(request)
+            ext_fields.push(ext_field)            
+        except AssertionError:
+            continue
+
+        # return getattr(module, klass)(*args, **kwargs)
+        # ext_field = {
+        #     'id': key,
+        #     'js_model': ,  # should be a path relative to the Require.js data-main value
+        #     'api_url': reverse("accounts_api", kwargs={'username': request.user.username}),
+        #     'title': val['title'],
+        #     'helpMessage': val['helpMessage'],
+        #     'valueAttribute': val['valueAttribute'],
+        #     'options': val['options'],
+        #     'persistChanges': True,
+        # }
+
+    return ext_fields
 
     # dummy for dev
     # this would normally look at the config to get the real fields
