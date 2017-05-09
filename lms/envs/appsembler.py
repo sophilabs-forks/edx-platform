@@ -9,7 +9,7 @@ CONFIG_PREFIX = SERVICE_VARIANT + "." if SERVICE_VARIANT else ""
 with open(CONFIG_ROOT / CONFIG_PREFIX + 'env.json') as env_file:
     ENV_TOKENS = json.load(env_file)
 
-INSTALLED_APPS += ('appsembler', )
+# INSTALLED_APPS += ('appsembler', )
 
 APPSEMBLER_FEATURES = ENV_TOKENS.get('APPSEMBLER_FEATURES', {})
 
@@ -22,6 +22,7 @@ INTERCOM_USER_EMAIL = APPSEMBLER_FEATURES.get('INTERCOM_USER_EMAIL', os.environ.
 
 ENABLE_STUDY_LOCATIONS = ENV_TOKENS.get('ENABLE_STUDY_LOCATIONS', False)
 if ENABLE_STUDY_LOCATIONS:
+    from .common import INSTALLED_APPS
     INSTALLED_APPS += ('study_location', )
     # NOTE: sites implementing the Study Location feature which also need to
     # do any additional extension of the registration form will need to 
