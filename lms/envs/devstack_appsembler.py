@@ -36,7 +36,6 @@ if FEATURES.get('ENABLE_TAXOMAN', False):
     # for showing the facets
     #COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
-
 if DISABLE_DJANGO_TOOLBAR:
     from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
 
@@ -56,4 +55,3 @@ if DISABLE_DJANGO_TOOLBAR:
 if DISABLE_CONTRACTS:
     import contracts
     contracts.disable_all()
-
