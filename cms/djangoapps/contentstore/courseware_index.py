@@ -20,6 +20,8 @@ from xmodule.annotator_mixin import html_to_text
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.library_tools import normalize_key_for_search
 
+from taxoman_api.models import Facet, FacetValue, CourseFacetValue
+
 # REINDEX_AGE is the default amount of time that we look back for changes
 # that might have happened. If we are provided with a time at which the
 # indexing is triggered, then we know it is safe to only index items
@@ -538,12 +540,20 @@ class AboutInfo(object):
             return list(course_groups)
 
         return ''
+    def from_taxoman(self, **kwargs):
+        """ fetches the assigned value to the facet in taxoman """
+        course = kwargs.get('course', None)
+        if not course:
+            raise ValueError("Context dictionary does not contain expected argument 'course'")
+        course_facet_value = CourseFacetValue.objects.filter(course_id=course.id, facet_value__facet__slug=self.property_name).values_list('facet_value__value', flat=True)
+        return list(course_facet_value)
 
     # Source location options - either from the course or the about info
     FROM_ABOUT_INFO = from_about_dictionary
     FROM_COURSE_PROPERTY = from_course_property
     FROM_COURSE_MODE = from_course_mode
     FROM_COURSE_GROUPS = from_course_groups
+    FROM_TAXOMAN = from_taxoman
 
 
 class CourseAboutSearchIndexer(object):
@@ -585,6 +595,12 @@ class CourseAboutSearchIndexer(object):
         AboutInfo("catalog_visibility", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_PROPERTY),
         AboutInfo("groups", AboutInfo.PROPERTY, AboutInfo.FROM_COURSE_GROUPS),
     ]
+
+    if settings.FEATURES.get('ENABLE_TAXOMAN', False):
+        facets = Facet.objects.all()
+        for f in facets:
+            ABOUT_INFORMATION_TO_INCLUDE.append(AboutInfo(f.slug, AboutInfo.PROPERTY, AboutInfo.FROM_TAXOMAN))
+
 
     @classmethod
     def index_about_information(cls, modulestore, course):

@@ -754,5 +754,7 @@ if ENV_TOKENS.get('AUDIT_CERT_CUTOFF_DATE', None):
 
 #leave this here until there's a better place for it
 #available in both aws_appsembler and devstacK_appsembler
+
+# Remark out the next line to run in devstack
 INSTALLED_APPS += ('course_access_group',)
 INSTALLED_APPS += ('salesforce_registration',)

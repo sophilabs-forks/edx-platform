@@ -3,7 +3,11 @@
 from .devstack import *
 from .appsembler import *
 
-INSTALLED_APPS += ('appsembler',)
+import taxoman.settings
+from taxoman_api.models import Facet
+
+INSTALLED_APPS += ('appsembler', )
+
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('appsembler.context_processors.intercom',)
 
 # disable caching in dev environment
@@ -14,6 +18,23 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 DISABLE_DJANGO_TOOLBAR = True
 DISABLE_CONTRACTS = False
+
+CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
+CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)
+
+COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
+
+if FEATURES.get('ENABLE_TAXOMAN', False):
+    # Maybe we want to include taxoman and taxoman_api in INSTALLED_APPS here?
+    # But we'll need to fix the django_startup.py sequence issue first
+
+    WEBPACK_LOADER['TAXOMAN_APP'] = {
+        'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
+        'STATS_FILE': taxoman.settings.stats_file,
+    }
+    # Delete this after testing. It is here as a both reminder and quick test
+    # for showing the facets
+    #COURSE_DISCOVERY_FILTERS += list(Facet.objects.all().values_list('slug', flat=True))
 
 if DISABLE_DJANGO_TOOLBAR:
     from .common import INSTALLED_APPS, MIDDLEWARE_CLASSES
