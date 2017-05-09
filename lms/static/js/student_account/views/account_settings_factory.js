@@ -179,11 +179,12 @@
                 // TODO: some defensive type checking
                 deps = _.object(_.keys(ext_deps_config), arguments);
                 ext_fields = _.map(extensionFieldsData, function(extfield) {
-                    var model_inst, field_view;
+                    var model_inst, field_view_class;
                     model_inst = new deps[extfield.id]();
                     model_inst.url = extfield.api_url;
+                    field_view_class = eval(extfield.js_field_view_class);
                     return {
-                        'view': new FieldViews.DropdownFieldView({ // TODO: determine which view
+                        'view': new field_view_class({ // TODO: determine which view
                             model: model_inst,
                             api_url: model_inst.url,
                             title: extfield.title,

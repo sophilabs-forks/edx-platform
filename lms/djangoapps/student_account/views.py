@@ -454,13 +454,14 @@ def get_account_settings_extension_config(request):
     extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
     ext_fields = []
 
-    for fields in extension_config:
-        module, klass = field.rsplit('.', 1)
-        module = import_module(module)
+    for field in extension_config:
+        module, klass_str = field.rsplit('.', 1)
+        module = importlib.import_module(module)
         try:
+            klass = getattr(module, klass_str)
             assert issubclass(klass, AccountSettingsExtensionField)
-            ext_field = getattr(module, klass)(request)
-            ext_fields.push(ext_field)            
+            ext_field = klass(request)
+            ext_fields.append(ext_field())            
         except AssertionError:
             continue
 

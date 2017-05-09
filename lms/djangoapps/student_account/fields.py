@@ -1,12 +1,13 @@
 from abc import ABCMeta, abstractproperty
 
-from django.conf.urls import reverse
+from django.core.urlresolvers import reverse
 
 
 class AccountSettingsExtensionField(object):
     """
     Abstract Base Class for Account Settings extension fields.
-    Extension field classes must subclass this class.
+    Extension field classes must subclass this class and implement
+    the properties defined here.
     """
 
     __metaclass__ = ABCMeta
@@ -27,7 +28,7 @@ class AccountSettingsExtensionField(object):
         raise NotImplementedError
 
     @abstractproperty
-    def js_field_class(self):
+    def js_field_view_class(self):
         """
         set the field class for use in the Backbone application
         """
@@ -48,20 +49,26 @@ class BryanTestExtensionField(AccountSettingsExtensionField):
 
     field_id = 'bryan_test'
     js_model = 'js/student_account/models/user_account_model'
-    js_field_class = 'AccountSettingsFieldViews.DropdownFieldView'
+    js_field_view_class = 'FieldViews.DropdownFieldView'
     api_url = None
+    title = 'Bryan Test Field'
+    helpMessage = 'Hey, does this help?'
+    valueAttribute = 'bryan_test'
+    options= [(1, 'One'), (2, 'Two'), ]
+    persistChanges = True 
 
     def __init__(self, request):
         self.api_url = reverse("accounts_api", kwargs={'username': request.user.username})
 
+    def __call__(self):
         return {
             'id': self.field_id,
             'js_model': self.js_model,
-            'js_field_class': self.js_field_class,
+            'js_field_view_class': self.js_field_view_class,
             'api_url': self.api_url,
-            'title': 'Bryan Test field',
-            'helpMessage': 'Hey, does this help?',
-            'valueAttribute': 'bryan_test',
-            'options': [(1, 'One'), (2, 'Two'), ],
-            'persistChanges': True
+            'title': self.title,
+            'helpMessage': self.helpMessage,
+            'valueAttribute': self.valueAttribute,
+            'options': self.options,
+            'persistChanges': self.persistChanges
         }
