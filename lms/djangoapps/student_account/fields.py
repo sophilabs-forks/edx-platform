@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 from django.core.urlresolvers import reverse
 
@@ -40,6 +40,15 @@ class AccountSettingsExtensionField(object):
         set the API url used to get/set values to/from the Django model 
         for this field
         """     
+        raise NotImplementedError
+
+    @abstractmethod
+    def __call__(self):
+        """
+        an AccountSettingsExtensionField instance should return a
+        dictionary-like object with at least the required 
+        abstract properties when called
+        """
         raise NotImplementedError
 
 

@@ -18,6 +18,7 @@ from django.core.urlresolvers import reverse, resolve
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ImproperlyConfigured
 
 from lang_pref.api import released_languages
 from edxmako.shortcuts import render_to_response
@@ -45,6 +46,7 @@ from student_account.fields import AccountSettingsExtensionField
 
 
 AUDIT_LOG = logging.getLogger("audit")
+ERR_LOG = logging.getLogger(__name__)
 
 
 @require_http_methods(['GET'])
@@ -442,14 +444,12 @@ def get_account_settings_extension_config(request):
     # TODO: be microsite middleware aware
 
     # ACCOUNT_SETTINGS_EXTENSION_FIELDS should be defined like
-    # [{'model': dotted_path_to_model, ..... TODO }]
-    # TODO: could potentially also have 'meta_key': key defined in JSON 'meta' field on UserProfile model
+    # ['dotted_path_to_class', 'dotted_path_to_class' }]
+    # TODO: could potentially also have a case that just uses one of the 
+    # 'meta_key': key defined in JSON 'meta' field on UserProfile model
 
-    # model must subclass AccountSettingsExtensionModel
-    # by which it will have methods to return options, 
-    # possibly define visibility (shareable|public|admin) of fields
-
-    # model must have a way to return a static file URL to the corresponding Backbone model 
+    # field class must subclass AccountSettingsExtensionField
+    # by which it will have methods to return options, api_url, etc.
 
     extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
     ext_fields = []
@@ -461,37 +461,13 @@ def get_account_settings_extension_config(request):
             klass = getattr(module, klass_str)
             assert issubclass(klass, AccountSettingsExtensionField)
             ext_field = klass(request)
-            ext_fields.append(ext_field())            
-        except AssertionError:
+            ext_fields.append(ext_field())
+        except (AssertionError, ImproperlyConfigured), e:
+            # AccountSettingsExtensionFields can raise
+            # ImproperlyConfigured if required configuration is missing
+            ERR_LOG.warn( 
+                ("Skipping Account Settings extension field {} due to "
+                 "error:{}").format(klass.__name__, e.message)
+            )           
             continue
-
-        # return getattr(module, klass)(*args, **kwargs)
-        # ext_field = {
-        #     'id': key,
-        #     'js_model': ,  # should be a path relative to the Require.js data-main value
-        #     'api_url': reverse("accounts_api", kwargs={'username': request.user.username}),
-        #     'title': val['title'],
-        #     'helpMessage': val['helpMessage'],
-        #     'valueAttribute': val['valueAttribute'],
-        #     'options': val['options'],
-        #     'persistChanges': True,
-        # }
-
     return ext_fields
-
-    # dummy for dev
-    # this would normally look at the config to get the real fields
-    return [ 
-        {
-            'id': 'fake_dev_field',
-            'js_model': 'js/student_account/models/user_account_model',
-            # the config can't user reverse() etc. will have to be done in this method
-            'api_url': reverse("accounts_api", kwargs={'username': request.user.username}),
-            'title': 'Fake Dev Field',
-            'helpMessage': 'Here\'s a nice help message',
-            'valueAttribute': 'fake_dev_field',
-            'options': [(1, 'One')],
-            'persistChanges': True,
-        },
-    ]
-
