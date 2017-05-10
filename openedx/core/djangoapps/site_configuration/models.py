@@ -54,7 +54,9 @@ class SiteConfiguration(models.Model):
         # When creating a new object, save default microsite values. Not implemented as a default method on the field
         # because it depends on other fields that should be already filled.
         if not self.id:
-            self.values = self._get_initial_microsite_values()
+            initial_values = self._get_initial_microsite_values()
+            initial_values.update(self.values)
+            self.values = initial_values
 
         # fix for a bug with some pages requiring uppercase platform_name variable
         self.values['PLATFORM_NAME'] = self.values.get('platform_name', '')
@@ -150,8 +152,7 @@ class SiteConfiguration(models.Model):
             with storage.open(file_name, 'w') as f:
                 f.write(css_output.encode('utf-8'))
         else:
-            theme_folder = os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], 'customer_themes')
-            theme_file = os.path.join(theme_folder, file_name)
+            theme_file = os.path.join(settings.CUSTOMER_THEMES_LOCAL_DIR, file_name)
             with open(theme_file, 'w') as f:
                 f.write(css_output.encode('utf-8'))
 
@@ -186,7 +187,7 @@ class SiteConfiguration(models.Model):
                     storage = get_storage_class()(**kwargs)
                     storage.delete(self.get_value('css_overrides_file'))
                 else:
-                    os.remove(os.path.join(settings.COMPREHENSIVE_THEME_DIRS[0], css_file))
+                    os.remove(os.path.join(settings.CUSTOMER_THEMES_LOCAL_DIR, css_file))
             except OSError:
                 logger.warning("Can't delete CSS file {}".format(css_file))
 

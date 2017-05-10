@@ -7,6 +7,7 @@ COMPREHENSIVE_THEME_DIRS = [
 ]
 DEFAULT_SITE_THEME = "appsembler-theme"
 USE_S3_FOR_CUSTOMER_THEMES = False
+CUSTOMER_THEMES_LOCAL_DIR = os.path.join(COMPREHENSIVE_THEME_DIRS[-1], 'customer_themes')
 
 import logging
 logging.disable(logging.WARNING)
