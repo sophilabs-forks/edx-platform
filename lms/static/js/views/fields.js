@@ -172,6 +172,7 @@
 
             saveAttributes: function (attributes, options) {
                 if (this.persistChanges === true) {
+                    debugger
                     var view = this;
                     var defaultOptions = {
                         contentType: 'application/merge-patch+json',

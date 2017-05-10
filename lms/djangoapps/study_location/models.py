@@ -51,7 +51,6 @@ class StudentStudyLocation(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta(object):
-        # unique_together = (('user', 'course_id'),)
         app_label = "study_location"
 
     @classmethod
@@ -62,11 +61,11 @@ class StudentStudyLocation(models.Model):
         Return the most recent study location prior to the date passed
         """
         try:
-            return cls.objects.filter(user=student, created_date__lte=before_when).order_by('-created_date')[0]
-        except cls.DoesNotExist:
-            pass
+            sloc = cls.objects.filter(user_id=student.id, created_date__lte=before_when).order_by('-created_date')[0]
+        except (cls.DoesNotExist, IndexError):
+            return None
 
-        return None
+        return sloc
 
 
 class StudyLocationConfiguration(ConfigurationModel):

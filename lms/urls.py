@@ -1002,3 +1002,10 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             name='submit_financial_assistance_request'
         )
     )
+
+# TODO: rework this using dynamic urls include 
+# but branch needs to be merged out of appsembler/eucalyptus/... to backport
+# to Dogwood
+if settings.ENABLE_STUDY_LOCATIONS:
+    from study_location.urls import urlpatterns as studylocation_urlpatterns
+    urlpatterns += (studylocation_urlpatterns)

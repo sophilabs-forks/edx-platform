@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 class StudyLocationExtensionField(AccountSettingsExtensionField):
 
-    field_id = 'study_location'
+    field_id = 'studylocation_id'
     js_model = 'js/study_location/models/student_study_location'
     js_field_view_class = 'FieldViews.DropdownFieldView'
     api_url = None
     title = 'Study Location'
     helpMessage = ''
-    valueAttribute = 'study_location'
+    valueAttribute = 'studylocation_id'
     options= []
     persistChanges = True 
 
@@ -33,7 +33,7 @@ class StudyLocationExtensionField(AccountSettingsExtensionField):
             raise ImproperlyConfigured(msg)
 
         config_display_name = StudyLocationConfiguration.get_display_name()
-        self.api_url = reverse("accounts_api", kwargs={'username': request.user.username})
+        self.api_url = reverse("student_studylocation_api", kwargs={'username': request.user.username})
         self.title = config_display_name
         self.helpMessage = "The {} through which you take your courses".format(config_display_name.lower())
         self.options = [(sloc.id, sloc.location) for sloc in StudyLocation.objects.all().order_by('location')]
