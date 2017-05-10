@@ -296,6 +296,26 @@ def _update_social_context(request, context, course, user, user_certificate, pla
             smart_str(share_url)
         )
 
+    # support emailing links to certificates
+    # 
+    context['email_share_enabled'] = share_settings.get('CERTIFICATE_EMAIL_SHARE', False)
+    context['email_share_subj'] = share_settings.get(
+        'CERTIFICATE_EMAIL_SUBJECT',
+        urllib.quote_plus(smart_str(
+            _("My course certificate from {platform_name}").format(
+            platform_name=platform_name)
+            ))
+        )
+
+    context['email_share_body'] = share_settings.get(
+        'CERTIFICATE_EMAIL_BODY',
+        urllib.quote_plus(smart_str(
+            _("I completed a course on {platform_name}. Take a look at my certificate. {link}".format(
+            platform_name=platform_name,
+            link=share_url)
+            ))
+        )
+    )
 
 def _update_context_with_user_info(context, user, user_certificate):
     """
