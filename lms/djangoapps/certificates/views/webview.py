@@ -309,8 +309,8 @@ def _update_social_context(request, context, course, user, user_certificate, pla
     context['email_share_body'] = urllib.quote(
         share_settings.get(
             'CERTIFICATE_EMAIL_BODY',
-            _("I completed a course on {platform_name}. Take a look at my certificate. {link}")
-        ).format(platform_name=platform_name, link=share_url)
+            _("I completed a course on {platform_name}. Take a look at my certificate.")
+        )+"\n\n{link}".format(platform_name=platform_name, link=share_url)
     )
 
 def _update_context_with_user_info(context, user, user_certificate):
