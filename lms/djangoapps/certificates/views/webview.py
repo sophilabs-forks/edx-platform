@@ -44,6 +44,9 @@ from certificates.models import (
     BadgeAssertion
 )
 
+from study_location.models import StudentStudyLocation
+
+
 log = logging.getLogger(__name__)
 
 
@@ -312,6 +315,10 @@ def _update_social_context(request, context, course, user, user_certificate, pla
             _("I completed a course on {platform_name}. Take a look at my certificate.")
         )+"\n\n{link}".format(platform_name=platform_name, link=share_url)
     )
+
+    # specific to ExtraCare
+    context['email_share_to'] = StudentStudyLocation.location_for_student(user).studylocation_id.contact_email
+
 
 def _update_context_with_user_info(context, user, user_certificate):
     """
