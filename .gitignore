@@ -76,6 +76,7 @@ jscover.log.*
 common/test/data/test_unicode/static/
 test_root/courses/
 django-pyfs
+common/test/appsembler/customer_themes/*.css
 
 ### Installation artifacts
 *.egg-info
