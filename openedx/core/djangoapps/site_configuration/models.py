@@ -153,6 +153,8 @@ class SiteConfiguration(models.Model):
                 f.write(css_output.encode('utf-8'))
         else:
             theme_file = os.path.join(settings.CUSTOMER_THEMES_LOCAL_DIR, file_name)
+            if not os.path.exists(os.path.dirname(theme_file)):
+                os.makedirs(os.path.dirname(theme_file))
             with open(theme_file, 'w') as f:
                 f.write(css_output.encode('utf-8'))
 
