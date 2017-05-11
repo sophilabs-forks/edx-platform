@@ -317,7 +317,7 @@ def _update_social_context(request, context, course, user, user_certificate, pla
     )
 
     # specific to ExtraCare
-    context['email_share_to'] = StudentStudyLocation.location_for_student(user).studylocation_id.contact_email
+    context['email_share_to'] = StudentStudyLocation.location_for_student(user).studylocation.contact_email
 
 
 def _update_context_with_user_info(context, user, user_certificate):
