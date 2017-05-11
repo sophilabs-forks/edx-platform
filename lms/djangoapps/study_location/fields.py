@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 class StudyLocationExtensionField(AccountSettingsExtensionField):
 
-    field_id = 'studylocation_id'
+    field_id = 'studylocation'
     js_model = 'js/study_location/models/student_study_location'
     js_field_view_class = 'FieldViews.DropdownFieldView'
     api_url = None
     title = 'Study Location'
     helpMessage = ''
-    valueAttribute = 'studylocation_id'
+    valueAttribute = 'studylocation'
     options= []
     persistChanges = True 
 

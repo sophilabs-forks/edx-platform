@@ -44,12 +44,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='studentstudylocation',
-            name='studylocation_id',
+            name='studylocation',
             field=models.ForeignKey(to='study_location.StudyLocation'),
         ),
         migrations.AddField(
             model_name='studentstudylocation',
-            name='user_id',
+            name='user',
             field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
         ),
     ]
