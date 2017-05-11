@@ -46,8 +46,8 @@ class StudentStudyLocation(models.Model):
     at the time, we need to store older associations when changing to a new one.
     """
 
-    user_id = models.ForeignKey(User)
-    studylocation_id = models.ForeignKey(StudyLocation)
+    user = models.ForeignKey(User)
+    studylocation = models.ForeignKey(StudyLocation)
     created_date = models.DateTimeField(auto_now_add=True)
 
     class Meta(object):
@@ -61,7 +61,7 @@ class StudentStudyLocation(models.Model):
         Return the most recent study location prior to the date passed
         """
         try:
-            sloc = cls.objects.filter(user_id=student.id, created_date__lte=before_when).order_by('-created_date')[0]
+            sloc = cls.objects.filter(user=student.id, created_date__lte=before_when).order_by('-created_date')[0]
         except (cls.DoesNotExist, IndexError):
             return None
 

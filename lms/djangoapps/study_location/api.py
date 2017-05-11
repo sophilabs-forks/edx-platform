@@ -92,7 +92,7 @@ def add_student_studylocation(requesting_user, update, username=None):
     field_errors = {}
 
     student = User.objects.get(username=username)
-    update['user_id'] = student.id
+    update['user'] = student.id
     serializer = StudentStudyLocationSerializer(data=update)
     field_errors = add_serializer_errors(serializer, update, field_errors)
 

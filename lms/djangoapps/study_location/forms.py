@@ -20,7 +20,7 @@ class StudyLocationRegistrationExtensionForm(ModelForm):
 
     class Meta(object):
         model = StudentStudyLocation
-        fields = ('studylocation_id', )
+        fields = ('studylocation', )
 
     # @property
     # def location_display_name(self):

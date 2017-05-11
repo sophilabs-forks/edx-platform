@@ -10,6 +10,6 @@ class StudentStudyLocationSerializer(serializers.ModelSerializer, ReadOnlyFields
     """
     class Meta:
         model = StudentStudyLocation
-        fields = ("user_id", "studylocation_id", )
+        fields = ("user", "studylocation", )
         # read_only_fields = ()
         # explicit_read_only_fields = ("created_date")

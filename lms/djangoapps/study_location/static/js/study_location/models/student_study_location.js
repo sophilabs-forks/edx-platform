@@ -8,8 +8,8 @@
             idAttribute: 'studyLocation',
             defaults: {
                 id: null,
-                user_id: null,
-                studylocation_id: null,
+                user: null,
+                studylocation: null,
                 created_date: ''
             }
         });
