@@ -64,8 +64,8 @@ class SiteConfiguration(models.Model):
         super(SiteConfiguration, self).save(**kwargs)
 
         # recompile SASS on every save
-        self.compile_microsite_sass()
-        #self.collect_css_file()
+        if self.enabled and self.get_value('css_overrides_file'):
+            self.compile_microsite_sass()
         return self
 
     def get_value(self, name, default=None):
