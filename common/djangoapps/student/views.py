@@ -2119,10 +2119,11 @@ def auto_auth(request):
     profile.year_of_birth = (year - age_limit) - 1
     profile.save()
 
-    organization = Organization.objects.filter(name=request.GET.get('organization_name'))[0]
-    UserOrganizationMapping.objects.create(
-        user=user,
-        organization=organization)
+    organization = Organization.objects.filter(name=request.GET.get('organization_name')).first()
+    if organization:
+        UserOrganizationMapping.objects.create(
+            user=user,
+            organization=organization)
 
     # Enroll the user in a course
     if course_key is not None:
