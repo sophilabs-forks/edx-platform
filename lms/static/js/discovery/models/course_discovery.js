@@ -33,15 +33,29 @@ define([
             });
 
             var options = this.facetOptions;
+
             _(facets).each(function (obj, key) {
                 _(obj.terms).each(function (count, term) {
+                    var fv_display_order = null;
+                    if (obj.hasOwnProperty('facet_values')) {
+                        fv_display_order = obj.facet_values[term];
+                    }
+
                     options.add({
                         facet: key,
                         term: term,
-                        count: count
+                        count: count,
+                        display_order: obj.display_order,
+                        fv_display_order: fv_display_order
                     }, {merge: true});
                 });
             });
+
+            options.comparator = function(model) {
+                return [ model.get('display_order'), model.get('fv_display_order') ];
+            };
+
+            options.sort();
         },
 
         reset: function () {
