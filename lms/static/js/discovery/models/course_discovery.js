@@ -52,7 +52,12 @@ define([
             });
 
             options.comparator = function(model) {
-                return [ model.get('display_order'), model.get('fv_display_order') ];
+                var fv_display_order = model.get('fv_display_order');
+                if (fv_display_order) {
+                    return [ model.get('display_order'), fv_display_order ];
+                } else {
+                    return model.get('display_order');
+                }
             };
 
             options.sort();
