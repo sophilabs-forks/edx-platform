@@ -134,7 +134,6 @@ define(['js/views/validation',
                             };
 
                     /* initialize and show validation error modal */
-<<<<<<< HEAD
                             err_modal = new ValidationErrorModal();
                             err_modal.setContent(json_response);
                             err_modal.setResetCallback(reset_callback);
