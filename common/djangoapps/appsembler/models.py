@@ -18,9 +18,9 @@ from course_action_state.models import CourseRerunState
 #     # `course_creators` app is included only in the Studio
 #     CourseCreator = None
 
-intercom.Intercom.app_id = settings.INTERCOM_APP_ID
-intercom.Intercom.api_key = settings.INTERCOM_API_KEY
-INTERCOM_USER_EMAIL = settings.INTERCOM_USER_EMAIL
+intercom.Intercom.app_id = getattr(settings, "INTERCOM_APP_ID", None)
+intercom.Intercom.api_key = getattr(settings, "INTERCOM_API_KEY", None)
+INTERCOM_USER_EMAIL = getattr(settings, "INTERCOM_USER_EMAIL", None)
 
 
 def intercom_update(custom_data, verbose):
