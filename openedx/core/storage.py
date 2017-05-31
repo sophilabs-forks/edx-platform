@@ -2,7 +2,7 @@
 Django storage backends for Open edX.
 """
 from django_pipeline_forgiving.storages import PipelineForgivingStorage
-from django.contrib.staticfiles.storage import StaticFilesStorage
+from django.contrib.staticfiles.storage import StaticFilesStorage, ManifestFilesMixin
 from django.core.files.storage import get_storage_class
 from django.utils.lru_cache import lru_cache
 
@@ -66,6 +66,10 @@ class S3ReportStorage(S3BotoStorage):  # pylint: disable=abstract-method
         if custom_domain:
             self.custom_domain = custom_domain
         super(S3ReportStorage, self).__init__(acl=acl, bucket=bucket, **settings)
+
+
+class S3PipelineStorage(PipelineForgivingStorage, ManifestFilesMixin, S3BotoStorage):
+    pass
 
 
 @lru_cache()
