@@ -27,12 +27,14 @@ django-model-utils==2.3.1
 django-mptt==0.7.4
 django-oauth-plus==2.2.8
 django-oauth-toolkit==0.10.0
+django-otp-yubikey==0.3.5
 django-pipeline-forgiving==1.0.0
 django-sekizai==0.8.2
 django-ses==0.7.1
 django-simple-history==1.6.3
 django-statici18n==1.1.5
 django-storages==1.4.1
+django-two-factor-auth==1.6.0
 django-method-override==0.1.0
 django-user-tasks==0.1.2
 # We need a fix to DRF 3.2.x, for now use it from our own cherry-picked repo
@@ -197,6 +199,9 @@ edx-django-release-util==0.2.0
 # Used to communicate with Neo4j, which is used internally for
 # modulestore inspection
 py2neo==3.1.2
+
+# Needed for 2-factor auth with SMS
+twilio==5.7.0
 
 # for calculating coverage
 -r coverage.txt
