@@ -305,8 +305,10 @@ DEFAULT_TEMPLATE_ENGINE = TEMPLATES[0]
 
 EDX_ROOT_URL = ''
 
-LOGIN_REDIRECT_URL = EDX_ROOT_URL + '/signin'
-LOGIN_URL = EDX_ROOT_URL + '/signin'
+#LOGIN_REDIRECT_URL = EDX_ROOT_URL + '/signin'
+#LOGIN_URL = EDX_ROOT_URL + '/signin'
+LOGIN_URL = 'two_factor:login'
+LOGIN_REDIRECT_URL = 'two_factor:profile'
 
 # use the ratelimit backend to prevent brute force attacks
 AUTHENTICATION_BACKENDS = (
@@ -399,6 +401,10 @@ MIDDLEWARE_CLASSES = (
 
     # This must be last so that it runs first in the process_response chain
     'openedx.core.djangoapps.site_configuration.middleware.SessionCookieDomainOverrideMiddleware',
+
+    # 2-factor auth
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
 )
 
 # Clickjacking protection can be enabled by setting this to 'DENY'
@@ -959,6 +965,13 @@ INSTALLED_APPS = (
 
     # Unusual migrations
     'database_fixups',
+
+    # 2-factor auth
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
+    'otp_yubikey',
 )
 
 

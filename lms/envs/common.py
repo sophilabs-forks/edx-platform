@@ -565,8 +565,10 @@ DEV_CONTENT = True
 
 EDX_ROOT_URL = ''
 
-LOGIN_REDIRECT_URL = EDX_ROOT_URL + '/login'
-LOGIN_URL = EDX_ROOT_URL + '/login'
+#LOGIN_REDIRECT_URL = EDX_ROOT_URL + '/login'
+#LOGIN_URL = EDX_ROOT_URL + '/login'
+LOGIN_URL = 'two_factor:login'
+LOGIN_REDIRECT_URL = 'two_factor:profile'
 
 COURSE_NAME = "6.002_Spring_2012"
 COURSE_NUMBER = "6.002x"
@@ -1188,6 +1190,10 @@ MIDDLEWARE_CLASSES = (
 
     # This must be last
     'openedx.core.djangoapps.site_configuration.middleware.SessionCookieDomainOverrideMiddleware',
+
+    # 2-factor auth
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
 )
 
 # Clickjacking protection can be enabled by setting this to 'DENY'
@@ -2157,6 +2163,13 @@ INSTALLED_APPS = (
 
     # Unusual migrations
     'database_fixups',
+
+    # 2-factor auth
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
+    'otp_yubikey',
 )
 
 # Migrations which are not in the standard module "migrations"

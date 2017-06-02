@@ -8,6 +8,9 @@ from django.views.generic.base import RedirectView
 from ratelimitbackend import admin
 from django.conf.urls.static import static
 
+from two_factor.urls import urlpatterns as tf_urls
+from two_factor.gateways.twilio.urls import urlpatterns as tf_twilio_urls
+
 from courseware.views.views import EnrollStaffView
 from config_models.views import ConfigurationModelCurrentAPIView
 from courseware.views.index import CoursewareIndex
@@ -103,6 +106,9 @@ urlpatterns = (
 
     # URLs for API access management
     url(r'^api-admin/', include('openedx.core.djangoapps.api_admin.urls', namespace='api_admin')),
+
+    # 2-factor auth
+    url(r'', include(tf_urls + tf_twilio_urls, 'two_factor')),
 )
 
 urlpatterns += (

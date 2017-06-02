@@ -3,6 +3,9 @@ from django.conf.urls import patterns, include, url
 # There is a course creators admin table.
 from ratelimitbackend import admin
 
+from two_factor.urls import urlpatterns as tf_urls
+from two_factor.gateways.twilio.urls import urlpatterns as tf_twilio_urls
+
 from cms.djangoapps.contentstore.views.program import ProgramAuthoringView, ProgramsIdTokenView
 from cms.djangoapps.contentstore.views.organization import OrganizationListView
 
@@ -63,6 +66,9 @@ urlpatterns = patterns(
 
     # Darklang View to change the preview language (or dark language)
     url(r'^update_lang/', include('openedx.core.djangoapps.dark_lang.urls', namespace='dark_lang')),
+
+    # 2-factor auth
+    url(r'', include(tf_urls + tf_twilio_urls, 'two_factor')),
 )
 
 # restful api
