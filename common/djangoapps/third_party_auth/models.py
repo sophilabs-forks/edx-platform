@@ -246,10 +246,14 @@ class ProviderConfig(ConfigurationModel):
             else:
                 suggested_username = suggested_username[:30] if len(suggested_username) > 30 else suggested_username
         #
+        if settings.APPSEMBLER_FEATURES.get('ENABLE_THIRD_PARTY_AUTH_MERGE_FIRST_LAST_NAME', False):
+            suggester_personal_name = "%s %s" % (details.get('first_name', ''), details.get('last_name', ''))
+        else:
+            suggester_personal_name = details.get('fullname', '')
 
         return {
             'email': details.get('email', ''),
-            'name': details.get('fullname', ''),
+            'name': suggester_personal_name,
             'username': suggested_username,
         }
 
