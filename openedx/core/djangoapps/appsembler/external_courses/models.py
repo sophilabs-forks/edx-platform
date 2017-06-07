@@ -18,6 +18,7 @@ class ExternalCourseTile(models.Model):
     pacing_type = models.CharField(max_length=255, null=False, blank=False)
     is_credit_eligible = models.BooleanField(default=False)
     is_verified_eligible = models.BooleanField(default=False)
+    course_duration = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.org)
@@ -32,4 +33,4 @@ class ExternalCourseTile(models.Model):
             return 'Self-Paced'
         else:
             weeks = int(self.ends.strftime("%V")) - int(self.starts.strftime("%V"))
-            return '%s Weeks Commitment' % str(weeks)
+            return '%s Week Commitment' % str(weeks)
