@@ -166,7 +166,6 @@ define(['js/views/validation',
                 $(event.target).prev().removeClass('is-focused');
             }
         });
-=======
                     err_modal = new ValidationErrorModal();
                     err_modal.setContent(json_response);
                     err_modal.setResetCallback(reset_callback);
@@ -214,7 +213,6 @@ define(['js/views/validation',
                                  _.bind(self.revertView, self));
     }
 });
->>>>>>> appsembler/eucalyptus/develop
 
         return AdvancedView;
     });
