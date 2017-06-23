@@ -18,7 +18,6 @@ INTERCOM_APP_ID = APPSEMBLER_FEATURES.get('INTERCOM_APP_ID', os.environ.get('INT
 INTERCOM_API_KEY = APPSEMBLER_FEATURES.get('INTERCOM_API_KEY', os.environ.get('INTERCOM_API_KEY', ''))
 INTERCOM_USER_EMAIL = APPSEMBLER_FEATURES.get('INTERCOM_USER_EMAIL', os.environ.get('INTERCOM_USER_EMAIL', ''))
 
-AUTHENTICATION_BACKENDS = ('organizations.backends.OrganizationMemberMicrositeBackend',)
+AUTHENTICATION_BACKENDS = ('organizations.backends.OrganizationMemberMicrositeBackend', 'lti_provider.users.LtiBackend', )
 
 MICROSITE_BACKEND = 'microsite_configuration.backends.database.DatabaseMicrositeBackend'
-
