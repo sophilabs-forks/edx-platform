@@ -736,9 +736,13 @@ def _progress(request, course_key, student_id):
     missing_required_verification = enrollment_mode in CourseMode.VERIFIED_MODES and \
         not SoftwareSecurePhotoVerification.user_is_verified(student)
 
+    # Should always be True if a student has a generated certificate, 
+    # whether or not student-generated certificates are enabled... 
+    # in this case will show a "View Certificate" button
     show_generate_cert_btn = (
-        is_active and CourseMode.is_eligible_for_certificate(enrollment_mode)
-        and certs_api.cert_generation_enabled(course_key)
+        is_active and (( CourseMode.is_eligible_for_certificate(enrollment_mode)
+        and certs_api.cert_generation_enabled(course_key) ) or
+        certs_api.get_certificate_for_user(student, course_key))
     )
 
     context = {
