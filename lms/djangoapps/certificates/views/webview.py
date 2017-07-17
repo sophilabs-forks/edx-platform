@@ -305,19 +305,24 @@ def _update_social_context(request, context, course, user, user_certificate, pla
     context['email_share_subj'] = urllib.quote(
         share_settings.get(
             'CERTIFICATE_EMAIL_SUBJECT',
-            _("My course certificate from {platform_name}")
-        ).format(platform_name=platform_name)
+            _("Course certificate from {platform_name}: {name} for course {coursename}")
+        ).format(platform_name=platform_name, name=user.profile.name, coursename=course.display_name)
     )
+
+    # specific to ExtraCare
+    studylocation = StudentStudyLocation.location_for_student(user).studylocation
 
     context['email_share_body'] = urllib.quote(
         share_settings.get(
             'CERTIFICATE_EMAIL_BODY',
-            _("I completed a course on {platform_name}. Take a look at my certificate.")
-        )+"\n\n{link}".format(platform_name=platform_name, link=share_url)
+            _("Dear {location}, I completed a course on {platform_name}. Take a look at my certificate.\n\n{link}")
+        ).format(
+            platform_name=platform_name, link=share_url, 
+            location=studylocation.location, coursename=course.display_name)
     )
 
     # specific to ExtraCare
-    context['email_share_to'] = StudentStudyLocation.location_for_student(user).studylocation.contact_email
+    context['email_share_to'] = studylocation.contact_email
 
 
 def _update_context_with_user_info(context, user, user_certificate):
