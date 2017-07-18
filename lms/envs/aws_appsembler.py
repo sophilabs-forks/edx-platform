@@ -105,13 +105,10 @@ elif 'appsembler_usage' in DATABASES:
     # removing the database alias
     del DATABASES['appsembler_usage']
 
-if FEATURES.get('ENABLE_CORS_HEADERS'):
+if FEATURES.get('ENABLE_CORS_HEADERS', False):
     # This middleware class and setting allows to run cross requests when we are
     # under https, CORS headers requests external referers are blocked under
     # https, there is a new setting in Django 1.9, but until we upgrade to that
     # version we need to use this.
     # Docs: https://github.com/ottoyiu/django-cors-headers#cors_replace_https_referer
     CORS_REPLACE_HTTPS_REFERER = True
-    MIDDLEWARE_CLASSES += (
-        'corsheaders.middleware.CorsPostCsrfMiddleware',
-    )
