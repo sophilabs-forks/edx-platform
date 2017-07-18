@@ -399,6 +399,7 @@ class SAMLProviderConfig(ProviderConfig):
             raise AuthNotConfigured(provider_name=self.name)
         conf['x509cert'] = data.public_key
         conf['url'] = data.sso_url
+        conf['slo_url'] = data.slo_url
         return SAMLIdentityProvider(self.idp_slug, **conf)
 
 
@@ -440,6 +441,13 @@ class SAMLConfiguration(ConfigurationModel):
             "JSON object defining advanced settings that are passed on to python-saml. "
             "Valid keys that can be set here include: SECURITY_CONFIG and SP_EXTRA"
         ),
+    )
+    slo_redirect_url = models.CharField(
+        max_length=255,
+        default='/logout',
+        verbose_name="SLO post redirect URL",
+        help_text="The url to redirect the user after process the SLO response",
+        blank=True
     )
 
     class Meta(object):
@@ -494,6 +502,10 @@ class SAMLConfiguration(ConfigurationModel):
             }
             contact.update(other_config.get(name, {}))
             return contact
+        if name == "LOGOUT_REDIRECT_URL":
+            return self.slo_redirect_url
+        if name == "SP_SAML_RESTRICT_MODE":
+            return getattr(settings, 'SP_SAML_RESTRICT_MODE', True)
         return other_config[name]  # SECURITY_CONFIG, SP_EXTRA, or similar extra settings
 
 
@@ -509,6 +521,7 @@ class SAMLProviderData(models.Model):
 
     entity_id = models.CharField(max_length=255, db_index=True)  # This is the key for lookups in this table
     sso_url = models.URLField(verbose_name="SSO URL")
+    slo_url = models.URLField(verbose_name="SLO URL", null=True)
     public_key = models.TextField()
 
     class Meta(object):
