@@ -1,0 +1,76 @@
+@import "../../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+$logo-height: 60px;
+//---------------------------------------------------------------------------------
+
+:local {
+  .nav-container {
+    flex-grow: 0;
+    font-size: $nav-text-base-size;
+    padding-top: calculateRem(20px);
+    padding-bottom: calculateRem(20px);
+  }
+
+  .header-logo {
+    height: $logo-height;
+    width: auto;
+    max-width: auto;
+  }
+
+  .course-info-wrapper {
+    display: flex;
+    align-items: center;
+
+    .header-icon {
+      height: $logo-height;
+      width: auto;
+    }
+
+    .course-info {
+      margin-left: calculateRem(15px);
+      padding: calculateRem(5px) 0 calculateRem(5px) calculateRem(15px);
+      border-left: calculateRem(1px) solid $primary-light-grey-30;
+      font-size: $nav-text-base-size*0.85;
+      line-height: 110%;
+
+      .course-name {
+        display: block;
+        @include primary-font-regular;
+      }
+
+      .course-number {
+        display: block;
+        @include primary-font-semibold;
+      }
+    }
+  }
+
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    margin-left: calculateRem(50px);
+    margin-right: calculateRem(-10px);
+  }
+
+  .nav-user {
+    display: flex;
+    align-items: center;
+    margin-left: calculateRem(50px);
+
+    &__avatar {
+      height: calculateRem(44px);
+      width: auto;
+      border-radius: 100%;
+      margin-right: calculateRem(15px);
+    }
+
+    &__name {
+      @include primary-font-semibold;
+      font-size: $base-font-size*0.85;
+    }
+  }
+}

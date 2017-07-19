@@ -1,0 +1,36 @@
+@mixin primary-font-light {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+}
+
+@mixin primary-font-regular {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+}
+
+@mixin primary-font-regular-italic {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	font-style: italic;
+}
+
+@mixin primary-font-semibold {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600;
+}
+
+@mixin primary-font-bold {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 700;
+}
+
+@mixin primary-font-bold-italic {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 700;
+  font-style: italic;
+}
+
+@mixin primary-font-black {
+	font-family: 'Open Sans', sans-serif;
+  font-weight: 800;
+}

@@ -1,0 +1,33 @@
+@import "../../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+// $var-name: value;
+$nav-link-color: $base-text-color;
+$nav-link-hover-color: $primary-color;
+//---------------------------------------------------------------------------------
+
+:local {
+  .item-regular {
+    @include primary-font-semibold;
+    color: $nav-link-color;
+    padding: calculateRem(5px) calculateRem(10px);
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+
+    &:hover, &:focus {
+      color: $nav-link-hover-color;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  }
+
+  .item-button {
+    @include button;
+    @include primary-font-semibold;
+    margin-left: calculateRem(10px);
+    margin-right: calculateRem(10px);
+  }
+}

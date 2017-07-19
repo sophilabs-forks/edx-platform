@@ -1,0 +1,29 @@
+@mixin paragraph-text {
+	@include primary-font-light;
+	line-height: 160%;
+	@include fontSize($base-font-size);
+}
+
+@mixin big-title {
+	@include primary-font-light;
+	line-height: 140%;
+	@include fontSize($base-font-size*3);
+}
+
+@mixin medium-title {
+	@include primary-font-regular;
+	line-height: 140%;
+	@include fontSize($base-font-size*2);
+}
+
+@mixin small-title {
+	@include primary-font-regular;
+	line-height: 140%;
+	@include fontSize($base-font-size*1.5);
+}
+
+@mixin meta-text {
+	@include primary-font-semibold;
+	line-height: 130%;
+	@include fontSize($base-font-size*0.8);
+}

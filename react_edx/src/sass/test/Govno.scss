@@ -1,0 +1,11 @@
+@import "../base/mixins";
+
+:local {
+  .container {
+    background: green;
+  }
+
+  .govno {
+    font-size: 120px;
+  }
+}

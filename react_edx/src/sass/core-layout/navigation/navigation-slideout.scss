@@ -1,0 +1,128 @@
+@import "../../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+$toggle-button-icon-size: calculateRem(24px);
+$slideout-drawer-width: 280px;
+//---------------------------------------------------------------------------------
+
+:local {
+  .nav-dropdown {
+
+    .toggle-button {
+      margin-left: calculateRem(50px);
+      background: none;
+      border: none;
+      outline: none;
+      font-size: $toggle-button-icon-size;
+      transform: scale(1);
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        cursor: pointer;
+        color: $primary-color;
+        transform: scale(1.1);
+      }
+
+      .toggle-icon {
+
+      }
+
+      &.toggled {
+
+      }
+    }
+
+    .dismiss-button {
+      position: fixed;
+      top: calculateRem(30px);
+      right: calculateRem(-$slideout-drawer-width*2);
+      width: calculateRem(40px);
+      height: calculateRem(60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease-in-out;
+      background-color: $primary-color-dark-10;
+      color: pick-visible-color($primary-color-dark-10, $base-text-color, $negative-text-color);
+      border: none;
+      outline: none;
+
+      &:hover, &:focus {
+        cursor: pointer;
+        background-color: $primary-color-dark-20;
+      }
+
+      &.toggled {
+        right: $slideout-drawer-width;
+        transition: all 0.6s ease-in-out;
+      }
+    }
+
+    &__drawer {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: calculateRem(-$slideout-drawer-width*2);
+      z-index: 2001;
+      width: $slideout-drawer-width;
+      background-color: $primary-color;
+      color: pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+      @include primary-font-semibold;
+      padding: calculateRem(40px);
+      transition: all 0.3s ease-in-out;
+
+      &.toggled {
+        right: 0;
+      }
+    }
+
+    .item-regular {
+      display: flex;
+      justify-content: center;
+      padding: calculateRem(10px) calculateRem(20px);
+      margin: calculateRem(5px) 0;
+      color: pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+    }
+
+    .item-button {
+      display: flex;
+      align-items: center;
+      outline: none;
+      cursor: pointer;
+      @include primary-font-semibold;
+      border-radius: $global-button-border-radius;
+      transition: all 0.3s ease-in-out;
+      padding: calculateRem(10px) calculateRem(20px);
+      margin: calculateRem(5px) 0;
+      @include fontSize($base-font-size);
+      border: $button-negative-border-weight solid pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+      color: pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+      justify-content: center;
+
+      &:hover, &:focus {
+        outline: none;
+        text-decoration: none;
+      }
+    }
+
+    .general-items {
+      width: 100%;
+    }
+
+    .user-related-items {
+      width: 100%;
+      text-align: center;
+    }
+
+    .lists-separator {
+      display: block;
+      width: 100%;
+      height: calculateRem(2px);
+      background-color: pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+      margin: calculateRem(30px) 0;
+    }
+  }
+}

@@ -1,0 +1,241 @@
+@import "../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+$card-body-bg-color: #fff;
+$card-image-height: 180px;
+$card-idle-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+$card-expanded-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+$card-hover-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+$card-expanded-image-blur: 10px;
+//---------------------------------------------------------------------------------
+
+:local {
+  .course-card-expanding-container {
+    display: flex;
+    background-color: rgba($primary-color-dark-50, 0);
+    transition: all 0.15s ease-in-out;
+
+    .course-card-expanding {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 0;
+      background-color: $card-body-bg-color;
+      box-shadow: $card-idle-shadow;
+      transition: all 0.3s ease-in-out;
+
+      &:hover, &:focus {
+        box-shadow: $card-hover-shadow;
+      }
+    }
+
+    .main-image-container {
+      position: relative;
+      padding-top: $card-image-height;
+      flex-grow: 0;
+
+      .course-card-image-decorative {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        filter: blur(0) grayscale(0);
+        transition: all 0.3s ease-in-out;
+
+        &__container {
+          overflow: hidden;
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%;
+          height: $card-image-height;
+        }
+      }
+    }
+
+    .course-card-info {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: calculateRem(25px) calculateRem(20px);
+
+      .course-org-number {
+        display: flex;
+        align-items: center;
+        @include meta-text;
+        letter-spacing: calculateRem(0.2px);
+        color: $primary-color-dark-30;
+        padding-bottom: calculateRem(10px);
+        border-bottom: calculateRem(2px) solid $primary-color;
+        text-transform: uppercase;
+
+        .course-organisation {
+          margin-right: calculateRem(10px);
+        }
+
+        .course-number {
+          margin-left: auto;
+        }
+      }
+
+      .course-name-normal {
+        @include small-title;
+        margin-top: calculateRem(10px);
+      }
+
+      .course-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-top: calculateRem(15px);
+        margin-top: auto;
+      }
+    }
+
+    &.info-expanded {
+      position: fixed;
+      top: 0; bottom: 0; left: 0; right: 0;
+      max-width: 100%;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      padding: calculateRem(30px);
+      background-color: rgba($primary-color-dark-50, 0.35);
+
+      .course-card-expanding {
+        flex-direction: row;
+        min-height: 85vh;
+        max-height: 100%;
+        box-shadow: $card-expanded-shadow;
+      }
+
+      .main-image-container {
+        display: flex;
+        flex: 0 0 100%;
+        padding: 0;
+
+        @media (min-width: $screen-md) {
+          flex: 0 0 50%;
+        }
+
+        .course-card-image-decorative {
+          filter: blur($card-expanded-image-blur) grayscale(100%);
+          top: calculateRem(-$card-expanded-image-blur);
+          bottom: calculateRem(-$card-expanded-image-blur);
+          left: calculateRem(-$card-expanded-image-blur);
+          right: calculateRem(-$card-expanded-image-blur);
+
+          &__container {
+            height: auto;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;
+          }
+        }
+
+        .course-card-info-left {
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+          position: relative;
+          width: 100%;
+          padding: calculateRem(45px);
+          z-index: 2;
+          background-color: rgba($primary-color-dark-30, 0.6);
+        }
+
+        .course-image-original {
+          box-shadow: $card-idle-shadow;
+          width: 80%;
+          height: auto;
+          position: relative;
+          left: -25%;
+          margin-bottom: calculateRem(45px);
+        }
+
+        .info-container {
+          width: 100%;
+        }
+
+        .course-name-overlayed {
+          @include big-title;
+          word-wrap: break-word;
+          color: #fff;
+        }
+
+        .course-org-number {
+          @include meta-text;
+          letter-spacing: calculateRem(0.2px);
+          color: $primary-color-light-30;
+          padding-bottom: calculateRem(20px);
+          border-bottom: calculateRem(2px) solid $primary-color-light-30;
+          text-transform: uppercase;
+
+          .course-organisation {
+            margin-right: calculateRem(10px);
+          }
+        }
+
+        .start-date {
+          @include primary-font-regular;
+          font-size: calculateRem($base-font-size*0.8);
+          color: pick-visible-color($primary-color, $base-text-color, $negative-text-color);
+          display: inline-block;
+          background-color: $primary-color;
+          padding: calculateRem(5px) calculateRem(8px);
+          margin-top: calculateRem(15px);
+        }
+      }
+
+      .course-card-info {
+        flex: 0 0 100%;
+        padding: calculateRem(45px);
+        @include paragraph-text;
+
+        @media (min-width: $screen-md) {
+          flex: 0 0 50%;
+        }
+
+        .course-description {
+          margin-right: calculateRem(-20px);
+          padding-right: calculateRem(20px);
+          overflow-y: auto;
+        }
+
+        .course-actions {
+          padding-top: calculateRem(45px);
+        }
+      }
+    }
+
+    .close-button {
+      background: #fff;
+      border: none;
+      outline: none;
+      box-shadow: $card-idle-shadow;
+      width: calculateRem($base-font-size*2);
+      height: calculateRem($base-font-size*2);
+      border-radius: 100%;
+      position: absolute;
+      right: calculateRem(-$base-font-size);
+      top: calculateRem(-$base-font-size);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      @include fontSize($base-font-size*0.8);
+      line-height: calculateRem($base-font-size*0.8);
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      padding: 0;
+
+      &:hover, &:focus {
+        outline: none;
+        box-shadow: $card-hover-shadow;
+      }
+    }
+  }
+}

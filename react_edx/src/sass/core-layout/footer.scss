@@ -1,0 +1,52 @@
+@import "../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------
+
+:local {
+  .footer-container {
+    display: flex;
+    flex-grow: 0;
+    padding-top: calculateRem(40px);
+    padding-bottom: calculateRem(40px);
+    border-top: calculateRem(2px) solid $primary-light-grey-40;
+  }
+
+  .footer-logo {
+
+    &__container {
+      margin-right: calculateRem(20px);
+    }
+
+    &__image {
+      height: calculateRem(48px);
+      width: auto;
+    }
+  }
+
+  .footer-copyright {
+    font-size: calculateRem(10px);
+    color: $primary-light-grey-10;
+  }
+
+  .footer-nav {
+    font-size: calculateRem(14px);
+    color: $base-text-color;
+
+    a {
+      @include primary-font-regular;
+      color: $base-text-color;
+      margin-right: calculateRem(10px);
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        color: $primary-color;
+        text-decoration: none;
+      }
+    }
+  }
+}

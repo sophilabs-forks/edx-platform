@@ -1,0 +1,166 @@
+@mixin button {
+  display: flex;
+  align-items: center;
+  outline: none;
+  cursor: pointer;
+  @include primary-font-regular;
+  border-radius: $global-button-border-radius;
+  transition: all 0.3s ease-in-out;
+
+  &:hover, &:focus {
+    outline: none;
+    text-decoration: none;
+  }
+
+  &.button-small {
+    padding: calculateRem(5px) calculateRem(10px);
+    @include fontSize($base-font-size*0.8);
+
+    .button-icon {
+      margin-right: calculateRem(5px);
+    }
+  }
+
+  &.button-medium {
+    padding: calculateRem(10px) calculateRem(20px);
+    @include fontSize($base-font-size);
+
+    .button-icon {
+      margin-right: calculateRem(10px);
+    }
+  }
+
+  &.button-large {
+    padding: calculateRem(15px) calculateRem(30px);
+    @include fontSize($base-font-size*1.2);
+
+    .button-icon {
+      margin-right: calculateRem(15px);
+    }
+  }
+
+  &.align {
+
+    &-top {
+
+    }
+
+    &-top-left {
+      margin-right: auto;
+    }
+
+    &-top-right {
+      margin-left: auto;
+    }
+
+    &-bottom {
+      margin-top: auto;
+    }
+
+    &-bottom-left {
+      margin-top: auto;
+      margin-right: auto;
+    }
+
+    &-bottom-right {
+      margin-top: auto;
+      margin-left: auto;
+    }
+  }
+
+  &.button-primary {
+
+    &.button-positive {
+      border: none;
+      background-color: $button-primary-color;
+      color: pick-visible-color($button-primary-color, $base-text-color, $negative-text-color);
+
+      &:hover, &:focus {
+        background-color: lighten($button-primary-color, 10%);
+      }
+    }
+
+    &.button-negative {
+      background: none;
+      border: $button-negative-border-weight solid $button-primary-color;
+      color: $button-primary-color;
+
+      &:hover, &:focus {
+        border-color: lighten($button-primary-color, 10%);
+        color: lighten($button-primary-color, 10%);
+      }
+    }
+  }
+
+  &.button-secondary {
+
+    &.button-positive {
+      border: none;
+      background-color: $button-secondary-color;
+      color: pick-visible-color($button-secondary-color, $base-text-color, $negative-text-color);
+
+      &:hover, &:focus {
+        background-color: darken($button-secondary-color, 10%);
+      }
+    }
+
+    &.button-negative {
+      background: none;
+      border: $button-negative-border-weight solid $button-secondary-color;
+      color: $base-text-color;
+
+      &:hover, &:focus {
+        border-color: darken($button-secondary-color, 10%);
+        color: lighten($base-text-color, 10%);
+      }
+    }
+  }
+
+  &.button-dark {
+
+    &.button-positive {
+      border: none;
+      background-color: $button-dark-color;
+      color: pick-visible-color($button-dark-color, $base-text-color, $negative-text-color);
+
+      &:hover, &:focus {
+        background-color: rgba($button-dark-color, 0.8);
+      }
+    }
+
+    &.button-negative {
+      background: none;
+      border: $button-negative-border-weight solid $button-dark-color;
+      color: $button-dark-color;
+
+      &:hover, &:focus {
+        border-color: rgba($button-dark-color, 0.8);
+        color: rgba($button-dark-color, 0.8);
+      }
+    }
+  }
+
+  &.button-light {
+
+    &.button-positive {
+      border: none;
+      background-color: $button-light-color;
+      color: pick-visible-color($button-light-color, $base-text-color, $negative-text-color);
+
+      &:hover, &:focus {
+        background-color: rgba($button-light-color, 0.8);
+      }
+    }
+
+    &.button-negative {
+      background: none;
+      border: $button-negative-border-weight solid $button-light-color;
+      color: $button-light-color;
+
+      &:hover, &:focus {
+        border-color: rgba($button-light-color, 0.8);
+        color: rgba($button-light-color, 0.8);
+      }
+    }
+  }
+}

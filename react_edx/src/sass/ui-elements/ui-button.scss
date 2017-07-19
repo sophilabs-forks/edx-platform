@@ -1,0 +1,15 @@
+@import "../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+$global-button-border-radius: 0;
+$button-negative-border-weight: calculateRem(2px);
+//---------------------------------------------------------------------------------
+
+:local {
+  .button {
+    @include button;
+  }
+}

@@ -1,0 +1,49 @@
+// COLOR PALETTE
+
+$primary-color: #0090c1;
+$base-text-color: #333;
+$negative-text-color: #fff;
+
+// Darker versions of the primary color
+$primary-color-dark-10: darken($primary-color, 10%); //default
+$primary-color-dark-20: darken($primary-color, 20%); //default
+$primary-color-dark-30: darken($primary-color, 30%); //default
+$primary-color-dark-40: darken($primary-color, 40%); //default
+$primary-color-dark-50: darken($primary-color, 50%); //default
+
+// Lighter versions of the primary color
+$primary-color-light-10: lighten($primary-color, 10%); //default
+$primary-color-light-20: lighten($primary-color, 20%); //default
+$primary-color-light-30: lighten($primary-color, 30%); //default
+$primary-color-light-40: lighten($primary-color, 40%); //default
+$primary-color-light-50: lighten($primary-color, 50%); //default
+
+// Desaturated lighter versions used for borders and similar elements
+$primary-light-grey-10: lighten(desaturate($primary-color, 100%), 10%);
+$primary-light-grey-20: lighten(desaturate($primary-color, 100%), 20%);
+$primary-light-grey-30: lighten(desaturate($primary-color, 100%), 30%);
+$primary-light-grey-40: lighten(desaturate($primary-color, 100%), 40%);
+$primary-light-grey-50: lighten(desaturate($primary-color, 100%), 50%);
+$primary-light-grey-60: lighten(desaturate($primary-color, 100%), 70%);
+$primary-light-grey-70: lighten(desaturate($primary-color, 100%), 70%);
+
+
+// Grid breakpoints (minimal widths)
+$screen-xs: 0;
+$screen-sm: 576px;
+$screen-md: 768px;
+$screen-lg: 992px;
+$screen-xl: 1200p;
+
+// Font sizing
+$base-font-size: 16px;
+$nav-text-base-size: 16px;
+
+
+// Button settings
+$button-primary-color: $primary-color;
+$button-secondary-color: $primary-light-grey-10;
+$button-dark-color: $primary-color-dark-50;
+$button-light-color: #fff;
+$global-button-border-radius: 0;
+$button-negative-border-weight: 2px;

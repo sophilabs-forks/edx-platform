@@ -1,0 +1,36 @@
+@import "../base/style-toolkit";
+
+//---------------------------------------------------------------------------------
+// Component-relevant variables
+// By default influenced by style-toolit, but can be overriden on component level
+//---------------------------------------------------------------------------------
+// $var-name: value;
+$nav-link-color: $base-text-color;
+$nav-link-hover-color: $primary-color;
+//---------------------------------------------------------------------------------
+
+:local {
+  .index-container {
+    padding-top: calculateRem(50px);
+    padding-bottom: calculateRem(50px);
+  }
+
+  .index-intro {
+
+    h1 {
+      @include primary-font-semibold;
+      font-size: calculateRem(48px);
+      line-height: 130%;
+      margin-bottom: calculateRem(20px);
+      max-width: calculateRem(800px);
+      color: $primary-color;
+    }
+
+    p {
+      @include primary-font-regular;
+      font-size: calculateRem(18px);
+      max-width: calculateRem(800px);
+      margin-bottom: calculateRem(40px);
+    }
+  }
+}
