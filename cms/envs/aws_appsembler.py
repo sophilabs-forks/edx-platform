@@ -88,4 +88,4 @@ elif 'appsembler_usage' in DATABASES:
     # removing the database alias
     del DATABASES['appsembler_usage']
 
-CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', False)
+CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})

@@ -113,4 +113,4 @@ if FEATURES.get('ENABLE_CORS_HEADERS', False):
     # Docs: https://github.com/ottoyiu/django-cors-headers#cors_replace_https_referer
     CORS_REPLACE_HTTPS_REFERER = True
 
-CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', False)
+CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
