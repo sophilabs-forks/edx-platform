@@ -76,3 +76,5 @@ elif 'appsembler_usage' in DATABASES:
     # if the AppsemblerUsageRouter isn't enabled, then avoid mistakes by
     # removing the database alias
     del DATABASES['appsembler_usage']
+
+CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
