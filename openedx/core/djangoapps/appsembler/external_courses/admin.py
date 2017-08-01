@@ -13,4 +13,3 @@ class ExternalCourseTileAdmin(admin.ModelAdmin):
         verbose_name = "External Course"
         verbose_name_plural = "External Courses"
 
-#admin.site.register(ExternalCourseTile)
