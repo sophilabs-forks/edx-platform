@@ -22,7 +22,7 @@ INTERCOM_USER_EMAIL = APPSEMBLER_FEATURES.get('INTERCOM_USER_EMAIL', os.environ.
 
 ENABLE_STUDY_LOCATIONS = ENV_TOKENS.get('ENABLE_STUDY_LOCATIONS', False)
 if ENABLE_STUDY_LOCATIONS:
-    from .common import INSTALLED_APPS
+    from .aws import INSTALLED_APPS
     INSTALLED_APPS += ('study_location', )
     # NOTE: sites implementing the Study Location feature which also need to
     # do any additional extension of the registration form will need to 
