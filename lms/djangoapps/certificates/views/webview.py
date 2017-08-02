@@ -250,8 +250,6 @@ def _update_course_context(request, context, course, platform_name):
                                                               'through {platform_name}.').format(
             partner_short_name=context['organization_short_name'],
             platform_name=platform_name)
-    context['accreditation_conferred'] = course.accreditation_conferred
-
 
 def _update_social_context(request, context, course, user, user_certificate, platform_name):
     """
