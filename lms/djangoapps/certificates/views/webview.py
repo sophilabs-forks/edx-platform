@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, escape_uri_path
 from django.core.urlresolvers import reverse
 
 from courseware.access import has_access
@@ -43,6 +43,9 @@ from certificates.models import (
     CertificateSocialNetworks,
     BadgeAssertion
 )
+
+from study_location.models import StudentStudyLocation
+
 
 log = logging.getLogger(__name__)
 
@@ -295,6 +298,31 @@ def _update_social_context(request, context, course, user, user_certificate, pla
             user_certificate.mode,
             smart_str(share_url)
         )
+
+    # support emailing links to certificates
+    # 
+    context['email_share_enabled'] = share_settings.get('CERTIFICATE_EMAIL_SHARE', False)
+    context['email_share_subj'] = urllib.quote(
+        share_settings.get(
+            'CERTIFICATE_EMAIL_SUBJECT',
+            _("Course certificate from {platform_name}: {name} for course {coursename}")
+        ).format(platform_name=platform_name, name=user.profile.name, coursename=course.display_name)
+    )
+
+    # specific to ExtraCare
+    studylocation = StudentStudyLocation.location_for_student(user).studylocation
+
+    context['email_share_body'] = urllib.quote(
+        share_settings.get(
+            'CERTIFICATE_EMAIL_BODY',
+            _("Dear {location}, I completed a course on {platform_name}. Take a look at my certificate.\n\n{link}")
+        ).format(
+            platform_name=platform_name, link=share_url, 
+            location=studylocation.location, coursename=course.display_name)
+    )
+
+    # specific to ExtraCare
+    context['email_share_to'] = studylocation.contact_email
 
 
 def _update_context_with_user_info(context, user, user_certificate):

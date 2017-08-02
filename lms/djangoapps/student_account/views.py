@@ -3,6 +3,7 @@
 import logging
 import json
 import urlparse
+import importlib
 
 from django.conf import settings
 from django.contrib import messages
@@ -17,6 +18,7 @@ from django.core.urlresolvers import reverse, resolve
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ImproperlyConfigured
 
 from lang_pref.api import released_languages
 from edxmako.shortcuts import render_to_response
@@ -40,8 +42,11 @@ from util.bad_request_rate_limiter import BadRequestRateLimiter
 from openedx.core.djangoapps.user_api.accounts.api import request_password_change
 from openedx.core.djangoapps.user_api.errors import UserNotFound
 
+from student_account.fields import AccountSettingsExtensionField
+
 
 AUDIT_LOG = logging.getLogger("audit")
+ERR_LOG = logging.getLogger(__name__)
 
 
 @require_http_methods(['GET'])
@@ -394,6 +399,10 @@ def account_settings_context(request):
         'disable_courseware_js': True,
     }
 
+    # extend to add keys to fields based on extension account settings fields
+    extension_field_config = get_account_settings_extension_config(request)
+    context['extension_fields'] = extension_field_config
+
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,
         # we display a message to the user.
@@ -420,3 +429,45 @@ def account_settings_context(request):
         } for state in auth_states]
 
     return context
+
+
+def get_account_settings_extension_config(request):
+    """ Return any optional configuration for additional account settings fields
+
+        Args:
+        request: The request object.
+
+        Returns:
+        list of dicts like ['field_name': {'options'|'url'}, ]
+    
+    """
+    # TODO: be microsite middleware aware
+
+    # ACCOUNT_SETTINGS_EXTENSION_FIELDS should be defined like
+    # ['dotted_path_to_class', 'dotted_path_to_class' }]
+    # TODO: could potentially also have a case that just uses one of the 
+    # 'meta_key': key defined in JSON 'meta' field on UserProfile model
+
+    # field class must subclass AccountSettingsExtensionField
+    # by which it will have methods to return options, api_url, etc.
+
+    extension_config = settings.ACCOUNT_SETTINGS_EXTENSION_FIELDS
+    ext_fields = []
+
+    for field in extension_config:
+        module, klass_str = field.rsplit('.', 1)
+        module = importlib.import_module(module)
+        try:
+            klass = getattr(module, klass_str)
+            assert issubclass(klass, AccountSettingsExtensionField)
+            ext_field = klass(request)
+            ext_fields.append(ext_field())
+        except (AssertionError, ImproperlyConfigured), e:
+            # AccountSettingsExtensionFields can raise
+            # ImproperlyConfigured if required configuration is missing
+            ERR_LOG.warn( 
+                ("Skipping Account Settings extension field {} due to "
+                 "error:{}").format(klass.__name__, e.message)
+            )           
+            continue
+    return ext_fields
