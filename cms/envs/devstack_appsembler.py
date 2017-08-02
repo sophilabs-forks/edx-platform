@@ -78,3 +78,5 @@ elif 'appsembler_usage' in DATABASES:
     del DATABASES['appsembler_usage']
 
 CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
+# to allow to run python-saml with custom port
+SP_SAML_RESTRICT_MODE = False
