@@ -65,7 +65,7 @@ class StudentStudyLocation(models.Model):
         Return the most recent study location prior to the date passed
         """
         try:
-            sloc = cls.objects.filter(user=student.id, created_date__lte=before_when).latest('created_date')
+            sloc = cls.objects.filter(user=student.id).latest('created_date')
         except cls.DoesNotExist:
             return None
         return sloc
