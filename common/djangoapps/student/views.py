@@ -1829,7 +1829,8 @@ def create_account_with_params(request, params):
         not (
             third_party_provider and third_party_provider.skip_email_verification and
             user.email == running_pipeline['kwargs'].get('details', {}).get('email')
-        )
+        ) and
+        params.get('send_activation_email', True) == True
     )
     if send_email:
         dest_addr = user.email
