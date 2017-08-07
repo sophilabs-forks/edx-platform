@@ -309,19 +309,29 @@ def _update_social_context(request, context, course, user, user_certificate, pla
     )
 
     # specific to ExtraCare
-    studylocation = StudentStudyLocation.location_for_student(user).studylocation
+    context['email_share_warn'] = False  # in case not ready to share via email (no StudyLocation set)
+    try:
 
-    context['email_share_body'] = urllib.quote(
-        share_settings.get(
-            'CERTIFICATE_EMAIL_BODY',
-            _("Dear {location}, I completed a course on {platform_name}. Take a look at my certificate.\n\n{link}")
-        ).format(
-            platform_name=platform_name, link=share_url, 
-            location=studylocation.location, coursename=course.display_name)
-    )
+        studylocation = StudentStudyLocation.location_for_student(user).studylocation
+        context['email_share_body'] = urllib.quote(
+            share_settings.get(
+                'CERTIFICATE_EMAIL_BODY',
+                _("Dear {location}, I completed a course on {platform_name}. Take a look at my certificate.\n\n{link}")
+            ).format(
+                platform_name=platform_name, link=share_url, 
+                location=studylocation.location, coursename=course.display_name)
+        )
 
-    # specific to ExtraCare
-    context['email_share_to'] = studylocation.contact_email
+        # specific to ExtraCare
+        context['email_share_to'] = studylocation.contact_email        
+    except AttributeError:
+        context['email_share_enabled'] = False
+        context['email_share_warn'] = ("To share this Certificate with your Location training staff, "
+                                       "please set a Location for which you are completing this training, "
+                                       "by visiting your Account page via the upper right hand menu bar. "
+                                       "This may be located in your previous browser tab or window. "
+                                       "Then re-open or refresh this page. "
+                                      )
 
 
 def _update_context_with_user_info(context, user, user_certificate):
