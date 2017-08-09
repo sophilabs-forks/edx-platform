@@ -1829,7 +1829,8 @@ def create_account_with_params(request, params):
         not (
             third_party_provider and third_party_provider.skip_email_verification and
             user.email == running_pipeline['kwargs'].get('details', {}).get('email')
-        )
+        ) and
+        params.get('send_activation_email', True) == True
     )
     if send_email:
         dest_addr = user.email
@@ -2596,8 +2597,16 @@ class LogoutView(TemplateView):
     oauth_client_ids = []
     template_name = 'logout.html'
 
-    # Keep track of the page to which the user should ultimately be redirected.
-    target = reverse_lazy('cas-logout') if settings.FEATURES.get('AUTH_USE_CAS') else '/'
+    def get_target(self):
+        # Keep track of the page to which the user should ultimately be redirected.
+        if settings.FEATURES.get('AUTH_USE_CAS'):
+            target = reverse_lazy('cas-logout')
+        elif configuration_helpers.get_value('CUSTOM_LOGOUT_REDIRECT_URL', settings.CUSTOM_LOGOUT_REDIRECT_URL):
+            target = configuration_helpers.get_value('CUSTOM_LOGOUT_REDIRECT_URL', settings.CUSTOM_LOGOUT_REDIRECT_URL)
+        else:
+            target = '/'
+
+        return target
 
     def dispatch(self, request, *args, **kwargs):  # pylint: disable=missing-docstring
         # We do not log here, because we have a handler registered to perform logging on successful logouts.
@@ -2612,7 +2621,7 @@ class LogoutView(TemplateView):
         if LogoutViewConfiguration.current().enabled and self.oauth_client_ids:
             response = super(LogoutView, self).dispatch(request, *args, **kwargs)
         else:
-            response = redirect(self.target)
+            response = redirect(self.get_target())
 
         # Clear the cookie used by the edx.org marketing site
         delete_logged_in_cookies(response)

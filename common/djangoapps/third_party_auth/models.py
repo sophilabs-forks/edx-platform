@@ -5,6 +5,9 @@ Models used to implement SAML SSO support in third_party_auth
 """
 from __future__ import absolute_import
 
+import re
+from random import randrange
+
 from config_models.models import ConfigurationModel, cache
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -251,11 +254,17 @@ class ProviderConfig(ConfigurationModel):
         else:
             suggester_personal_name = details.get('fullname', '')
 
-        return {
+        registration_sso_overrides = {
             'email': details.get('email', ''),
             'name': suggester_personal_name,
             'username': suggested_username,
         }
+
+        if settings.CUSTOM_SSO_FIELDS_SYNC:
+            for field in settings.CUSTOM_SSO_FIELDS_SYNC:
+                registration_sso_overrides[field] = details.get(field)
+
+        return registration_sso_overrides
 
     def get_authentication_backend(self):
         """Gets associated Django settings.AUTHENTICATION_BACKEND string."""
@@ -451,6 +460,7 @@ class SAMLProviderConfig(ProviderConfig):
             raise AuthNotConfigured(provider_name=self.name)
         conf['x509cert'] = data.public_key
         conf['url'] = data.sso_url
+        conf['slo_url'] = data.slo_url
         return SAMLIdentityProvider(self.idp_slug, **conf)
 
 
@@ -502,6 +512,13 @@ class SAMLConfiguration(ConfigurationModel):
             "Valid keys that can be set here include: SECURITY_CONFIG and SP_EXTRA"
         ),
     )
+    slo_redirect_url = models.CharField(
+        max_length=255,
+        default='/logout',
+        verbose_name="SLO post redirect URL",
+        help_text="The url to redirect the user after process the SLO response",
+        blank=True
+    )
 
     class Meta(object):
         app_label = "third_party_auth"
@@ -545,6 +562,10 @@ class SAMLConfiguration(ConfigurationModel):
                 return self.private_key
             # To allow instances to avoid storing keys in the DB, the private key can also be set via Django:
             return getattr(settings, 'SOCIAL_AUTH_SAML_SP_PRIVATE_KEY', '')
+        if name == "LOGOUT_REDIRECT_URL":
+            return self.slo_redirect_url
+        if name == "SP_SAML_RESTRICT_MODE":
+            return getattr(settings, 'SP_SAML_RESTRICT_MODE', True)
         other_config = {
             # These defaults can be overriden by self.other_config_str
             "EXTRA_DATA": ["attributes"],  # Save all attribute values the IdP sends into the UserSocialAuth table
@@ -567,6 +588,7 @@ class SAMLProviderData(models.Model):
 
     entity_id = models.CharField(max_length=255, db_index=True)  # This is the key for lookups in this table
     sso_url = models.URLField(verbose_name="SSO URL")
+    slo_url = models.URLField(verbose_name="SLO URL", null=True)
     public_key = models.TextField()
 
     class Meta(object):
