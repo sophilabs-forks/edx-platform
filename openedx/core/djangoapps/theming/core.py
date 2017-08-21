@@ -2,12 +2,13 @@
 Core logic for Comprehensive Theming.
 """
 import os
+from logging import getLogger
+
 from django.conf import settings
 from path import Path as path
 
 from .helpers import get_themes
 
-from logging import getLogger
 logger = getLogger(__name__)  # pylint: disable=invalid-name
 
 
