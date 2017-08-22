@@ -622,8 +622,6 @@ COURSE_SETTINGS = {
         'location': 'i4x://edx/6002xs12/course/6.002x_Fall_2012',
     }
 COURSE_MODE_DEFAULTS = {
-}
-
     'bulk_sku': None,
     'currency': 'usd',
     'description': None,
