@@ -27,6 +27,9 @@ def get_initial_sass_variables():
     This method loads the SASS variables file from the currently active theme. It is used as a default value
     for the sass_variables field on new Microsite objects.
     """
+    if not settings.DEFAULT_SITE_THEME:
+        return []
+
     values = get_branding_values_from_file()
     labels = get_branding_labels_from_file()
     return [(val[0], (val[1], lab[1])) for val, lab in izip(values, labels)]
@@ -145,6 +148,8 @@ def delete_site(site_id):
 
 
 def get_initial_page_elements():
+    if not settings.DEFAULT_SITE_THEME:
+        return {}
     # pylint: disable=line-too-long
     return {
         "embargo": {
