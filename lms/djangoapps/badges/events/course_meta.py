@@ -24,7 +24,7 @@ def award_badge(config, count, user):
     if not slug:
         return
     badge_class = BadgeClass.get_badge_class(
-        slug=slug, issuing_component='openedx__course', create=False,
+        slug=slug, create=False,
     )
     if not badge_class:
         return
@@ -80,14 +80,16 @@ def course_group_check(user, course_key):
                 if len(keys) == 1:
                     evidence = evidence_url(user.id, course_key)
                     awards.append((slug, evidence))
+                else:
+                    awards.append(slug)
 
     for award in awards:
         badge_class = BadgeClass.get_badge_class(
-            slug=award[0], issuing_component='openedx__course', create=False,
+            slug=award[0], create=False,
         )
         if badge_class and not badge_class.get_for_user(user):
             if award[1]:
                 badge_class.award(user, evidence_url=award[1])
             else:
                 badge_class.award(user)
-
+                
