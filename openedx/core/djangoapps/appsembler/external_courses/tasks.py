@@ -16,7 +16,7 @@ from openedx.core.djangoapps.appsembler.external_courses.models import ExternalC
 
 log = logging.getLogger(__name__)
 
-@task(name='openedx.core.djangoapps.external_courses.fetch_courses')
+@task(name='openedx.core.djangoapps.appsembler.external_courses.tasks.fetch_courses')
 def fetch_courses():
 
     num_changed = 0
