@@ -296,7 +296,12 @@ class UpdateUserAccount(APIView):
         updated_fields = {}
 
         # update email
-        if 'email' in data:
+        if 'email' in data and data['email'] != user.email:
+            user_exists = check_account_exists(email=data['email'])
+            if user_exists:
+                errors = {"integrity_error": "the user email you're trying to set already belongs to another user"}
+                return Response(errors, status=400)
+
             user.email = data['email']
             user.save()
             updated_fields.update({'email': data['email']})
