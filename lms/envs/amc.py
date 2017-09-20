@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from .aws import *
 import dj_database_url
 
@@ -132,3 +134,5 @@ HIJACK_ALLOW_GET_REQUESTS = True
 HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user'
 
 USE_S3_FOR_CUSTOMER_THEMES = True
+
+OAUTH_EXPIRE_CODE_DELTA = timedelta(seconds=60 * 60)
