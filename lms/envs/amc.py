@@ -135,4 +135,4 @@ HIJACK_LOGOUT_REDIRECT_URL = '/admin/auth/user'
 
 USE_S3_FOR_CUSTOMER_THEMES = True
 
-OAUTH_EXPIRE_CODE_DELTA = timedelta(seconds=60 * 60)
+OAUTH_EXPIRE_CODE_DELTA = timedelta(seconds=60 * 60 * 24)
