@@ -14,11 +14,13 @@ define(['js/views/validation',
     // Model class is CMS.Models.Settings.Advanced
             events: {
                 'focus :input': 'focusInput',
-                'blur :input': 'blurInput'
+                'blur :input': 'blurInput',
+                'change select': 'clearValidationErrors',
+                'change select': 'selectSetField'
         // TODO enable/disable save based on validation (currently enabled whenever there are changes)
             },
             initialize: function() {
-                this.template = HtmlUtils.template(
+                this.base_template = HtmlUtils.template(
             $('#advanced_entry-tpl').text()
         );
                 this.listenTo(this.model, 'invalid', this.handleValidationError);
@@ -26,7 +28,7 @@ define(['js/views/validation',
             },
             render: function() {
         // catch potential outside call before template loaded
-                if (!this.template) return this;
+                if (!this.base_template) return this;
 
                 var listEle$ = this.$el.find('.course-advanced-policy-list');
                 listEle$.empty();
@@ -150,8 +152,9 @@ define(['js/views/validation',
                 });
             },
             renderTemplate: function(key, model) {
+                var tmpl = (model.values) ? this.options_template : this.base_template;
                 var newKeyId = _.uniqueId('policy_key_'),
-                    newEle = this.template({key: key, display_name: model.display_name, help: model.help,
+                    newEle = tmpl({key: key, display_name: model.display_name, help: model.help,
             value: JSON.stringify(model.value, null, 4), deprecated: model.deprecated,
             keyUniqueId: newKeyId, valueUniqueId: _.uniqueId('policy_value_')});
 
@@ -164,7 +167,21 @@ define(['js/views/validation',
             },
             blurInput: function(event) {
                 $(event.target).prev().removeClass('is-focused');
+            },
+            selectSetField : function(event) {
+                var self = this;
+                var key = this.selectorToField[event.currentTarget.id];
+                var newVal = $(event.currentTarget).val();
+                var JSONValue = JSON.parse(newVal);
+                var modelVal = self.model.get(key);
+                modelVal.value = JSONValue;
+                self.model.set(key, modelVal);
+                var message = gettext("Your changes will not take effect until you save your progress. Take care with key and value formatting, as validation is not implemented.");
+                self.showNotificationBar(message,
+                    _.bind(self.saveView, self),
+                    _.bind(self.revertView, self));
             }
+
         });
 
         return AdvancedView;
