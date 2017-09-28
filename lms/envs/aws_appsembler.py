@@ -116,3 +116,8 @@ if FEATURES.get('ENABLE_CORS_HEADERS', False):
 CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
 
 HTTPS = ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'http' and 'off' or 'on'
+
+#configure auth backends
+if 'LMS_AUTHENTICATION_BACKENDS' in APPSEMBLER_FEATURES.keys():
+    #default behavior is to replace the existing backends with those in APPSEMBLER_FEATURES
+    AUTHENTICATION_BACKENDS = tuple(APPSEMBLER_FEATURES['LMS_AUTHENTICATION_BACKENDS'])
