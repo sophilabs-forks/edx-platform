@@ -114,3 +114,5 @@ if FEATURES.get('ENABLE_CORS_HEADERS', False):
     CORS_REPLACE_HTTPS_REFERER = True
 
 CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
+
+HTTPS = ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'http' and 'off' or 'on'
