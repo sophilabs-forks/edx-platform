@@ -76,6 +76,28 @@
     .wrapper-copy-and-actions {
         @include grid-container();
 
+        .message-hints {
+            font-size(x-small);
+
+            .horizontal-datalist {
+
+                dt {
+                    @include span(3);
+                    // width: 25%;
+                    // padding: 0;
+                    // margin: 0;
+                }
+
+                dd {
+                    @include span(9);
+                    // width: 75%;
+                    // padding: 0;
+                    // margin: 0;
+                }
+
+            }
+        }
+
         .message-copy {
             margin-bottom: spacing-vertical(small);
         }
