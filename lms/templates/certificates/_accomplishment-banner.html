@@ -45,8 +45,8 @@ from django.template.defaultfilters import escapejs
                 <p class="message-copy copy copy-base emphasized">${accomplishment_banner_congrats}</p>
 
                 %if linked_in_url:
-                <div class="message-hints"> 
-                  <p class="message-copy copy copy-base">To share on LinkedIn, enter this information on the form:</p>
+                <div class="message-hints message-copy"> 
+                  <p class="copy copy-base">To share on LinkedIn, enter this information on the form:</p>
                   <dl id="linkedin-hint" class="horizontal-datalist">                     
                     <dt>Certification name:</dt><dd>${accomplishment_copy_name | h} &mdash; ${accomplishment_copy_course_name} </dd>
                     <dt>Certification authority:</dt><dd> (select ${platform_name} from dropdown)</dd>

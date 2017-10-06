@@ -77,7 +77,7 @@
         @include grid-container();
 
         .message-hints {
-            font-size(x-small);
+            font-size: font-size(x-small);
 
             .horizontal-datalist {
 
