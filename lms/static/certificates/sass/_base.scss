@@ -20,3 +20,18 @@ html, body {
 // ------------------------------
 // #TYPOGRAPHY
 // ------------------------------
+
+//adapted from Bootstrap
+.dl-horizontal {
+    dt {
+      float: left;
+      width: (spacing-horizontal(large) - 20);
+      clear: left;
+      // text-align: right;
+      @include cont-truncated();
+    }
+    dd {
+      margin-left: spacing-horizontal(large);
+      @include clearfix(); // Clear the floated `dt` if an empty `dd` is present
+    }
+  }
