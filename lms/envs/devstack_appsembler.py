@@ -105,3 +105,8 @@ elif 'appsembler_usage' in DATABASES:
 CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
 # to allow to run python-saml with custom port
 SP_SAML_RESTRICT_MODE = False
+
+#configure auth backends
+if 'LMS_AUTHENTICATION_BACKENDS' in APPSEMBLER_FEATURES.keys():
+    #default behavior is to replace the existing backends with those in APPSEMBLER_FEATURES
+    AUTHENTICATION_BACKENDS = tuple(APPSEMBLER_FEATURES['LMS_AUTHENTICATION_BACKENDS'])
