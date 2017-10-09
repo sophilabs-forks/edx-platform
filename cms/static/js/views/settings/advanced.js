@@ -19,10 +19,13 @@ define(['js/views/validation',
                 'change select': 'selectSetField'
         // TODO enable/disable save based on validation (currently enabled whenever there are changes)
             },
-            initialize: function() {
+            initialize : function() {
                 this.base_template = HtmlUtils.template(
-            $('#advanced_entry-tpl').text()
-        );
+                    $("#advanced_entry-tpl").text()
+                );
+                this.options_template = HtmlUtils.template(
+                    $("#advanced_option_entry-tpl").text()
+                );
                 this.listenTo(this.model, 'invalid', this.handleValidationError);
                 this.render();
             },
@@ -156,6 +159,7 @@ define(['js/views/validation',
                 var newKeyId = _.uniqueId('policy_key_'),
                     newEle = tmpl({key: key, display_name: model.display_name, help: model.help,
             value: JSON.stringify(model.value, null, 4), deprecated: model.deprecated,
+            options: model.values,
             keyUniqueId: newKeyId, valueUniqueId: _.uniqueId('policy_value_')});
 
                 this.fieldToSelectorMap[key] = newKeyId;
