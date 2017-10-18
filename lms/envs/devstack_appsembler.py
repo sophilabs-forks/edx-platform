@@ -110,3 +110,8 @@ SP_SAML_RESTRICT_MODE = False
 if 'LMS_AUTHENTICATION_BACKENDS' in APPSEMBLER_FEATURES.keys():
     #default behavior is to replace the existing backends with those in APPSEMBLER_FEATURES
     AUTHENTICATION_BACKENDS = tuple(APPSEMBLER_FEATURES['LMS_AUTHENTICATION_BACKENDS'])
+
+MIDDLEWARE_CLASSES += (
+    'organizations.middleware.OrganizationMiddleware',
+)
+

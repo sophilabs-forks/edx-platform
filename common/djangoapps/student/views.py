@@ -129,6 +129,11 @@ from openedx.core.djangoapps.theming import helpers as theming_helpers
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.catalog.utils import get_programs_data
 
+# try to import appsembler fork of edx-organizations (if it's installed)
+try: 
+    from organizations.models import UserOrganizationMapping
+except ImportException:
+    pass
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1857,6 +1862,15 @@ def create_account_with_params(request, params):
     else:
         registration.activate()
         _enroll_user_in_pending_courses(user)  # Enroll student in any pending courses
+    
+    #if using custom Appsembler backend from edx-organizations
+    if u'organizations.backends.OrganizationMemberBackend' in settings.AUTHENTICATION_BACKENDS:
+        try:
+            organization = request.site.organizations.first()
+            if organization: 
+                UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
+        except:
+            pass
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
