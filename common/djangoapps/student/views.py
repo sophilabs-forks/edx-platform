@@ -132,7 +132,7 @@ from openedx.core.djangoapps.catalog.utils import get_programs_data
 # try to import appsembler fork of edx-organizations (if it's installed)
 try: 
     from organizations.models import UserOrganizationMapping
-except ImportException:
+except ImportError:
     pass
 
 log = logging.getLogger("edx.student")
