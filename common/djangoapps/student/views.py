@@ -1865,15 +1865,9 @@ def create_account_with_params(request, params):
     
     #if using custom Appsembler backend from edx-organizations
     if u'organizations.backends.OrganizationMemberBackend' in settings.AUTHENTICATION_BACKENDS:
-        try:
-            organization = request.site.organizations.first()
-        except AttributeError:
-            #can't find 'organizations' in Site obj
-            pass
-        else:
-            if organization: 
-                UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
-
+        organization = request.site.organizations.first()
+        if organization: 
+            UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
