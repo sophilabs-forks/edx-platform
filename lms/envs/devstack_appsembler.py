@@ -110,3 +110,15 @@ SP_SAML_RESTRICT_MODE = False
 if 'LMS_AUTHENTICATION_BACKENDS' in APPSEMBLER_FEATURES.keys():
     #default behavior is to replace the existing backends with those in APPSEMBLER_FEATURES
     AUTHENTICATION_BACKENDS = tuple(APPSEMBLER_FEATURES['LMS_AUTHENTICATION_BACKENDS'])
+
+#attempt to import model from our custom fork of edx-organizations
+# if it works, then also add the middleware
+try: 
+    from organizations.models import UserOrganizationMapping
+    MIDDLEWARE_CLASSES += (
+        'organizations.middleware.OrganizationMiddleware',
+    )
+except ImportError:
+    pass
+
+
