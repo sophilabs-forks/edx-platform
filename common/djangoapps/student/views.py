@@ -1867,17 +1867,20 @@ def create_account_with_params(request, params):
     if u'organizations.backends.OrganizationMemberBackend' in settings.AUTHENTICATION_BACKENDS:
         try:
             organization = request.site.organizations.first()
+        except AttributeError:
+            #can't find 'organizations' in Site obj
+            pass
+        else:
             if organization: 
                 UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
-        except:
-            pass
+
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
     new_user = authenticate(username=user.username, password=params['password'])
     
-    if not settings.APPSEMBLER_FEATURES.get('SKIP_LOGIN_AFTER_REGISTRATION',False):
+    if not settings.APPSEMBLER_FEATURES.get('SKIP_LOGIN_AFTER_REGISTRATION', False):
         login(request, new_user)
         request.session.set_expiry(0)
 
