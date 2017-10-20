@@ -175,6 +175,71 @@ Cache-Control: no-cache
 }
 ```
 
+### Update user account
+
+This endpoint allows to update a user account. Receives a lookup parameter and N optional parameters which are all the attributes that needs to be updated.
+The endpoint can update email, all available profile fields and also has support for [registration extension form fields](https://github.com/open-craft/custom-form-app).
+
+* URL: `/appsembler_api/v0/accounts/update_user
+* Method: `POST`
+* Data Params
+    * Required:
+        * `user_lookup` # can be username or email
+    * Optional:
+        * `email` # user's email
+        * `name` # user full name
+        * `country` # country iso code, ex: `ES`, `UY`, `US`
+        * `gender` # user gender, accepted values `m`, `f` or `o`
+        * `level_of_education` # user education, accepted values `p`, `m`, `b`, `a`, `hs`, `jhs`, `el`, `none` or `other`, 
+        * `year_of_birth` # four digit year as string
+        * `city` # text
+        * `mailing_address` # long text 
+        * `language` # language iso code, ex 'ES', 'EN'
+        * `goals` # long text
+        * `bio` # text
+
+You also can send extended profile form fiels, but that depends on every installation, you'll need to find the [registration extension form app fork](https://github.com/open-craft/custom-form-app) that is installed on the instance, and check the field names, and accepted values. 
+        
+* Success Response
+	* Code: 200
+	* Content: Success message and list of updated fields and values
+```
+{
+    "success": "The following fields has been updated: name=Doe, John, country=ES"
+}
+```
+* Error Responses:
+	* Code: 404 NOT FOUND
+	* Reason: User not exists
+
+* Error Responses:
+	* Code: 400 NOT FOUND
+	* Reason: No user lookup parameter sent
+
+* Example call:
+```
+POST /appsembler_api/v0/accounts/update_user
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer cbf6a5de322cf6a4323c957a882xy1s321c954b86
+Cache-Control: no-cache
+{
+	"user_lookup": "staff@example.com",
+	"emai": "new_staff@example.com",
+	"name": "Staff New Name",
+	"country": "US",
+	"gender": "f",
+	"level_of_education": "m",
+	"year_of_birth": "2000",
+	"city": "Montevideo",
+	"mailing_address": "A streen and a number 2345 FL, USA",
+	"language": "es",
+	"goals": "To be famous",
+	"bio": "I'm not famous yet"
+	"district": "101815" # a custom form field
+}
+```
+
 ### Check Existing Username
 
 This endpoint is a tool to check if an user exists given the username.

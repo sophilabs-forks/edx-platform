@@ -9,6 +9,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.db.models import Q
 from django.core.validators import validate_email
 
 from rest_framework.views import APIView
@@ -26,9 +27,10 @@ from openedx.core.lib.api.permissions import (
     IsStaffOrOwner, ApiKeyHeaderPermissionIsAuthenticated
 )
 
+from student.forms import get_registration_extension_form
 from student.views import create_account_with_params
 from student.models import CourseEnrollment, EnrollmentClosedError, \
-    CourseFullError, AlreadyEnrolledError
+    CourseFullError, AlreadyEnrolledError, UserProfile
 
 from course_modes.models import CourseMode
 from courseware.courses import get_course_by_id
@@ -241,6 +243,107 @@ class UserAccountConnect(APIView):
         return response
 
 
+class UpdateUserAccount(APIView):
+    """ HTTP endpoint for updating and user account """
+
+    authentication_classes = OAuth2AuthenticationAllowInactiveUser,
+    permission_classes = IsStaffOrOwner,
+
+    def post(self, request):
+        """
+        This endpoint allows to change user attributes including email, profile
+        attributes and extended profile fields. Receives one mandatory param
+        user_lookup that can be an email or username to lookup the user to
+        update and the rest of parameters are option. Any attribute to update
+        must be sent in key:val JSON format.
+
+        URL: /appsembler_api/v0/accounts/update_user
+        Arguments:
+            request (HttpRequest)
+            JSON (application/json)
+            {
+                "user_lookup": email or username to lookup the user to update,
+                # mandatory ex: "staff4@example.com" or "staff4"
+
+                "email": "staff@example.com",
+                "bio": "this is my bio",
+                "country": "BR"
+            }
+        Returns:
+            HttpResponse: 200 on success, {"success ": "list of updated params"}
+            HttpResponse: 404 if the doesn't exists
+            HttpResponse: 400 Incorrect parameters, basically if username or
+            email parameter is not sent
+        """
+        data = request.data
+
+        if data['user_lookup'].strip() == "":
+            errors = {"lookup_error": "No user lookup has been provided"}
+            return Response(errors, status=400)
+
+        user = User.objects.filter(
+            Q(username=data['user_lookup']) | Q(email=data['user_lookup'])
+        )
+
+        if user:
+            user = user[0]
+        else:
+            errors = {
+                "user_not_found": "The user for the Given username or email doesn't exists"
+            }
+            return Response(errors, status=404)
+
+        updated_fields = {}
+
+        # update email
+        if 'email' in data and data['email'] != user.email:
+            user_exists = check_account_exists(email=data['email'])
+            if user_exists:
+                errors = {"integrity_error": "the user email you're trying to set already belongs to another user"}
+                return Response(errors, status=400)
+
+            user.email = data['email']
+            user.save()
+            updated_fields.update({'email': data['email']})
+
+        # update profile fields
+        profile_fields = [
+            "name", "level_of_education", "gender", "mailing_address", "city",
+            "country", "goals", "bio", "year_of_birth", "language"
+        ]
+
+        profile_fields_to_update = {}
+        for field in profile_fields:
+            if field in data:
+                profile_fields_to_update[field] = data[field]
+
+        if len(profile_fields_to_update):
+            UserProfile.objects.filter(user=user).update(**profile_fields_to_update)
+            updated_fields.update(profile_fields_to_update)
+
+        # If there is an exension form fields installed update them too
+        custom_profile_fields_to_update = {}
+        custom_form = get_registration_extension_form()
+
+        if custom_form is not None:
+            for custom_field in custom_form.fields:
+                if custom_field in data:
+                    custom_profile_fields_to_update[custom_field] = data[custom_field]
+                    updated_fields.update(custom_profile_fields_to_update)
+
+            if len(custom_profile_fields_to_update):
+                custom_form.Meta.model.objects.filter(user=user).update(
+                    **custom_profile_fields_to_update)
+
+        return Response(
+            {"success": "The following fields has been updated: {}".format(
+                ', '.join(
+                    '{}={}'.format(f, v) for f, v in updated_fields.items())
+                )
+            },
+            status=200)
+
+
 class GetUserAccountView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
@@ -260,7 +363,6 @@ class GetUserAccountView(APIView):
         """
         try:
             account_settings = User.objects.select_related('profile').get(username=username)
-            print account_settings
         except User.DoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND
