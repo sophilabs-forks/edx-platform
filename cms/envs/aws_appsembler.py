@@ -94,4 +94,4 @@ CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
 MEDIA_ROOT = '/edx/var/edxapp/media'
 MEDIA_URL = '/media/'
 
-HTTPS = ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'http' and 'off' or 'on'
+HTTPS = 'on' if ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'https' else 'off'
