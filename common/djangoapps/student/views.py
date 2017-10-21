@@ -132,6 +132,7 @@ from openedx.core.djangoapps.catalog.utils import get_programs_data
 # try to import appsembler fork of edx-organizations (if it's installed)
 try: 
     from organizations.models import UserOrganizationMapping
+    from hr_management.views import send_microsite_request_email_to_managers
 except ImportError:
     pass
 
@@ -1868,6 +1869,7 @@ def create_account_with_params(request, params):
         organization = request.site.organizations.first()
         if organization: 
             UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
+            send_microsite_request_email_to_managers(request, new_user)
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
