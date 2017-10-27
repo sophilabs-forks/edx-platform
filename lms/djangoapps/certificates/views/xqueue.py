@@ -14,6 +14,7 @@ import dogstats_wrapper as dog_stats_api
 from capa.xqueue_interface import XQUEUE_METRIC_NAME
 from xmodule.modulestore.django import modulestore
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
+from opaque_keys.edx.keys import CourseKey
 from util.json_request import JsonResponse, JsonResponseBadRequest
 from util.bad_request_rate_limiter import BadRequestRateLimiter
 from certificates.api import generate_user_certificates
@@ -54,8 +55,8 @@ def request_certificate(request):
         if request.user.is_authenticated():
             username = request.user.username
             student = User.objects.get(username=username)
-            course_key = SlashSeparatedCourseKey.from_deprecated_string(request.POST.get('course_id'))
-            course = modulestore().get_course(course_key, depth=2)
+            course_key = CourseKey.from_string(request.POST.get('course_id'))
+            course = modulestore().get_course(course_key, depth=0)
 
             status = certificate_status_for_student(student, course_key)['status']
             if status in [CertificateStatuses.unavailable, CertificateStatuses.notpassing, CertificateStatuses.error]:
