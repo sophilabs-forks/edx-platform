@@ -99,7 +99,7 @@ from ..module_render import get_module_for_descriptor, get_module, get_module_by
 #specific to our hr_management app
 try:
     from hr_management.models import CourseCCASettings
-except ImportException:
+except ImportError:
     pass
 
 log = logging.getLogger("edx.courseware")
