@@ -1,12 +1,10 @@
-﻿"""
+"""
 Utility functions for validating forms
 """
 import re
 from importlib import import_module
 
 from django import forms
-from django.template import loader
-from django.utils.http import int_to_base36
 from django.conf import settings
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
@@ -19,12 +17,12 @@ from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator, slug_re
 
+
+from edxmako.shortcuts import render_to_string
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.user_api import accounts as accounts_settings
 from student.models import CourseEnrollmentAllowed
 from util.password_policy_validators import validate_password_strength
-
-from edxmako.shortcuts import render_to_string
 
 
 class PasswordResetFormNoActive(PasswordResetForm):
@@ -64,20 +62,15 @@ class PasswordResetFormNoActive(PasswordResetForm):
         """
         Generates a one-use only link for resetting password and sends to the
         user.
-
-        This is a copy from Django 1.4.5's django.contrib.auth.forms.PasswordResetForm,
-        which extends it to add support for multipart email.
         """
         # This import is here because we are copying and modifying the .save from Django 1.4.5's
         # django.contrib.auth.forms.PasswordResetForm directly, which has this import in this place.
         from django.core.mail import send_mail
         for user in self.users_cache:
-
-                site_name = configuration_helpers.get_value(
-                    'SITE_NAME',
-                    settings.SITE_NAME
-                )
-
+            site_name = configuration_helpers.get_value(
+                'SITE_NAME',
+                settings.SITE_NAME
+            )
             context = {
                 'email': user.email,
                 'site_name': site_name,
@@ -92,7 +85,7 @@ class PasswordResetFormNoActive(PasswordResetForm):
             subject = subject.replace('\n', '')
             email = loader.render_to_string(email_template_name, context)
             email_html = None
-            if (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
+            if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
                 email_html = render_to_string(html_email_template_name, context)
             send_mail(subject, email, from_email, [user.email], html_message=email_html)
 

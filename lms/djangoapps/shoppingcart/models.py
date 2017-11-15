@@ -19,7 +19,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.core.mail.message import EmailMessage
+from django.core.mail.message import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.db.models import Count, F, Q, Sum
@@ -53,15 +53,6 @@ from .exceptions import (
     PurchasedCallbackException,
     UnexpectedOrderItemStatus
 )
-
-
-
-from django.core.mail.message import EmailMultiAlternatives
-
-from xmodule.modulestore.django import modulestore
-from eventtracking import tracker
-
-
 
 log = logging.getLogger("shoppingcart")
 
@@ -386,28 +377,31 @@ class Order(models.Model):
             )
             # Send a unique email for each recipient. Don't put all email addresses in a single email.
             for recipient in recipient_list:
+                email_context = {
+                    'order': self,
+                    'recipient_name': recipient[0],
+                    'recipient_type': recipient[2],
+                    'site_name': site_name,
+                    'order_items': orderitems,
+                    'course_names': ", ".join(course_names),
+                    'dashboard_url': dashboard_url,
+                    'currency_symbol': settings.PAID_COURSE_REGISTRATION_CURRENCY[1],
+                    'order_placed_by': '{username} ({email})'.format(
+                        username=self.user.username, email=self.user.email
+                    ),
+                    'has_billing_info': settings.FEATURES['STORE_BILLING_INFO'],
+                    'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME),
+                    'payment_support_email': configuration_helpers.get_value(
+                        'payment_support_email', settings.PAYMENT_SUPPORT_EMAIL,
+                    ),
+                    'payment_email_signature': configuration_helpers.get_value('payment_email_signature'),
+                }
+
                 message = render_to_string(
                     'emails/business_order_confirmation_email.txt' if is_order_type_business else 'emails/order_confirmation_email.txt',
-                    {
-                        'order': self,
-                        'recipient_name': recipient[0],
-                        'recipient_type': recipient[2],
-                        'site_name': site_name,
-                        'order_items': orderitems,
-                        'course_names': ", ".join(course_names),
-                        'dashboard_url': dashboard_url,
-                        'currency_symbol': settings.PAID_COURSE_REGISTRATION_CURRENCY[1],
-                        'order_placed_by': '{username} ({email})'.format(
-                            username=self.user.username, email=self.user.email
-                        ),
-                        'has_billing_info': settings.FEATURES['STORE_BILLING_INFO'],
-                        'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME),
-                        'payment_support_email': configuration_helpers.get_value(
-                            'payment_support_email', settings.PAYMENT_SUPPORT_EMAIL,
-                        ),
-                        'payment_email_signature': configuration_helpers.get_value('payment_email_signature'),
-                    }
+                    email_context,
                 )
+
                 email = EmailMultiAlternatives(
                     subject=subject,
                     body=message,
@@ -418,26 +412,9 @@ class Order(models.Model):
                 # Only the business order is HTML formatted. A single seat order confirmation is plain text.
                 if is_order_type_business:
                     email.content_subtype = "html"
-                elif (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
-                    message_html = render_to_string(
-                        'emails/html/order_confirmation_email.html',
-                        {
-                            'order': self,
-                            'recipient_name': recipient[0],
-                            'recipient_type': recipient[2],
-                            'site_name': site_name,
-                            'order_items': orderitems,
-                            'course_names': ", ".join([course_info[0] for course_info in courses_info]),
-                            'dashboard_url': dashboard_url,
-                            'order_placed_by': '{username} ({email})'.format(username=self.user.username, email=getattr(self.user, 'email')),  # pylint: disable=E1101
-                            'has_billing_info': settings.FEATURES['STORE_BILLING_INFO'],
-                            'platform_name': microsite.get_value('platform_name', settings.PLATFORM_NAME),
-                            'payment_support_email': microsite.get_value('payment_support_email', settings.PAYMENT_SUPPORT_EMAIL),
-                            'payment_email_signature': microsite.get_value('payment_email_signature'),
-                        }
-                    )
+                elif settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
+                    message_html = render_to_string('emails/html/order_confirmation_email.html', email_context)
                     email.attach_alternative(message_html, 'text/html')
-
                 if csv_file:
                     email.attach(u'RegistrationCodesRedemptionUrls.csv', csv_file.getvalue(), 'text/csv')
                 if pdf_file is not None:
@@ -1603,7 +1580,8 @@ class PaidCourseRegistration(OrderItem):
         item.unit_cost = cost
         item.list_price = cost
         item.line_desc = _(u'Registration for Course: {course_name}').format(
-            course_name=course.display_name_with_default_escaped)
+            course_name=course.display_name_with_default_escaped,  # xss-lint: disable=python-deprecated-display-name
+        )
         item.currency = currency
         order.currency = currency
         item.report_comments = item.csv_report_comments
@@ -1647,8 +1625,8 @@ class PaidCourseRegistration(OrderItem):
             u"Please visit your {link_start}dashboard{link_end} "
             u"to see your new course."
         ).format(
-            link_start=u'<a href="{url}">'.format(url=reverse('dashboard')),
-            link_end=u'</a>',
+            link_start=u'<a href="{url}">'.format(url=reverse('dashboard')),  # xss-lint: disable=python-wrap-html
+            link_end=u'</a>',  # xss-lint: disable=python-wrap-html
         )
 
         return self.pk_with_subclass, set([notification])
@@ -1786,7 +1764,8 @@ class CourseRegCodeItem(OrderItem):
         item.list_price = cost
         item.qty = qty
         item.line_desc = _(u'Enrollment codes for Course: {course_name}').format(
-            course_name=course.display_name_with_default_escaped)
+            course_name=course.display_name_with_default_escaped,  # xss-lint: disable=python-deprecated-display-name
+        )
         item.currency = currency
         order.currency = currency
         item.report_comments = item.csv_report_comments

@@ -353,7 +353,8 @@ def get_email_params(course, auto_enroll, secure=True, course_key=None, display_
 
     protocol = 'https' if secure else 'http'
     course_key = course_key or course.id.to_deprecated_string()
-    display_name = display_name or course.display_name_with_default_escaped
+    if not display_name:
+        display_name = course.display_name_with_default_escaped  # xss-lint: disable=python-deprecated-display-name
 
     stripped_site_name = configuration_helpers.get_value(
         'SITE_NAME',
@@ -484,7 +485,7 @@ def send_mail_to_student(student, param_dict, language=None):
         )
 
     message_html = None
-    if (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
+    if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
         message_html = render_to_string(html_template, param_dict)
 
     if subject and message:
@@ -499,7 +500,6 @@ def send_mail_to_student(student, param_dict, language=None):
         )
 
         send_mail(subject, message, from_address, [student], fail_silently=False, html_message=message_html)
-
 
 
 def render_message_to_string(subject_template, message_template, param_dict, language=None):

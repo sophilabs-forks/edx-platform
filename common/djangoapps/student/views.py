@@ -1,4 +1,4 @@
-﻿"""
+"""
 Student Views
 """
 
@@ -139,16 +139,6 @@ from util.milestones_helpers import get_pre_requisite_courses_not_completed
 from util.password_policy_validators import validate_password_length, validate_password_strength
 from xmodule.modulestore.django import modulestore
 
-
-
-
-from django.contrib import messages
-from django.core.context_processors import csrf
-from mail import send_mail
-from django.core.urlresolvers import reverse
-from django.core.validators import validate_email, validate_slug, ValidationError
-
-
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
 ReverifyInfo = namedtuple('ReverifyInfo', 'course_id course_name course_number date status display')  # pylint: disable=invalid-name
@@ -183,8 +173,11 @@ def csrf_token(context):
     token = context.get('csrf_token', '')
     if token == 'NOTPROVIDED':
         return ''
-    return (u'<div style="display:none"><input type="hidden"'
-            ' name="csrfmiddlewaretoken" value="%s" /></div>' % (token))
+
+    html = (u'<div style="display:none"> '
+            u'<input type="hidden" name="csrfmiddlewaretoken" value="%s" />'
+            u'</div>')
+    return html % token  # xss-lint: disable=python-interpolate-html
 
 
 # NOTE: This view is not linked to directly--it is called from
@@ -1482,7 +1475,7 @@ def login_user(request, error=""):  # pylint: disable=too-many-statements,unused
             )
             message += "<br/><br/>"
             message += _(
-                "If you don't have an {platform_name} account yet, "
+                "If you don't have an {platform_name} account yet, "  # xss-lint: disable=python-wrap-html
                 "click <strong>Register</strong> at the top of the page."
             ).format(
                 platform_name=platform_name
@@ -2816,11 +2809,11 @@ def reactivation_email_for_user(user):
     from_address = configuration_helpers.get_value('ACTIVATION_EMAIL_FROM_ADDRESS', from_address)
 
     html_message = None
-    if (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
+    if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
         html_message = render_to_string('emails/html/activation_email.html', context)
 
     try:
-        send_mail(subject, message, from_address, [user.email], html_message=html_message)
+        user.email_user(subject, message, from_address, html_message=html_message)
     except Exception:  # pylint: disable=broad-except
         log.error(
             u'Unable to send reactivation email from "%s" to "%s"',
@@ -2884,16 +2877,16 @@ def do_email_change_request(user, new_email, activation_key=None):
     subject = ''.join(subject.splitlines())
 
     message = render_to_string('emails/email_change.txt', context)
-    message_html = None
-    if (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
-        message_html = render_to_string('emails/html/email_change.html', context)
+    html_message = None
+    if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
+        html_message = render_to_string('emails/html/email_change.html', context)
 
     from_address = configuration_helpers.get_value(
         'email_from_address',
         settings.DEFAULT_FROM_EMAIL
     )
     try:
-        mail.send_mail(subject, message, from_address, [pec.new_email], html_message=message_html)
+        mail.send_mail(subject, message, from_address, [pec.new_email], html_message=html_message)
     except Exception:  # pylint: disable=broad-except
         log.error(u'Unable to send email activation link to user from "%s"', from_address, exc_info=True)
         raise ValueError(_('Unable to send email activation link. Please try again later.'))
@@ -2942,13 +2935,9 @@ def confirm_email_change(request, key):  # pylint: disable=unused-argument
         message = render_to_string('emails/confirm_email_change.txt', address_context)
         u_prof = UserProfile.objects.get(user=user)
         meta = u_prof.get_meta()
-        message_html = None
-        if (settings.FEATURES.get('ENABLE_MULTIPART_EMAIL')):
-            message_html = render_to_string('emails/html/confirm_email_change.html', address_context)
-        from_address = microsite.get_value(
-            'email_from_address',
-            settings.DEFAULT_FROM_EMAIL
-        )
+        html_message = None
+        if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
+            html_message = render_to_string('emails/html/confirm_email_change.html', address_context)
         if 'old_emails' not in meta:
             meta['old_emails'] = []
         meta['old_emails'].append([user.email, datetime.datetime.now(UTC).isoformat()])
@@ -2960,7 +2949,7 @@ def confirm_email_change(request, key):  # pylint: disable=unused-argument
                 subject,
                 message,
                 configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL),
-                html_message=message_html,
+                html_message=html_message,
             )
         except Exception:    # pylint: disable=broad-except
             log.warning('Unable to send confirmation email to old address', exc_info=True)
@@ -2977,7 +2966,7 @@ def confirm_email_change(request, key):  # pylint: disable=unused-argument
                 subject,
                 message,
                 configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL),
-                html_message=message_html,
+                html_message=html_message,
             )
         except Exception:  # pylint: disable=broad-except
             log.warning('Unable to send confirmation email to new address', exc_info=True)

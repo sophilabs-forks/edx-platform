@@ -1,4 +1,7 @@
+<%page expression_filter="h"/>
+
 <%inherit file="one_content_box.html" />
+
 <%! from django.utils.translation import ugettext as _ %>
 
 <%block name="msg_header">
@@ -41,5 +44,3 @@ ${_("You can then enroll in {course_name}.").format(course_name=course.display_n
 % endif
 % endif
 </%block>
-
-
