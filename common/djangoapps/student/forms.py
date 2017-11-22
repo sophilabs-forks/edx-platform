@@ -295,3 +295,17 @@ def get_registration_extension_form(*args, **kwargs):
     module, klass = settings.REGISTRATION_EXTENSION_FORM.rsplit('.', 1)
     module = import_module(module)
     return getattr(module, klass)(*args, **kwargs)
+
+
+def get_registration_field_overrides(*args, **kwargs):
+    """
+    Convenience function for getting the custom registration field overrides definition set in 
+    settings.REGISTRATION_FIELD_OVERRIDES.
+    """
+    if not settings.FEATURES.get("ENABLE_COMBINED_LOGIN_REGISTRATION"):
+        return None
+    if not getattr(settings, 'REGISTRATION_FIELD_OVERRIDES', None):
+        return None
+    module, klass = settings.REGISTRATION_FIELD_OVERRIDES.rsplit('.', 1)
+    module = import_module(module)
+    return getattr(module, klass)(*args, **kwargs)

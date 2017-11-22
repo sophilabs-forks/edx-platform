@@ -922,10 +922,10 @@ urlpatterns = patterns(*urlpatterns)
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(
-        settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
-        document_root=settings.PROFILE_IMAGE_BACKEND['options']['location']
-    )
+#    urlpatterns += static(
+#        settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
+#        document_root=settings.PROFILE_IMAGE_BACKEND['options']['location']
+#    )
 
 urlpatterns += url(r'^template/(?P<template>.+)$', 'openedx.core.djangoapps.debug.views.show_reference_template'),
 
