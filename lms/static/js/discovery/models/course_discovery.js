@@ -34,13 +34,29 @@
                 var options = this.facetOptions;
                 _(facets).each(function(obj, key) {
                     _(obj.terms).each(function(count, term) {
+                        var fv_display_order = null;
+                        if (obj.hasOwnProperty('facet_value')) {
+                            fv_display_order = obj.facet_value[term];
+                        }
                         options.add({
                             facet: key,
                             term: term,
-                            count: count
+                            count: count,
+                            facet_display_order: obj.facet_display_order
+                            fv_display_order: fv_display_order
                         }, {merge: true});
                     });
                 });
+
+                options.comparator = function(model) {
+                    var fv_display_order = model.get('fv_display_order');
+                    if (fv_display_order) {
+                        return [ model.get('facet_display_order'), fv_display_order ];
+                    } else {
+                        return model.get('facet_display_order');
+                    }
+                };
+                options.sort();
             },
 
             reset: function() {

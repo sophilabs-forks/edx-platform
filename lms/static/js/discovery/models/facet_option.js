@@ -8,7 +8,9 @@
                 facet: '',
                 term: '',
                 count: 0,
-                selected: false
+                selected: false,
+                facet_display_order: null,
+                fv_display_order: null
             }
         });
     });
