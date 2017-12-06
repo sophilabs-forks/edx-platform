@@ -121,4 +121,11 @@ try:
 except ImportError:
     pass
 
-
+# Duplicate code in aws_appsembler.py
+if APPSEMBLER_FEATURES.get('ENABLE_APPSEMBLER_REPORTING', False):
+    try:
+        from appsembler_reporting.reportgen.celerybeat import set_celerybeat_tasks
+        CELERYBEAT_SCHEDULE.update(set_celerybeat_tasks(APPSEMBLER_REPORTING))
+    except ImportError:
+        print("ImportError on setting Appsembler Reporting Celery Beat")
+        pass

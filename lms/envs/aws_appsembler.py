@@ -132,3 +132,12 @@ try:
 except ImportError:
     pass
 
+# Temporary fix. We want to manage these dynamically
+if APPSEMBLER_FEATURES.get('ENABLE_APPSEMBLER_REPORTING', False):
+    #schedule = datetime.timedelta(ENV_TOKENS.get('', 24))
+    #APPSEMBLER_FEATURES.get('APPSEMBLER_REPORTING', {})
+    #for task in APPSEMBLER_REPORTING.get
+    CELERYBEAT_SCHEDULE['appsembler-learners-report'] = {
+        'task': 'appsembler_reporting.reportgen.tasks.generate_learner_demographic_report',
+        'schedule': datetime.timedelta(hours=6)
+    }
