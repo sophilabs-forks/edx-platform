@@ -17,12 +17,13 @@
         'js/student_account/models/user_preferences_model',
         'js/student_account/views/account_settings_fields',
         'js/student_account/views/account_settings_view',
-        'extension_deps'
+        'extension_deps',
         'edx-ui-toolkit/js/utils/string-utils'
     ], function(gettext, $, _, Backbone, Logger, UserAccountModel, UserPreferencesModel,
                  AccountSettingsFieldViews, AccountSettingsView, extension_deps, StringUtils) {
         return function(
             fieldsData,
+            extensionFieldsData,
             ordersHistoryData,
             authData,
             userAccountsApiUrl,
@@ -32,7 +33,8 @@
         ) {
             var accountSettingsElement, userAccountModel, userPreferencesModel, aboutSectionsData,
                 accountsSectionData, ordersSectionData, accountSettingsView, showAccountSettingsPage,
-                showLoadingError, orderNumber, getUserField, userFields, timeZoneDropdownField, countryDropdownField;
+                showLoadingError, orderNumber, getUserField, userFields, timeZoneDropdownField, countryDropdownField,
+                fetchAccountExtensionModels;
 
             accountSettingsElement = $('.wrapper-account-settings');
 
@@ -281,7 +283,7 @@
                     };
                 });
                 _.each(ext_fields, function(field) { 
-                    sectionsData[0].fields.push(field); // add to basic information
+                    userFields.push(field); // add to basic information
                 });
 
                 // move the model fetching inside the 
@@ -290,9 +292,10 @@
                     success: function () {
                         // Fetch the user preferences model
                         userPreferencesModel.fetch({
-                            success: function() {
-                                showAccountFields();
+                            success: function() {                                
                                 fetchAccountExtensionModels();
+                                accountSettingsView.render();
+                                showAccountSettingsPage();                                
                             },
                             error: showLoadingError
                         });
@@ -314,7 +317,7 @@
                 userPreferencesModel: userPreferencesModel
             });
 
-            accountSettingsView.render();
+
 
             showAccountSettingsPage = function() {
                 // Record that the account settings page was viewed.
@@ -330,7 +333,7 @@
             };
 
 
-            fetchAccountExtensionModels = function () {
+            fetchAccountExtensionModels = function() {
                 //fetch each of the extension field models
                 // TODO: is it important to chain these as on success callbacks?
                 _.each(ext_fields, function (el, index, list) {

@@ -22,7 +22,6 @@ from django_countries import countries
 
 from django.core.exceptions import ImproperlyConfigured
 
-from lang_pref.api import released_languages
 from edxmako.shortcuts import render_to_response
 import pytz
 
@@ -482,6 +481,10 @@ def account_settings_context(request):
         'show_program_listing': ProgramsApiConfig.current().show_program_listing,
         'order_history': user_orders
     }
+
+    # extend to add keys to fields based on extension account settings fields
+    extension_field_config = get_account_settings_extension_config(request)
+    context['extension_fields'] = extension_field_config
 
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,
