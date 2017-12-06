@@ -304,8 +304,9 @@ def get_registration_field_overrides(*args, **kwargs):
     """
     if not settings.FEATURES.get("ENABLE_COMBINED_LOGIN_REGISTRATION"):
         return None
-    if not getattr(settings, 'REGISTRATION_FIELD_OVERRIDES', None):
+    reg_field_overrides = settings.APPSEMBLER_FEATURES.get('REGISTRATION_FIELD_OVERRIDES', None)
+    if not reg_field_overrides:
         return None
-    module, klass = settings.REGISTRATION_FIELD_OVERRIDES.rsplit('.', 1)
+    module, dikt = reg_field_overrides.rsplit('.', 1)
     module = import_module(module)
-    return getattr(module, klass)(*args, **kwargs)
+    return getattr(module, dikt)(*args, **kwargs)

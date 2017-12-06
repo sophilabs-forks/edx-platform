@@ -238,12 +238,15 @@ class RegistrationView(APIView):
         form_desc = FormDescription("post", reverse("user_api_registration"))
 
         # Fields may be overridden if an overrides definition is set in settings.REGISTRATION_FIELD_OVERRIDES
+        # get_registration_field_overrides should return a dictionary with key of the field name and 
+        # values another dictionary to pass as kwargs of attributes of the field to change
         custom_field_overrides = get_registration_field_overrides()
-        for field_name, field in custom_field_overrides.fields.items():
-            form_desc.override_field_properties(
-                field_name,
-                custom_field_overrides[field_name]
-            )
+        if custom_field_overrides:
+            for field_name, field_args in custom_field_overrides.iteritems():
+                form_desc.override_field_properties(
+                    field_name,
+                    field_args
+                )
 
         self._apply_third_party_auth_overrides(request, form_desc)
 
