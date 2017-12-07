@@ -245,7 +245,7 @@ class RegistrationView(APIView):
             for field_name, field_args in custom_field_overrides.iteritems():
                 form_desc.override_field_properties(
                     field_name,
-                    field_args
+                    **field_args
                 )
 
         self._apply_third_party_auth_overrides(request, form_desc)
