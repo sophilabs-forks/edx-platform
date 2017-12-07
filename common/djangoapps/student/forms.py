@@ -297,7 +297,7 @@ def get_registration_extension_form(*args, **kwargs):
     return getattr(module, klass)(*args, **kwargs)
 
 
-def get_registration_field_overrides(*args, **kwargs):
+def get_registration_field_overrides():
     """
     Convenience function for getting the custom registration field overrides definition set in 
     settings.REGISTRATION_FIELD_OVERRIDES.
