@@ -25,7 +25,7 @@ from openedx.core.lib.api.permissions import ApiKeyHeaderPermission
 import third_party_auth
 from django_comment_common.models import Role
 from edxmako.shortcuts import marketing_link
-from student.forms import get_registration_extension_form
+from student.forms import get_registration_extension_form, get_registration_field_overrides
 from student.views import create_account_with_params
 from student.cookies import set_logged_in_cookies
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -236,6 +236,18 @@ class RegistrationView(APIView):
 
         """
         form_desc = FormDescription("post", reverse("user_api_registration"))
+
+        # Fields may be overridden if an overrides definition is set in settings.REGISTRATION_FIELD_OVERRIDES
+        # get_registration_field_overrides should return a dictionary with key of the field name and 
+        # values another dictionary to pass as kwargs of attributes of the field to change
+        custom_field_overrides = get_registration_field_overrides()
+        if custom_field_overrides:
+            for field_name, field_args in custom_field_overrides.iteritems():
+                form_desc.override_field_properties(
+                    field_name,
+                    field_args
+                )
+
         self._apply_third_party_auth_overrides(request, form_desc)
 
         # Default fields are always required
