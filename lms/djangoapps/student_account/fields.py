@@ -1,6 +1,39 @@
-from abc import ABCMeta, abstractproperty, abstractmethod
+"""
+Example AccountSettingsExtensionField subclass:
+the below wouldn't be defined here, but in some other module
+or add on app
 
-from django.core.urlresolvers import reverse
+
+class BryanTestExtensionField(AccountSettingsExtensionField):
+
+    field_id = 'bryan_test'
+    js_model = 'js/student_account/models/user_account_model'
+    js_field_view_class = 'FieldViews.DropdownFieldView'
+    api_url = None
+    title = 'Bryan Test Field'
+    helpMessage = 'Hey, does this help?'
+    valueAttribute = 'bryan_test'
+    options= [(1, 'One'), (2, 'Two'), ]
+    persistChanges = True 
+
+    def __init__(self, request):
+        self.api_url = reverse("accounts_api", kwargs={'username': request.user.username})
+
+    def __call__(self):
+        return {
+            'id': self.field_id,
+            'js_model': self.js_model,
+            'js_field_view_class': self.js_field_view_class,
+            'api_url': self.api_url,
+            'title': self.title,
+            'helpMessage': self.helpMessage,
+            'valueAttribute': self.valueAttribute,
+            'options': self.options,
+            'persistChanges': self.persistChanges
+        }
+"""
+
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 
 class AccountSettingsExtensionField(object):
@@ -52,32 +85,3 @@ class AccountSettingsExtensionField(object):
         raise NotImplementedError
 
 
-# the below wouldn't be defined here, but in some other module
-# or add on app
-class BryanTestExtensionField(AccountSettingsExtensionField):
-
-    field_id = 'bryan_test'
-    js_model = 'js/student_account/models/user_account_model'
-    js_field_view_class = 'FieldViews.DropdownFieldView'
-    api_url = None
-    title = 'Bryan Test Field'
-    helpMessage = 'Hey, does this help?'
-    valueAttribute = 'bryan_test'
-    options= [(1, 'One'), (2, 'Two'), ]
-    persistChanges = True 
-
-    def __init__(self, request):
-        self.api_url = reverse("accounts_api", kwargs={'username': request.user.username})
-
-    def __call__(self):
-        return {
-            'id': self.field_id,
-            'js_model': self.js_model,
-            'js_field_view_class': self.js_field_view_class,
-            'api_url': self.api_url,
-            'title': self.title,
-            'helpMessage': self.helpMessage,
-            'valueAttribute': self.valueAttribute,
-            'options': self.options,
-            'persistChanges': self.persistChanges
-        }
