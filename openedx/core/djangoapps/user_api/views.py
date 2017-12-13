@@ -213,6 +213,10 @@ class RegistrationView(APIView):
             handler = getattr(self, "_add_{field_name}_field".format(field_name=field_name))
             self.field_handlers[field_name] = handler
 
+        # Get prologue and epilogue if set
+        self.prologue = configuration_helpers.get_value('REGISTRATION_FORM_PROLOGUE')
+        self.epilogue = configuration_helpers.get_value('REGISTRATION_FORM_EPILOGUE')
+
     @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         """Return a description of the registration form.
@@ -235,7 +239,7 @@ class RegistrationView(APIView):
             HttpResponse
 
         """
-        form_desc = FormDescription("post", reverse("user_api_registration"))
+        form_desc = FormDescription("post", reverse("user_api_registration"), self.prologue, self.epilogue)
 
         # Fields may be overridden if an overrides definition is set in settings.REGISTRATION_FIELD_OVERRIDES
         # get_registration_field_overrides should return a dictionary with key of the field name and 

@@ -155,7 +155,9 @@
                             fields: data.fields,
                             model: model,
                             thirdPartyAuth: this.thirdPartyAuth,
-                            platformName: this.platformName
+                            platformName: this.platformName,
+                            prologue: data.prologue,
+                            epilogue: data.epilogue
                         });
 
                     // Listen for 'auth-complete' event so we can enroll/redirect the user appropriately.
