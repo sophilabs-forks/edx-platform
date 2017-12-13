@@ -13,6 +13,8 @@ from django.http import HttpResponseBadRequest
 from django.utils.encoding import force_text
 from django.utils.functional import Promise
 
+from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -141,17 +143,21 @@ class FormDescription(object):
         "options", "supplementalLink", "supplementalText"
     ]
 
-    def __init__(self, method, submit_url):
+    def __init__(self, method, submit_url, prologue=u"", epilogue=u""):
         """Configure how the form should be submitted.
 
         Args:
             method (unicode): The HTTP method used to submit the form.
             submit_url (unicode): The URL where the form should be submitted.
+            prologue (unicode): HTML string with a prologue/intro for the form.
+            epilogue (unicode): HTML string with an epilogue/conclustion for the form.
 
         """
         self.method = method
         self.submit_url = submit_url
         self.fields = []
+        self.prologue = prologue
+        self.epilogue = epilogue
         self._field_overrides = defaultdict(dict)
 
     def add_field(
@@ -307,7 +313,9 @@ class FormDescription(object):
                     "errorMessages": {},
                 },
                 ...
-            ]
+            ],
+            "prologue": "A paragraph of introduction or other HTML form prologue",
+            "epilogue": "A paragraph of conclusion or other HTML form epilogue",
         }
 
         If the field is NOT a "select" type, then the "options"
@@ -319,7 +327,9 @@ class FormDescription(object):
         return json.dumps({
             "method": self.method,
             "submit_url": self.submit_url,
-            "fields": self.fields
+            "fields": self.fields,
+            "prologue": self.prologue,
+            "epilogue": self.epilogue
         }, cls=LocalizedJSONEncoder)
 
     def override_field_properties(self, field_name, **kwargs):
