@@ -119,12 +119,12 @@ class InvalidFieldError(Exception):
 class FormDescription(object):
     """Generate a JSON representation of a form. """
 
-    ALLOWED_TYPES = ["text", "email", "select", "textarea", "checkbox", "password"]
+    ALLOWED_TYPES = ["text", "email", "select", "textarea", "checkbox", "password", "hidden"]
 
     ALLOWED_RESTRICTIONS = {
         "text": ["min_length", "max_length"],
         "password": ["min_length", "max_length"],
-        "email": ["min_length", "max_length"],
+        "email": ["min_length", "max_length"]
     }
 
     FIELD_TYPE_MAP = {
@@ -134,7 +134,7 @@ class FormDescription(object):
         forms.TypedChoiceField: "select",
         forms.Textarea: "textarea",
         forms.BooleanField: "checkbox",
-        forms.EmailField: "email",
+        forms.EmailField: "email"
     }
 
     OVERRIDE_FIELD_PROPERTIES = [
@@ -233,7 +233,8 @@ class FormDescription(object):
             "restrictions": {},
             "errorMessages": {},
             "supplementalLink": supplementalLink,
-            "supplementalText": supplementalText
+            "supplementalText": supplementalText,
+
         }
 
         if field_type == "select":
