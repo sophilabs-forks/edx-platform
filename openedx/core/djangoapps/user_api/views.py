@@ -51,6 +51,12 @@ class LoginSessionView(APIView):
     # so do not require authentication.
     authentication_classes = []
 
+    def __init__(self, *args, **kwargs):
+        super(LoginSessionView, self).__init__(*args, **kwargs)
+        # Get prologue and epilogue if set
+        self.prologue = configuration_helpers.get_value('LOGIN_FORM_PROLOGUE')
+        self.epilogue = configuration_helpers.get_value('LOGIN_FORM_EPILOGUE')
+
     @method_decorator(ensure_csrf_cookie)
     @method_decorator(ensure_csrf_cookie_cross_domain)
     def get(self, request):
@@ -67,7 +73,7 @@ class LoginSessionView(APIView):
             HttpResponse
 
         """
-        form_desc = FormDescription("post", reverse("user_api_login_session"))
+        form_desc = FormDescription("post", reverse("user_api_login_session"), self.prologue, self.epilogue)
 
         # Translators: This label appears above a field on the login form
         # meant to hold the user's email address.

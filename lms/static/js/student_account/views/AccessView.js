@@ -119,7 +119,9 @@
                             resetModel: this.resetModel,
                             thirdPartyAuth: this.thirdPartyAuth,
                             platformName: this.platformName,
-                            supportURL: this.supportURL
+                            supportURL: this.supportURL,
+                            prologue: data.prologue,
+                            epilogue: data.epilogue
                         });
 
                     // Listen for 'password-help' event to toggle sub-views
