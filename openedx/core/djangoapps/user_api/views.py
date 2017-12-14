@@ -56,6 +56,7 @@ class LoginSessionView(APIView):
         # Get prologue and epilogue if set
         self.prologue = configuration_helpers.get_value('LOGIN_FORM_PROLOGUE')
         self.epilogue = configuration_helpers.get_value('LOGIN_FORM_EPILOGUE')
+        self.field_order = configuration_helpers.get_value('LOGIN_FORM_FIELD_ORDER')
 
     @method_decorator(ensure_csrf_cookie)
     @method_decorator(ensure_csrf_cookie_cross_domain)
@@ -73,7 +74,7 @@ class LoginSessionView(APIView):
             HttpResponse
 
         """
-        form_desc = FormDescription("post", reverse("user_api_login_session"), self.prologue, self.epilogue)
+        form_desc = FormDescription("post", reverse("user_api_login_session"), self.prologue, self.epilogue, self.field_order)
 
         # Translators: This label appears above a field on the login form
         # meant to hold the user's email address.
@@ -222,6 +223,7 @@ class RegistrationView(APIView):
         # Get prologue and epilogue if set
         self.prologue = configuration_helpers.get_value('REGISTRATION_FORM_PROLOGUE')
         self.epilogue = configuration_helpers.get_value('REGISTRATION_FORM_EPILOGUE')
+        self.field_order = configuration_helpers.get_value('REGISTRATION_FORM_FIELD_ORDER')
 
     @method_decorator(ensure_csrf_cookie)
     def get(self, request):
@@ -245,7 +247,7 @@ class RegistrationView(APIView):
             HttpResponse
 
         """
-        form_desc = FormDescription("post", reverse("user_api_registration"), self.prologue, self.epilogue)
+        form_desc = FormDescription("post", reverse("user_api_registration"), self.prologue, self.epilogue, self.field_order)
 
         # Fields may be overridden if an overrides definition is set in settings.REGISTRATION_FIELD_OVERRIDES
         # get_registration_field_overrides should return a dictionary with key of the field name and 
