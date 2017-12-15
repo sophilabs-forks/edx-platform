@@ -140,7 +140,8 @@ class FormDescription(object):
     OVERRIDE_FIELD_PROPERTIES = [
         "label", "type", "defaultValue", "placeholder",
         "instructions", "required", "restrictions",
-        "options", "supplementalLink", "supplementalText"
+        "options", "supplementalLink", "supplementalText",
+        "error_messages"
     ]
 
     def __init__(self, method, submit_url, prologue=u"", epilogue=u"", field_order=None):
