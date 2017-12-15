@@ -13,8 +13,6 @@ from django.http import HttpResponseBadRequest
 from django.utils.encoding import force_text
 from django.utils.functional import Promise
 
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -124,7 +122,7 @@ class FormDescription(object):
     ALLOWED_RESTRICTIONS = {
         "text": ["min_length", "max_length"],
         "password": ["min_length", "max_length"],
-        "email": ["min_length", "max_length"]
+        "email": ["min_length", "max_length"],
     }
 
     FIELD_TYPE_MAP = {
@@ -140,7 +138,8 @@ class FormDescription(object):
     OVERRIDE_FIELD_PROPERTIES = [
         "label", "type", "defaultValue", "placeholder",
         "instructions", "required", "restrictions",
-        "options", "supplementalLink", "supplementalText"
+        "options", "supplementalLink", "supplementalText",
+        "error_messages"
     ]
 
     def __init__(self, method, submit_url, prologue=u"", epilogue=u"", field_order=None):
