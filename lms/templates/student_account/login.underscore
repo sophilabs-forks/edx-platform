@@ -18,7 +18,7 @@
         <%- gettext("If you do not yet have an account, use the button below to register.") %>
     </p>
 
-    <div class="login-form-prologue"><%- context.prologue %></div>
+    <div class="login-form-prologue"><%= context.prologue %></div>
 
     <%= context.fields %>
 
@@ -54,7 +54,7 @@
     </div>
     <% } %>
 
-    <div class="login-form-epilogue"><%- context.epilogue %></div>
+    <div class="login-form-epilogue"><%= context.epilogue %></div>
 
 </form>
 

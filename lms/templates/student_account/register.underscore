@@ -39,7 +39,7 @@
                     <span class="text"><%- gettext("or create a new one here") %></span>
                 </h2>
             </div>
-            <div class="register-form-prologue"><%- context.prologue %></div>
+            <div class="register-form-prologue"><%= context.prologue %></div>
 
         <% } else { %>
             <div class="section-title lines">
@@ -47,7 +47,7 @@
                     <span class="text"><%- gettext("Create a new account") %></span>
                 </h2>
             </div>
-            <div class="register-form-prologue"><%- context.prologue %></div>
+            <div class="register-form-prologue"><%= context.prologue %></div>
 
         <% } %>
     <% } %>
@@ -57,7 +57,7 @@
     <button type="submit" class="action action-primary action-update js-register register-button"><%- gettext("Create your account") %></button>
     <p class="note">* <%- gettext("Required field") %></p>
 
-    <div class="register-form-epilogue"><%- context.epilogue %></div>
+    <div class="register-form-epilogue"><%= context.epilogue %></div>
 
 </form>
 
