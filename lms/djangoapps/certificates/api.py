@@ -232,6 +232,7 @@ def certificate_downloadable_status(student, course_key):
         'is_generating': True if current_status['status'] in [CertificateStatuses.generating,
                                                               CertificateStatuses.error] else False,
         'is_unverified': True if current_status['status'] == CertificateStatuses.unverified else False,
+        'is_notpassing': True if current_status['status'] == CertificateStatuses.notpassing else False,  # support completion marker use
         'download_url': None,
         'uuid': None,
     }
