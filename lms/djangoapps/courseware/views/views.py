@@ -827,10 +827,11 @@ def _get_cert_data(student, course, course_key, is_active, enrollment_mode):
         # hack to support using a GeneratedCertificate object as a simple marker of course completion,
         # regardless of whether certs are enabled for the course (for example, using Done XBlock for course completion)
         # until there is a proper completion solution in place.
-        if cert_downloadable_status['is_downloadable']:
+        # Courses can be marked as completed by presence of GeneratedCertificate obj. whether or not the student has passed
+        if cert_downloadable_status['is_downloadable'] or cert_downloadable_status['is_notpassing']:
             return CertData(
                 CertificateStatuses.unavailable,
-                _('Course complete'),
+                _('Course completed'),
                 _(''),
                 download_url=None,
                 cert_web_view_url=None
