@@ -805,13 +805,27 @@ def _get_cert_data(student, course, course_key, is_active, enrollment_mode):
             cert_web_view_url=None
         )
 
+    cert_downloadable_status = certs_api.certificate_downloadable_status(student, course_key)       
+
     show_generate_cert_btn = (
         is_active and CourseMode.is_eligible_for_certificate(enrollment_mode)
         and certs_api.cert_generation_enabled(course_key)
     )
 
     if not show_generate_cert_btn:
-        return None
+        # hack to support using a GeneratedCertificate object as a simple marker of course completion,
+        # regardless of whether certs are enabled for the course (for example, using Done XBlock for course completion)
+        # until there is a proper completion solution in place.
+        if cert_downloadable_status['is_downloadable']:
+            return CertData(
+                CertificateStatuses.unavailable,
+                _('Course complete'),
+                _(''),
+                download_url=None,
+                cert_web_view_url=None
+            )
+        else:
+            return None
 
     if certs_api.is_certificate_invalid(student, course_key):
         return CertData(
@@ -822,7 +836,6 @@ def _get_cert_data(student, course, course_key, is_active, enrollment_mode):
             cert_web_view_url=None
         )
 
-    cert_downloadable_status = certs_api.certificate_downloadable_status(student, course_key)
 
     if cert_downloadable_status['is_downloadable']:
         cert_status = CertificateStatuses.downloadable
