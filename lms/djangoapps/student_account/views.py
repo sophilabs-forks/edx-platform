@@ -103,7 +103,7 @@ def login_and_registration_form(request, initial_mode="login"):
             pass
 
     third_party_auth = _third_party_auth_context(request, redirect_to)
-    if not third_party_auth['currentProvider'] and settings.APPSEMBLER_FEATURES.get('ENABLE_EXCLUSIVE_SSO_LOGISTRATION'):
+    if not third_party_auth['currentProvider'] and configuration_helpers.get_value('ENABLE_EXCLUSIVE_SSO_LOGISTRATION', settings.APPSEMBLER_FEATURES.get('ENABLE_EXCLUSIVE_SSO_LOGISTRATION')):
         urls_dict = configuration_helpers.get_value(
             'EXCLUSIVE_SSO_LOGISTRATION_URL_MAP',
             settings.EXCLUSIVE_SSO_LOGISTRATION_URL_MAP)
