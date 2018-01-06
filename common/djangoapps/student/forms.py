@@ -17,12 +17,18 @@ from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator, slug_re
 
-
 from edxmako.shortcuts import render_to_string
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.user_api import accounts as accounts_settings
 from student.models import CourseEnrollmentAllowed
 from util.password_policy_validators import validate_password_strength
+
+
+from edx_ace.message import MessageType
+
+
+class PasswordReset(MessageType):
+    pass
 
 
 class PasswordResetFormNoActive(PasswordResetForm):
@@ -65,29 +71,67 @@ class PasswordResetFormNoActive(PasswordResetForm):
         """
         # This import is here because we are copying and modifying the .save from Django 1.4.5's
         # django.contrib.auth.forms.PasswordResetForm directly, which has this import in this place.
-        from django.core.mail import send_mail
+
+        from openedx.core.djangoapps.user_api.preferences.api import get_user_preference
+        from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
+        from django.contrib.sites.models import Site
+        from openedx.core.djangoapps.ace_common.template_context import get_base_template_context
+        from edx_ace.recipient import Recipient
+        from edx_ace import ace
+        from django.core.urlresolvers import reverse
+
         for user in self.users_cache:
+            site = Site.objects.get_current()
+            message_context = get_base_template_context(site)
+
             site_name = configuration_helpers.get_value(
                 'SITE_NAME',
                 settings.SITE_NAME
             )
-            context = {
+
+            message_context.update({
                 'email': user.email,
                 'site_name': site_name,
-                'uid': int_to_base36(user.id),
-                'user': user,
-                'token': token_generator.make_token(user),
-                'protocol': 'https' if use_https else 'http',
-                'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME)
-            }
-            subject = loader.render_to_string(subject_template_name, context)
-            # Email subject *must not* contain newlines
-            subject = subject.replace('\n', '')
-            email = loader.render_to_string(email_template_name, context)
-            email_html = None
-            if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
-                email_html = render_to_string(html_email_template_name, context)
-            send_mail(subject, email, from_email, [user.email], html_message=email_html)
+                'reset_link': "{{ protocol }}://{{ site }}{{ link }}".format(
+                    protocol='https' if use_https else 'http',
+                    site=site.donmain,
+                    link=reverse('student.views.password_reset_confirm_wrapper', kwargs={
+                        'uidb36': int_to_base36(user.id),
+                        'token': token_generator.make_token(user),
+                    }),
+                )
+            })
+
+            msg = PasswordReset().personalize(
+                recipient=Recipient(user.username, user.email),
+                language=get_user_preference(user, LANGUAGE_KEY),
+                user_context=message_context,
+            )
+            ace.send(msg)
+
+        from django.core.mail import send_mail
+        # for user in self.users_cache:
+        #     site_name = configuration_helpers.get_value(
+        #         'SITE_NAME',
+        #         settings.SITE_NAME
+        #     )
+        #     context = {
+        #         'email': user.email,
+        #         'site_name': site_name,
+        #         'uid': int_to_base36(user.id),
+        #         'user': user,
+        #         'token': token_generator.make_token(user),
+        #         'protocol': 'https' if use_https else 'http',
+        #         'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME)
+        #     }
+        #     subject = loader.render_to_string(subject_template_name, context)
+        #     # Email subject *must not* contain newlines
+        #     subject = subject.replace('\n', '')
+        #     email = loader.render_to_string(email_template_name, context)
+        #     email_html = None
+        #     if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
+        #         email_html = render_to_string(html_email_template_name, context)
+        #     send_mail(subject, email, from_email, [user.email], html_message=email_html)
 
 
 class TrueCheckbox(widgets.CheckboxInput):
