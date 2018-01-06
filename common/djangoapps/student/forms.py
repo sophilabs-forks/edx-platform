@@ -89,12 +89,16 @@ class PasswordResetFormNoActive(PasswordResetForm):
                 settings.SITE_NAME
             )
 
+            # TODO: Hack remove this and solve in another way!
+            request.site = site
+
             message_context.update({
                 'email': user.email,
                 'site_name': site_name,
+                'request': request,
                 'reset_link': "{{ protocol }}://{{ site }}{{ link }}".format(
                     protocol='https' if use_https else 'http',
-                    site=site.donmain,
+                    site=site.domain,
                     link=reverse('student.views.password_reset_confirm_wrapper', kwargs={
                         'uidb36': int_to_base36(user.id),
                         'token': token_generator.make_token(user),

@@ -412,6 +412,11 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.MD5PasswordHasher',
 ]
 
+############## Settings for ACE ####################################
+ACE_ENABLED_CHANNELS = [
+    'django_email',
+]
+
 ### This enables the Metrics tab for the Instructor dashboard ###########
 FEATURES['CLASS_DASHBOARD'] = True
 
