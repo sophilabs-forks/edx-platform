@@ -112,6 +112,11 @@ EDXNOTES_READ_TIMEOUT = 10  # time in seconds
 
 NOTES_DISABLED_TABS = []
 
+###################### Settings for ACE ######################
+ACE_ENABLED_CHANNELS = [
+    'django_email',
+]
+
 # Silence noisy logs
 import logging
 LOG_OVERRIDES = [
