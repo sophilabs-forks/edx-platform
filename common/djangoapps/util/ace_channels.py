@@ -11,18 +11,14 @@ LOG = logging.getLogger(__name__)
 
 
 class DjangoEmailChannel(Channel):
-    # """
-    # An email channel that simply renders the message HTML to a file and the body text to stdout.
-    # If you add this channel to your enabled channels list as your email channel, it will write out the text version
-    # of the email to stdout and the HTML version to an output file.
-    # Examples::
-    #     ACE_ENABLED_CHANNELS = ['file_email']
-    # By default it writes the output file to /edx/src/ace_output.html and overwrites any existing file at that location.
-    # In the edX devstack, this folder is shared between the host and the containers so you can easily open the file using
-    # a browser on the host. You can override this output file location by passing in a ``output_file_path`` key in the
-    # message context. That path specifies where in the container filesystem the file should be written.
-    # Both streams of output are UTF-8 encoded.
-    # """
+    """
+    A `send_mail` interface for edX ACE.
+
+    This is both useful for debugging ACE mail by inspecting `django.core.mail.outbox`, and for providing an
+    alternative to Sailthru.
+
+    TODO: Move to `edx-ace`.
+    """
 
     channel_type = ChannelType.EMAIL
 
