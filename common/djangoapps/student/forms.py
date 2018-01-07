@@ -55,16 +55,7 @@ class PasswordResetFormNoActive(PasswordResetForm):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
 
-    def save(
-            self,
-            subject_template_name='emails/password_reset_subject.txt',
-            email_template_name='registration/password_reset_email.html',
-            html_email_template_name='registration/password_reset_email_html.html',
-            use_https=False,
-            token_generator=default_token_generator,
-            from_email=configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL),
-            request=None
-    ):
+    def save(self, use_https=False, token_generator=default_token_generator, request=None, **kwargs):
         """
         Generates a one-use only link for resetting password and sends to the
         user.
@@ -89,14 +80,13 @@ class PasswordResetFormNoActive(PasswordResetForm):
                 settings.SITE_NAME
             )
 
-            # TODO: Hack remove this and solve in another way!
-            request.site = site
-
             message_context.update({
                 'email': user.email,
                 'site_name': site_name,
                 'request': request,
-                'reset_link': "{{ protocol }}://{{ site }}{{ link }}".format(
+                # TODO: This overrides what `get_base_template_context` proviedes, yet this make the tests passes
+                'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME),
+                'reset_link': '{protocol}://{site}{link}'.format(
                     protocol='https' if use_https else 'http',
                     site=site.domain,
                     link=reverse('student.views.password_reset_confirm_wrapper', kwargs={
@@ -112,30 +102,6 @@ class PasswordResetFormNoActive(PasswordResetForm):
                 user_context=message_context,
             )
             ace.send(msg)
-
-        from django.core.mail import send_mail
-        # for user in self.users_cache:
-        #     site_name = configuration_helpers.get_value(
-        #         'SITE_NAME',
-        #         settings.SITE_NAME
-        #     )
-        #     context = {
-        #         'email': user.email,
-        #         'site_name': site_name,
-        #         'uid': int_to_base36(user.id),
-        #         'user': user,
-        #         'token': token_generator.make_token(user),
-        #         'protocol': 'https' if use_https else 'http',
-        #         'platform_name': configuration_helpers.get_value('platform_name', settings.PLATFORM_NAME)
-        #     }
-        #     subject = loader.render_to_string(subject_template_name, context)
-        #     # Email subject *must not* contain newlines
-        #     subject = subject.replace('\n', '')
-        #     email = loader.render_to_string(email_template_name, context)
-        #     email_html = None
-        #     if settings.FEATURES.get('ENABLE_MULTIPART_EMAIL'):
-        #         email_html = render_to_string(html_email_template_name, context)
-        #     send_mail(subject, email, from_email, [user.email], html_message=email_html)
 
 
 class TrueCheckbox(widgets.CheckboxInput):

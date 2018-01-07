@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.cache import cache
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -110,12 +111,11 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
 
     @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', "Test only valid in LMS")
     @patch('django.core.mail.send_mail')
-    @patch('student.views.render_to_string', Mock(side_effect=mock_render_to_string, autospec=True))
     def test_reset_password_email(self, send_email):
         """Tests contents of reset password email, and that user is not active"""
-
         good_req = self.request_factory.post('/password_reset/', {'email': self.user.email})
         good_req.user = self.user
+        good_req.site = Mock(domain='example.com')
         dop_client = ClientFactory()
         dop_access_token = AccessTokenFactory(user=self.user, client=dop_client)
         RefreshTokenFactory(user=self.user, client=dop_client, access_token=dop_access_token)
@@ -129,29 +129,26 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         self.assertFalse(dot_models.AccessToken.objects.filter(user=self.user).exists())
         self.assertFalse(dot_models.RefreshToken.objects.filter(user=self.user).exists())
         obj = json.loads(good_resp.content)
-        self.assertEquals(obj, {
-            'success': True,
-            'value': "('registration/password_reset_done.html', [])",
-        })
+        self.assertTrue(obj['success'])
+        self.assertIn('e-mailed you instructions for setting your password', obj['value'])
 
-        from django.core import mail
-        self.assertTrue(mail.outbox)
+        (subject, msg, from_addr, to_addrs) = send_email.call_args[0]
+        self.assertIn("Password reset", subject)
+        self.assertIn("You're receiving this e-mail because you requested a password reset", msg)
+        self.assertEquals(from_addr, configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL))
+        self.assertEquals(len(to_addrs), 1)
+        self.assertIn(self.user.email, to_addrs)
 
-        # (subject, msg, from_addr, to_addrs) = send_email.call_args[0]
-        # self.assertIn("Password reset", subject)
-        # self.assertIn("You're receiving this e-mail because you requested a password reset", msg)
-        # self.assertEquals(from_addr, configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL))
-        # self.assertEquals(len(to_addrs), 1)
-        # self.assertIn(self.user.email, to_addrs)
-        #
-        # self.assert_event_emitted(
-        #     SETTING_CHANGE_INITIATED, user_id=self.user.id, setting=u'password', old=None, new=None,
-        # )
-        #
-        # #test that the user is not active
-        # self.user = User.objects.get(pk=self.user.pk)
-        # self.assertFalse(self.user.is_active)
-        # re.search(r'password_reset_confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/', msg).groupdict()
+        self.assert_event_emitted(
+            SETTING_CHANGE_INITIATED, user_id=self.user.id, setting=u'password', old=None, new=None,
+        )
+
+        # Test that the user is not active
+        self.user = User.objects.get(pk=self.user.pk)
+        self.assertFalse(self.user.is_active)
+
+        self.assertIn('password_reset_confirm/', msg)
+        re.search(r'password_reset_confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/', msg).groupdict()
 
     @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', "Test only valid in LMS")
     @patch('django.core.mail.send_mail')
@@ -164,6 +161,7 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         req = self.request_factory.post(
             '/password_reset/', {'email': self.user.email}
         )
+        req.site = Mock(domain='example.com')
         req.is_secure = Mock(return_value=is_secure)
         req.user = self.user
         password_reset(req)
@@ -191,6 +189,7 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
                     '/password_reset/', {'email': self.user.email}
                 )
                 req.user = self.user
+                req.site = Mock(domain='example.com')
                 password_reset(req)
                 _, msg, _, _ = send_email.call_args[0]
 
@@ -218,6 +217,7 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
             '/password_reset/', {'email': self.user.email}
         )
         req.get_host = Mock(return_value=None)
+        req.site = Mock(domain='example.com')
         req.user = self.user
         password_reset(req)
         _, msg, from_addr, _ = send_email.call_args[0]
@@ -341,6 +341,7 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
                 '/password_reset/', {'email': self.user.email}
             )
             req.user = self.user
+            req.site = Mock(domain='example.com')
             password_reset(req)
             subj, _, _, _ = send_email.call_args[0]
 

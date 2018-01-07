@@ -2,9 +2,8 @@
 {% blocktrans %}You're receiving this e-mail because you requested a password reset for your user account at {{ platform_name }}.{% endblocktrans %}
 
 {% trans "Please go to the following page and choose a new password:" %}
-{% block reset_link %}
+
 {{ reset_link }}
-{% endblock %}
 
 {% trans "If you didn't request this change, you can disregard this email - we have not yet reset your password." %}
 
@@ -13,7 +12,3 @@
 {% blocktrans %}The {{ platform_name }} Team{% endblocktrans %}
 
 {% endautoescape %}
-
-{% block google_analytics_pixel %}
-<img src="{{ ga_tracking_pixel_url }}" alt="" role="presentation" aria-hidden="true" style="display: block;"/>
-{% endblock %}
