@@ -10,28 +10,24 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator, slug_re
 from django.forms import widgets
-from django.template import loader
 from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
-from django.core.validators import RegexValidator, slug_re
 
-from edxmako.shortcuts import render_to_string
+from edx_ace import ace
+from edx_ace.message import MessageType
+from edx_ace.recipient import Recipient
+from openedx.core.djangoapps.ace_common.template_context import get_base_template_context
+from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.user_api import accounts as accounts_settings
+from openedx.core.djangoapps.user_api.preferences.api import get_user_preference
 from student.models import CourseEnrollmentAllowed
 from util.password_policy_validators import validate_password_strength
-
-from openedx.core.djangoapps.user_api.preferences.api import get_user_preference
-from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
-from django.contrib.sites.models import Site
-from openedx.core.djangoapps.ace_common.template_context import get_base_template_context
-from edx_ace.recipient import Recipient
-from edx_ace import ace
-from django.core.urlresolvers import reverse
-
-from edx_ace.message import MessageType
 
 
 class PasswordReset(MessageType):
