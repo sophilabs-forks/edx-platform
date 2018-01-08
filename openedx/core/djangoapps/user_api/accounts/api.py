@@ -420,9 +420,11 @@ def request_password_change(email, is_secure):
     if form.is_valid():
         # Generate a single-use link for performing a password reset
         # and email it to the user.
+        from openedx.core.djangoapps.theming.helpers import get_current_request
         form.save(
             from_email=configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL),
-            use_https=is_secure
+            use_https=is_secure,
+            request=get_current_request(),
         )
     else:
         # No user with the provided email address exists.

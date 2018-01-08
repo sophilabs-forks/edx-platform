@@ -170,6 +170,7 @@ class StudentAccountUpdateTest(CacheIsolationTestCase, UrlResetMixin):
         self._create_dop_tokens(user)
         self._create_dot_tokens(user)
         response = self._change_password(email=self.OLD_EMAIL)
+        self.assertNotIn('error', response.content)
         self.assertEqual(response.status_code, 200)
         self.assert_access_token_destroyed(user)
 

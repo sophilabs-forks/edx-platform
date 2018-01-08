@@ -23,6 +23,13 @@ from openedx.core.djangoapps.user_api import accounts as accounts_settings
 from student.models import CourseEnrollmentAllowed
 from util.password_policy_validators import validate_password_strength
 
+from openedx.core.djangoapps.user_api.preferences.api import get_user_preference
+from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
+from django.contrib.sites.models import Site
+from openedx.core.djangoapps.ace_common.template_context import get_base_template_context
+from edx_ace.recipient import Recipient
+from edx_ace import ace
+from django.core.urlresolvers import reverse
 
 from edx_ace.message import MessageType
 
@@ -60,17 +67,6 @@ class PasswordResetFormNoActive(PasswordResetForm):
         Generates a one-use only link for resetting password and sends to the
         user.
         """
-        # This import is here because we are copying and modifying the .save from Django 1.4.5's
-        # django.contrib.auth.forms.PasswordResetForm directly, which has this import in this place.
-
-        from openedx.core.djangoapps.user_api.preferences.api import get_user_preference
-        from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
-        from django.contrib.sites.models import Site
-        from openedx.core.djangoapps.ace_common.template_context import get_base_template_context
-        from edx_ace.recipient import Recipient
-        from edx_ace import ace
-        from django.core.urlresolvers import reverse
-
         for user in self.users_cache:
             site = Site.objects.get_current()
             message_context = get_base_template_context(site)
