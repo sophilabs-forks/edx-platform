@@ -3,6 +3,7 @@ import logging
 import string
 import random
 
+import search
 from dateutil import parser
 
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -11,6 +12,7 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.db.models import Q
 from django.core.validators import validate_email
+from rest_framework.generics import ListAPIView
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -19,10 +21,13 @@ from rest_framework.response import Response
 from util.bad_request_rate_limiter import BadRequestRateLimiter
 from util.disable_rate_limit import can_disable_rate_limit
 
+from lms.djangoapps.course_api.api import list_courses
+from lms.djangoapps.course_api.serializers import CourseSerializer
 from openedx.core.djangoapps.user_api.accounts.api import check_account_exists
 from openedx.core.lib.api.authentication import (
     OAuth2AuthenticationAllowInactiveUser,
 )
+from openedx.core.lib.api.paginators import NamespacedPageNumberPagination
 from openedx.core.lib.api.permissions import (
     IsStaffOrOwner, ApiKeyHeaderPermissionIsAuthenticated
 )
@@ -49,6 +54,8 @@ from shoppingcart.views import get_reg_code_validity
 from opaque_keys.edx.keys import CourseKey
 from certificates.models import GeneratedCertificate
 
+from openedx.core.lib.api.view_utils import view_auth_classes, DeveloperErrorViewMixin
+from .forms import CourseListGetAndSearchForm
 from .serializers import BulkEnrollmentSerializer
 from .utils import auto_generate_username, send_activation_email
 
@@ -581,6 +588,114 @@ class GetBatchUserDataView(APIView):
             user_list.append(user_data)
 
         return Response(user_list, status=200)
+
+
+@view_auth_classes(is_authenticated=False)
+class CourseListSearchView(DeveloperErrorViewMixin, ListAPIView):
+    """
+    **Use Cases**
+
+        Request information on all courses visible to the specified user with search.
+
+    **Example Requests**
+
+        GET /appsembler_api/v0/search_courses?search_term=master
+
+    **Response Values**
+
+        Body comprises a list of objects as returned by `CourseDetailView`.
+
+    **Parameters**
+        search_term (optional):
+            Textual search term to filter courses.
+
+        username (optional):
+            The username of the specified user whose visible courses we
+            want to see. The username is not required only if the API is
+            requested by an Anonymous user.
+
+        org (optional):
+            If specified, visible `CourseOverview` objects are filtered
+            such that only those belonging to the organization with the
+            provided org code (e.g., "HarvardX") are returned.
+            Case-insensitive.
+
+        mobile (optional):
+            If specified, only visible `CourseOverview` objects that are
+            designated as mobile_available are returned.
+
+
+    **Returns**
+
+        * 200 on success, with a list of course discovery objects as returned
+          by `CourseDetailView`.
+        * 400 if an invalid parameter was sent or the username was not provided
+          for an authenticated request.
+        * 403 if a user who does not have permission to masquerade as
+          another user specifies a username other than their own.
+        * 404 if the specified user does not exist, or the requesting user does
+          not have permission to view their courses.
+
+        Example response:
+
+            [
+              {
+                "blocks_url": "/api/courses/v1/blocks/?course_id=edX%2Fexample%2F2012_Fall",
+                "media": {
+                  "course_image": {
+                    "uri": "/c4x/edX/example/asset/just_a_test.jpg",
+                    "name": "Course Image"
+                  }
+                },
+                "description": "An example course.",
+                "end": "2015-09-19T18:00:00Z",
+                "enrollment_end": "2015-07-15T00:00:00Z",
+                "enrollment_start": "2015-06-15T00:00:00Z",
+                "course_id": "edX/example/2012_Fall",
+                "name": "Example Course",
+                "number": "example",
+                "org": "edX",
+                "start": "2015-07-17T12:00:00Z",
+                "start_display": "July 17, 2015",
+                "start_type": "timestamp"
+              }
+            ]
+    """
+
+    pagination_class = NamespacedPageNumberPagination
+    serializer_class = CourseSerializer
+
+    # Return all the results, 10K is the maximum allowed value for ElasticSearch.
+    # We should use 0 after upgrading to 1.1+:
+    #   - https://github.com/elastic/elasticsearch/commit/8b0a863d427b4ebcbcfb1dcd69c996c52e7ae05e
+    results_size_infinity = 10000
+
+    def get_queryset(self):
+        """
+        Return a list of courses visible to the user.
+        """
+        form = CourseListGetAndSearchForm(self.request.query_params, initial={'requesting_user': self.request.user})
+        if not form.is_valid():
+            raise ValidationError(form.errors)
+
+        courses_db = list_courses(
+            self.request,
+            form.cleaned_data['username'],
+            org=form.cleaned_data['org'],
+            filter_=form.cleaned_data['filter_'],
+        )
+
+        courses_search = search.api.course_discovery_search(
+            form.cleaned_data['search_term'],
+            size=self.results_size_infinity,
+        )
+
+        course_search_ids = {course['data']['id']: True for course in courses_search['results']}
+
+        return [
+            course for course in courses_db
+            if unicode(course.id) in course_search_ids
+        ]
 
 
 class GetBatchEnrollmentDataView(APIView):
