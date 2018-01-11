@@ -121,6 +121,5 @@ try:
 except ImportError:
     pass
 
-
 # override devstack.py automatic enabling of courseware discovery
-FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS.get('TPA_CLEAN_USERNAMES_KEEP_DOMAIN_PART', False)
+FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS['FEATURES'].get('ENABLE_COURSE_DISCOVERY', FEATURES['ENABLE_COURSE_DISCOVERY'])
