@@ -122,3 +122,10 @@ except ImportError:
 
 # override devstack.py automatic enabling of courseware discovery
 FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS['FEATURES'].get('ENABLE_COURSE_DISCOVERY', FEATURES['ENABLE_COURSE_DISCOVERY'])
+
+# temp for Diazo proof of concept
+USER_AGENTS_CACHE = 'default'
+MIDDLEWARE_CLASSES += (
+'django_user_agents.middleware.UserAgentMiddleware',
+)
+DEFAULT_TEMPLATE_ENGINE['OPTIONS']['context_processors'] += ('django_diazo.context_processors.diazo_enabled',)
