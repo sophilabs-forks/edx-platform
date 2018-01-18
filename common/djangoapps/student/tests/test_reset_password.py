@@ -110,8 +110,7 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         cache.clear()
 
     @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', "Test only valid in LMS")
-    @patch('django.core.mail.send_mail')
-    def test_reset_password_email(self, send_email):
+    def test_reset_password_email(self):
         """Tests contents of reset password email, and that user is not active"""
         good_req = self.request_factory.post('/password_reset/', {'email': self.user.email})
         good_req.user = self.user
@@ -132,12 +131,14 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         self.assertTrue(obj['success'])
         self.assertIn('e-mailed you instructions for setting your password', obj['value'])
 
-        (subject, msg, from_addr, to_addrs) = send_email.call_args[0]
-        self.assertIn("Password reset", subject)
-        self.assertIn("You're receiving this e-mail because you requested a password reset", msg)
-        self.assertEquals(from_addr, configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL))
-        self.assertEquals(len(to_addrs), 1)
-        self.assertIn(self.user.email, to_addrs)
+        from_email = configuration_helpers.get_value('email_from_address', settings.DEFAULT_FROM_EMAIL)
+        sent_message = mail.outbox[0]
+
+        self.assertIn("Password reset", sent_message.subject)
+        self.assertIn("You're receiving this e-mail because you requested a password reset", sent_message.body)
+        self.assertEquals(sent_message.from_email, from_email)
+        self.assertEquals(len(sent_message.to), 1)
+        self.assertIn(self.user.email, sent_message.to)
 
         self.assert_event_emitted(
             SETTING_CHANGE_INITIATED, user_id=self.user.id, setting=u'password', old=None, new=None,
@@ -147,8 +148,8 @@ class ResetPasswordTests(EventTestMixin, CacheIsolationTestCase):
         self.user = User.objects.get(pk=self.user.pk)
         self.assertFalse(self.user.is_active)
 
-        self.assertIn('password_reset_confirm/', msg)
-        re.search(r'password_reset_confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/', msg).groupdict()
+        self.assertIn('password_reset_confirm/', sent_message.body)
+        re.search(r'password_reset_confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/', sent_message.body).groupdict()
 
     @unittest.skipUnless(settings.ROOT_URLCONF == 'lms.urls', "Test only valid in LMS")
     @patch('django.core.mail.send_mail')

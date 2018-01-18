@@ -3455,7 +3455,7 @@ ACE_CHANNEL_SAILTHRU_DEBUG = True
 ACE_CHANNEL_SAILTHRU_TEMPLATE_NAME = 'Automated Communication Engine Email'
 ACE_CHANNEL_SAILTHRU_API_KEY = None
 ACE_CHANNEL_SAILTHRU_API_SECRET = None
-ACE_CHANNEL_DJANGO_FROM_ADDRESS_GETTER = 'site_configuration.helpers:get_email_from_address'
+ACE_CHANNEL_DJANGO_FROM_ADDRESS_GETTER = 'openedx.core.djangoapps.site_configuration.helpers:get_email_from_address'
 
 ACE_ROUTING_KEY = LOW_PRIORITY_QUEUE
 
