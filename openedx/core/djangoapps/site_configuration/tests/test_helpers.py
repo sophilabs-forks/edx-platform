@@ -3,6 +3,7 @@ Tests for helper function provided by site_configuration app.
 """
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.site_configuration.tests.test_util import (
@@ -73,6 +74,15 @@ class TestHelpers(TestCase):
             configuration_helpers.get_value("non_existent_name", "dummy-default-value"),
             "dummy-default-value",
         )
+
+    @override_settings(DEFAULT_FROM_EMAIL='hello@edx.org')
+    def test_get_email_from_address_default(self):
+        self.assertEqual(configuration_helpers.get_email_from_address(), 'hello@edx.org')
+
+    @override_settings(DEFAULT_FROM_EMAIL='hello@edx.org')
+    @with_site_configuration(configuration={'email_from_address': 'noreply@anothersite.org'})
+    def test_get_email_from_address_custom_address(self):
+        self.assertEqual(configuration_helpers.get_email_from_address(), 'noreply@anothersite.org')
 
     @with_site_configuration(configuration=test_config)
     def test_get_dict(self):

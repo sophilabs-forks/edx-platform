@@ -131,6 +131,14 @@ def get_value(val_name, default=None, **kwargs):
     return value
 
 
+def get_email_from_address():
+    """
+    A helper for `email_from_address`, mainly used for edX ACE.
+    :return:
+    """
+    return get_value('email_from_address', settings.DEFAULT_FROM_EMAIL)
+
+
 def get_dict(name, default=None):
     """
     Returns a dictionary product after merging configuration and

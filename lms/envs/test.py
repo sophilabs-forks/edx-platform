@@ -414,7 +414,7 @@ PASSWORD_HASHERS = [
 
 ############## Settings for ACE ####################################
 ACE_ENABLED_CHANNELS = [
-    'django_email',
+    'django_email',  # Easier debugging and testing through `django.core.mail.outbox`
 ]
 
 ### This enables the Metrics tab for the Instructor dashboard ###########

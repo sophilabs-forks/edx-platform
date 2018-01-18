@@ -63,8 +63,5 @@ setup(
         "openedx.ace.policy": [
             "bulk_email_optout = lms.djangoapps.bulk_email.policies:CourseEmailOptout"
         ],
-        "openedx.ace.channel": [
-            "django_email = openedx.core.lib.ace_channels:DjangoEmailChannel",
-        ],
     }
 )

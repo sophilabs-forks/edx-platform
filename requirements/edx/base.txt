@@ -40,7 +40,10 @@ django-waffle==0.12.0
 djangorestframework-jwt==1.11.0
 docutils==0.14
 enum34==1.1.6
-edx-ace==0.1.6
+
+# edx-ace==0.1.6  # Until we have edx-ace#25 PR merged
+git+https://github.com/appsembler/edx-ace@omar/django-email-channel#egg=edx-ace==0.1.6.omar
+
 edx-ccx-keys==0.2.1
 edx-celeryutils==0.2.7
 edx-drf-extensions==1.2.3
