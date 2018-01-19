@@ -829,10 +829,11 @@ def _get_cert_data(student, course, course_key, is_active, enrollment_mode):
         # until there is a proper completion solution in place.
         # Courses can be marked as completed by presence of GeneratedCertificate obj. whether or not the student has passed
         if cert_downloadable_status['is_downloadable'] or cert_downloadable_status['is_notpassing']:
+            grade_summary = CourseGradeFactory().create(student, course).summary
             return CertData(
                 CertificateStatuses.unavailable,
                 _('Course completed'),
-                _(''),
+                '' if course.no_grade else _('Your final grade: {0:.0f}%').format(grade_summary['percent']*100),
                 download_url=None,
                 cert_web_view_url=None
             )
