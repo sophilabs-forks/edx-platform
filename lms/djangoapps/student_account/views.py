@@ -107,12 +107,25 @@ def login_and_registration_form(request, initial_mode="login"):
     if ext_auth_response is not None:
         return ext_auth_response
 
+    third_party_auth = _third_party_auth_context(request, redirect_to)
+    if not third_party_auth['currentProvider']:
+        if settings.APPSEMBLER_FEATURES.get('ENABLE_EXCLUSIVE_SSO_LOGISTRATION'):
+            urls_dict = configuration_helpers.get_value(
+                'EXCLUSIVE_SSO_LOGISTRATION_URL_MAP',
+                settings.EXCLUSIVE_SSO_LOGISTRATION_URL_MAP)
+
+            if initial_mode == 'register':
+                if 'register' in urls_dict:
+                    return redirect(urls_dict['register'])
+            else:
+                return redirect(urls_dict['login'])
+
     # Otherwise, render the combined login/registration page
     context = {
         'data': {
             'login_redirect_url': redirect_to,
             'initial_mode': initial_mode,
-            'third_party_auth': _third_party_auth_context(request, redirect_to),
+            'third_party_auth': third_party_auth,
             'third_party_auth_hint': third_party_auth_hint or '',
             'platform_name': configuration_helpers.get_value('PLATFORM_NAME', settings.PLATFORM_NAME),
             'support_link': configuration_helpers.get_value('SUPPORT_SITE_LINK', settings.SUPPORT_SITE_LINK),
