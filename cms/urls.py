@@ -213,5 +213,5 @@ urlpatterns += (
 
 # Appsembler API extensions
 urlpatterns += (
-    url(r'^api/search/', include('serach_api.urls')),
+    url(r'^api/search/', include('search_api.urls')),
 )
