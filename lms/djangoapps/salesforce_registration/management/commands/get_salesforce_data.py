@@ -36,23 +36,36 @@ class Command(BaseCommand):
             dell.save()
             update_count += 1
 
-        #query salesforce
-        for category in categories:
-            query_result = sf.query_all("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format(category)) 
+        #query salesforce for partners
+        query_result = sf.query_all("SELECT Email_Domain__c FROM Account WHERE Type='{}'".format('Partner')) 
+        records = query_result['records']
+        for record in records:
+            email_domain = record['Email_Domain__c']
+            if not email_domain:
+                continue
 
-            records = query_result['records']
-            for record in records:
-                email_domain = record['Email_Domain__c']
-                if not email_domain:
-                    continue
+            email_domain = email_domain.lower()
+            entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
+            if not entry:
+                entry = SalesforceDomainEntry(domain=email_domain, category='Partner')
+                entry.save()
 
-                email_domain = email_domain.lower()
-                entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
-                if not entry:
-                    entry = SalesforceDomainEntry(domain=email_domain, category=category)
-                    entry.save()
+                update_count += 1
 
-                    update_count += 1
+        #query salesforce for customers
+        query_result = sf.query_all("SELECT Email_Domain__c FROM Account WHERE customer__c={}".format(True))
+        records = query_result['records']
+        for record in records:
+            email_domain = record['Email_Domain__c']
+            if not email_domain:
+                continue
 
+            email_domain = email_domain.lower()
+            entry = SalesforceDomainEntry.objects.filter(domain=email_domain)
+            if not entry:
+                entry = SalesforceDomainEntry(domain=email_domain, category='Customer')
+                entry.save()
+
+                update_count += 1
 
         print 'Updated %d Salesforce domain entries' % update_count
