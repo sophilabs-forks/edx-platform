@@ -299,7 +299,7 @@ def _update_social_context(request, context, course, user, user_certificate, pla
         )
 
     # support emailing links to certificates
-    # 
+    #
     context['email_share_enabled'] = share_settings.get('CERTIFICATE_EMAIL_SHARE', False)
     context['email_share_subj'] = urllib.quote(
         share_settings.get(
@@ -316,14 +316,15 @@ def _update_social_context(request, context, course, user, user_certificate, pla
         context['email_share_body'] = urllib.quote(
             share_settings.get(
                 'CERTIFICATE_EMAIL_BODY',
-                _("Dear {location}, I completed a course on {platform_name}. Take a look at my certificate.\n\n{link}")
+                _("Dear {location},\n\nThe student {student_name} {student_email} has completed the following course in {platform_name} .\n\n{coursename}.\n\nPlease use the link below to print off a copy of their certificate for their training file. You can also use this link to create an electronic copy.\n\nThank you in advance.\n\n{link}\n")
             ).format(
-                platform_name=platform_name, link=share_url, 
-                location=studylocation.location, coursename=course.display_name)
+                platform_name=platform_name, link=share_url,
+                location=studylocation.location, coursename=course.display_name,
+                student_name=user.profile.name, student_email=user.email)
         )
 
         # specific to ExtraCare
-        context['email_share_to'] = studylocation.contact_email        
+        context['email_share_to'] = studylocation.contact_email
     except AttributeError:
         context['email_share_enabled'] = False
         context['email_share_warn'] = ("To share this Certificate with your Location training staff, "
