@@ -853,6 +853,7 @@ def _get_cert_data(student, course, course_key, is_active, enrollment_mode):
     if cert_downloadable_status['is_downloadable']:
         cert_status = CertificateStatuses.downloadable
         title = _('Your certificate is available')
+        grade_summary = CourseGradeFactory().create(student, course).summary
         msg_final_grade = '' if course.no_grade else _('Your final grade: {0:.0f}%. ').format(grade_summary['percent']*100)
         msg = msg_final_grade + _('You can request your certificate now.')
         if certs_api.has_html_certificates_enabled(course_key, course):
