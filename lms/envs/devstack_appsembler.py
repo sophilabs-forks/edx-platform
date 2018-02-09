@@ -1,8 +1,23 @@
 # devstack_appsembler.py
 
 import os
+
 from .devstack import *
 from .appsembler import *
+
+
+if FEATURES.get('ENABLE_TAXOMAN', False):
+    try:
+        # Just a check, we don't need it for the settings
+        import taxoman_api
+        # We need this for webpack loader
+        import taxoman.settings
+        TAXOMAN_ENABLED = True
+    except ImportError:
+        TAXOMAN_ENABLED = False
+else:
+    TAXOMAN_ENABLED = False
+
 
 ENV_APPSEMBLER_FEATURES = ENV_TOKENS.get('APPSEMBLER_FEATURES', {})
 for feature, value in ENV_APPSEMBLER_FEATURES.items():
@@ -125,3 +140,9 @@ except ImportError:
 
 # override devstack.py automatic enabling of courseware discovery
 FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS['FEATURES'].get('ENABLE_COURSE_DISCOVERY', FEATURES['ENABLE_COURSE_DISCOVERY'])
+
+if TAXOMAN_ENABLED:
+    WEBPACK_LOADER['TAXOMAN_APP'] = {
+        'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
+        'STATS_FILE': taxoman.settings.stats_file,
+    }
