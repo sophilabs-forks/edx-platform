@@ -3,6 +3,16 @@
 from .aws import *
 from .appsembler import *
 
+if FEATURES.get('ENABLE_TAXOMAN', False):
+    try:
+        import taxoman.settings
+        TAXOMAN_ENABLED = True
+    except ImportError:
+        TAXOMAN_ENABLED = False
+else:
+    TAXOMAN_ENABLED = False
+
+
 ENV_APPSEMBLER_FEATURES = ENV_TOKENS.get('APPSEMBLER_FEATURES', {})
 for feature, value in ENV_APPSEMBLER_FEATURES.items():
     APPSEMBLER_FEATURES[feature] = value
@@ -122,6 +132,8 @@ if 'LMS_AUTHENTICATION_BACKENDS' in APPSEMBLER_FEATURES.keys():
     #default behavior is to replace the existing backends with those in APPSEMBLER_FEATURES
     AUTHENTICATION_BACKENDS = tuple(APPSEMBLER_FEATURES['LMS_AUTHENTICATION_BACKENDS'])
 
+EXCLUSIVE_SSO_LOGISTRATION_URL_MAP = ENV_TOKENS.get('EXCLUSIVE_SSO_LOGISTRATION_URL_MAP', {})
+
 #attempt to import model from our custom fork of edx-organizations
 # if it works, then also add the middleware
 try:
@@ -132,3 +144,9 @@ try:
 except ImportError:
     pass
 
+
+if TAXOMAN_ENABLED:
+    WEBPACK_LOADER['TAXOMAN_APP'] = {
+        'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
+        'STATS_FILE': taxoman.settings.stats_file,
+    }
