@@ -316,7 +316,7 @@ def _update_social_context(request, context, course, user, user_certificate, pla
         context['email_share_body'] = urllib.quote(
             share_settings.get(
                 'CERTIFICATE_EMAIL_BODY',
-                _("Dear {location},\n\nThe student {student_name} {student_email} has completed the following course in {platform_name} .\n\n{coursename}.\n\nPlease use the link below to print off a copy of their certificate for their training file. You can also use this link to create an electronic copy.\n\nThank you in advance.\n\n{link}\n")
+                _("Dear {location},\n\nThe student {student_name} {student_email} has completed the following course in {platform_name} .\n\n{coursename}.\n\nPlease use the link below to print off a copy of their certificate for their training file. You can also use this link to create an electronic copy.\n{link}\n\nThank you in advance.")
             ).format(
                 platform_name=platform_name, link=share_url,
                 location=studylocation.location, coursename=course.display_name,
