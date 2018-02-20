@@ -254,17 +254,11 @@ class ProviderConfig(ConfigurationModel):
         else:
             suggester_personal_name = details.get('fullname', '')
 
-        registration_sso_overrides = {
+        return {
             'email': details.get('email', ''),
             'name': suggester_personal_name,
             'username': suggested_username,
         }
-
-        if settings.CUSTOM_SSO_FIELDS_SYNC:
-            for field in settings.CUSTOM_SSO_FIELDS_SYNC:
-                registration_sso_overrides[field] = details.get(field)
-
-        return registration_sso_overrides
 
     def get_authentication_backend(self):
         """Gets associated Django settings.AUTHENTICATION_BACKEND string."""

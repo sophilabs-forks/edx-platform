@@ -113,8 +113,6 @@ if FEATURES.get('ENABLE_CORS_HEADERS', False):
     # Docs: https://github.com/ottoyiu/django-cors-headers#cors_replace_https_referer
     CORS_REPLACE_HTTPS_REFERER = True
 
-CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
-
 HTTPS = 'on' if ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'https' else 'off'
 
 #configure auth backends
@@ -131,4 +129,3 @@ try:
     )
 except ImportError:
     pass
-

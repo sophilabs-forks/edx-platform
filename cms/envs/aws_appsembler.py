@@ -88,8 +88,6 @@ elif 'appsembler_usage' in DATABASES:
     # removing the database alias
     del DATABASES['appsembler_usage']
 
-CUSTOM_SSO_FIELDS_SYNC = ENV_TOKENS.get('CUSTOM_SSO_FIELDS_SYNC', {})
-
 # set media values for SCORM upload
 MEDIA_ROOT = '/edx/var/edxapp/media'
 MEDIA_URL = '/media/'
