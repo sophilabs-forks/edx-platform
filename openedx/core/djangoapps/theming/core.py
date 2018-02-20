@@ -1,7 +1,6 @@
 """
 Core logic for Comprehensive Theming.
 """
-import os
 from django.conf import settings
 from path import Path as path
 
