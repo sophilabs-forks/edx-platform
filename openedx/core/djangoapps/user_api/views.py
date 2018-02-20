@@ -43,6 +43,7 @@ from .models import UserPreference, UserProfile
 from .preferences.api import get_country_time_zones, update_email_opt_in
 from .serializers import CountryTimeZoneSerializer, UserPreferenceSerializer, UserSerializer
 
+from openedx.core.djangoapps.cors_csrf.decorators import ensure_csrf_cookie_cross_domain
 
 class LoginSessionView(APIView):
     """HTTP end-points for logging in users. """
@@ -52,6 +53,7 @@ class LoginSessionView(APIView):
     authentication_classes = []
 
     @method_decorator(ensure_csrf_cookie)
+    @method_decorator(ensure_csrf_cookie_cross_domain)
     def get(self, request):
         """Return a description of the login form.
 

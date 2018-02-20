@@ -130,6 +130,13 @@ from util.milestones_helpers import get_pre_requisite_courses_not_completed
 from util.password_policy_validators import validate_password_strength
 from xmodule.modulestore.django import modulestore
 
+# try to import appsembler fork of edx-organizations (if it's installed)
+try:
+    from organizations.models import Organization, UserOrganizationMapping
+    from hr_management.views import send_microsite_request_email_to_managers
+except ImportError:
+    pass
+
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
 ReverifyInfo = namedtuple('ReverifyInfo', 'course_id course_name course_number date status display')  # pylint: disable=invalid-name
@@ -334,7 +341,8 @@ def _cert_info(user, course_overview, cert_status, course_mode):  # pylint: disa
         CertificateStatuses.unverified: 'unverified',
     }
 
-    default_status = 'processing'
+    # open-ended courses should not display the 'processing' message
+    default_status = 'unavailable' if not course_overview.end else 'processing' 
 
     default_info = {
         'status': default_status,
@@ -1995,20 +2003,31 @@ def create_account_with_params(request, params):
         not (
             third_party_provider and third_party_provider.skip_email_verification and
             user.email == running_pipeline['kwargs'].get('details', {}).get('email')
-        )
+        ) and
+        params.get('send_activation_email', True) == True
     )
     if send_email:
         compose_and_send_activation_email(user, profile, registration)
     else:
         registration.activate()
         _enroll_user_in_pending_courses(user)  # Enroll student in any pending courses
+    
+    #if using custom Appsembler backend from edx-organizations
+    if u'organizations.backends.OrganizationMemberBackend' in settings.AUTHENTICATION_BACKENDS:
+        org = configuration_helpers.get_value('course_org_filter')
+        organization = Organization.objects.filter(name=org).first()
+        if organization: 
+            UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
+            send_microsite_request_email_to_managers(request, user)
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
     new_user = authenticate(username=user.username, password=params['password'])
-    login(request, new_user)
-    request.session.set_expiry(0)
+    
+    if not settings.APPSEMBLER_FEATURES.get('SKIP_LOGIN_AFTER_REGISTRATION', False):
+        login(request, new_user)
+        request.session.set_expiry(0)
 
     try:
         record_registration_attributions(request, new_user)
@@ -2825,8 +2844,17 @@ class LogoutView(TemplateView):
     oauth_client_ids = []
     template_name = 'logout.html'
 
-    # Keep track of the page to which the user should ultimately be redirected.
-    default_target = reverse_lazy('cas-logout') if settings.FEATURES.get('AUTH_USE_CAS') else '/'
+    @property
+    def default_target(self):
+        # Keep track of the page to which the user should ultimately be redirected.
+        if settings.FEATURES.get('AUTH_USE_CAS'):
+            target = reverse_lazy('cas-logout')
+        elif configuration_helpers.get_value('CUSTOM_LOGOUT_REDIRECT_URL', settings.CUSTOM_LOGOUT_REDIRECT_URL):
+            target = configuration_helpers.get_value('CUSTOM_LOGOUT_REDIRECT_URL', settings.CUSTOM_LOGOUT_REDIRECT_URL)
+        else:
+            target = '/'
+
+        return target
 
     @property
     def target(self):

@@ -104,6 +104,12 @@ from xmodule.x_module import STUDENT_VIEW
 from ..entrance_exams import user_can_skip_entrance_exam
 from ..module_render import get_module, get_module_by_usage_id, get_module_for_descriptor
 
+#specific to our hr_management app
+try:
+    from hr_management.models import CourseCCASettings
+except ImportError:
+    pass
+
 log = logging.getLogger("edx.courseware")
 
 
@@ -821,6 +827,14 @@ def course_about(request, course_id):
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
         }
+
+        # check hr_management access request settings
+        try:
+            course_cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
+        except NameError:
+            pass
+        else: 
+            context['require_access_request'] = course_cca_settings.require_access_request
 
         return render_to_response('courseware/course_about.html', context)
 
