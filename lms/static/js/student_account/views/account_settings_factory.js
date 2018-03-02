@@ -1,4 +1,4 @@
-(function(define, undefined) {
+;(function(define, undefined) {
     'use strict';
 
     define('extension_deps', ['underscore'], function(_) {
@@ -282,20 +282,20 @@
                         })
                     };
                 });
-                _.each(ext_fields, function(field) { 
+                _.each(ext_fields, function(field) {
                     userFields.push(field); // add to basic information
                 });
 
-                // move the model fetching inside the 
+                // move the model fetching inside the
                 // extension fields require() async call.
                 userAccountModel.fetch({
                     success: function () {
                         // Fetch the user preferences model
                         userPreferencesModel.fetch({
-                            success: function() {                                
+                            success: function() {
                                 fetchAccountExtensionModels();
                                 accountSettingsView.render();
-                                showAccountSettingsPage();                                
+                                showAccountSettingsPage();
                             },
                             error: showLoadingError
                         });
@@ -339,7 +339,7 @@
                     el.view.model.fetch({error: showLoadingError});
                 });
             };
-            
+
 
             return {
                 userAccountModel: userAccountModel,

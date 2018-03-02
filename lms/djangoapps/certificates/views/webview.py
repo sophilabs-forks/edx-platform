@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, escape_uri_path
 
 from badges.events.course_complete import get_completion_badge
 from badges.utils import badges_enabled
@@ -44,6 +44,7 @@ from certificates.models import (
     CertificateStatuses,
     CertificateHtmlViewConfiguration,
     CertificateSocialNetworks)
+from study_location.models import StudentStudyLocation
 
 log = logging.getLogger(__name__)
 
@@ -244,6 +245,8 @@ def _update_course_context(request, context, course, platform_name):
             partner_short_name=context['organization_short_name'],
             platform_name=platform_name)
 
+    context['accreditation_conferred'] = course.accreditation_conferred
+
 
 def _update_social_context(request, context, course, user, user_certificate, platform_name):
     """
@@ -290,6 +293,42 @@ def _update_social_context(request, context, course, user, user_certificate, pla
             smart_str(share_url)
         )
 
+
+    # support emailing links to certificates
+    #
+    context['email_share_enabled'] = share_settings.get('CERTIFICATE_EMAIL_SHARE', False)
+    context['email_share_subj'] = urllib.quote(
+        share_settings.get(
+            'CERTIFICATE_EMAIL_SUBJECT',
+            _("Course certificate from {platform_name}: {name} for course {coursename}")
+        ).format(platform_name=platform_name, name=user.profile.name, coursename=course.display_name)
+    )
+
+    # specific to ExtraCare
+    context['email_share_warn'] = False  # in case not ready to share via email (no StudyLocation set)
+    try:
+
+        studylocation = StudentStudyLocation.location_for_student(user).studylocation
+        context['email_share_body'] = urllib.quote(
+            share_settings.get(
+                'CERTIFICATE_EMAIL_BODY',
+                _("Dear {location},\n\nThe student {student_name} {student_email} has completed the following course in {platform_name} .\n\n{coursename}.\n\nPlease use the link below to print off a copy of their certificate for their training file. You can also use this link to create an electronic copy.\n{link}\n\nThank you in advance.")
+            ).format(
+                platform_name=platform_name, link=share_url,
+                location=studylocation.location, coursename=course.display_name,
+                student_name=user.profile.name, student_email=user.email)
+        )
+
+        # specific to ExtraCare
+        context['email_share_to'] = studylocation.contact_email
+    except AttributeError:
+        context['email_share_enabled'] = False
+        context['email_share_warn'] = ("To share this Certificate with your Location training staff, "
+                                       "please set a Location for which you are completing this training, "
+                                       "by visiting your Account page via the upper right hand menu bar. "
+                                       "This may be located in your previous browser tab or window. "
+                                       "Then re-open or refresh this page. "
+                                      )
 
 def _update_context_with_user_info(context, user, user_certificate):
     """

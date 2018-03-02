@@ -30,6 +30,9 @@ SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
 COURSE_CATALOG_VISIBILITY_PERMISSION = 'see_in_catalog'
 COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
 
+# MANDRILL
+MANDRILL_API_KEY = AUTH_TOKENS.get('MANDRILL_API_KEY', False)
+
 # SENTRY
 SENTRY_DSN = AUTH_TOKENS.get('SENTRY_DSN', False)
 
@@ -150,3 +153,6 @@ if TAXOMAN_ENABLED:
         'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
         'STATS_FILE': taxoman.settings.stats_file,
     }
+
+# Cutoff date for granting audit certificates
+AUDIT_CERT_CUTOFF_DATE = None

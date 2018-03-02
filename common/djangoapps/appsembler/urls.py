@@ -1,4 +1,4 @@
-import os 
+import os
 import logging
 
 
@@ -27,7 +27,7 @@ if hasattr(settings, 'APPSEMBLER_FEATURES') and \
                 urlpatterns += ( url(regex, include(dotted_path)), )
             else:
                 raise TypeError
-            
+
         except (ImportError, TypeError):
             logger = logging.getLogger(__name__)
             logger.warn('lms.urls Could not import urls from {}.  Ignoring.'.format(dotted_path))

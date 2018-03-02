@@ -969,6 +969,10 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
 # allow inclusion of urls from arbitrary packages
 # as specified in ENV config.
 if 'appsembler' in settings.INSTALLED_APPS:
-    urlpatterns += ( 
+    urlpatterns += (
         url('', include('appsembler.urls')),
     )
+
+if settings.APPSEMBLER_FEATURES.get('ENABLE_STUDY_LOCATIONS'):
+    from study_location.urls import urlpatterns as studylocation_urlpatterns
+    urlpatterns += (studylocation_urlpatterns)

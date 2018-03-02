@@ -130,7 +130,7 @@ EXCLUSIVE_SSO_LOGISTRATION_URL_MAP = ENV_TOKENS.get('EXCLUSIVE_SSO_LOGISTRATION_
 
 #attempt to import model from our custom fork of edx-organizations
 # if it works, then also add the middleware
-try: 
+try:
     from organizations.models import UserOrganizationMapping
     MIDDLEWARE_CLASSES += (
         'organizations.middleware.OrganizationMiddleware',
@@ -146,3 +146,8 @@ if TAXOMAN_ENABLED:
         'BUNDLE_DIR_NAME': taxoman.settings.bundle_dir_name,
         'STATS_FILE': taxoman.settings.stats_file,
     }
+
+AUDIT_CERT_CUTOFF_DATE = None
+
+# MANDRILL
+MANDRILL_API_KEY = AUTH_TOKENS.get('MANDRILL_API_KEY', False)

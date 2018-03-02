@@ -95,7 +95,8 @@ from xmodule.tabs import CourseTabList
 from xmodule.x_module import STUDENT_VIEW
 from ..entrance_exams import user_must_complete_entrance_exam
 from ..module_render import get_module_for_descriptor, get_module, get_module_by_usage_id
-
+from django.contrib.auth.models import User
+from study_location.models import StudentStudyLocation
 #specific to our hr_management app
 try:
     from hr_management.models import CourseCCASettings
@@ -697,7 +698,7 @@ def course_about(request, course_id):
             course_cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
         except NameError:
             pass
-        else: 
+        else:
             context['require_access_request'] = course_cca_settings.require_access_request
 
         return render_to_response('courseware/course_about.html', context)
@@ -774,6 +775,11 @@ def _progress(request, course_key, student_id):
 
     # checking certificate generation configuration
     enrollment_mode, is_active = CourseEnrollment.enrollment_mode_for_user(student, course_key)
+    # check if location is set
+    student = User.objects.get(username=request.user)
+    studylocation = StudentStudyLocation.location_for_student(student)
+    if studylocation == None:
+        studylocation = 'false'
 
     context = {
         'course': course,
@@ -784,7 +790,8 @@ def _progress(request, course_key, student_id):
         'student': student,
         'passed': is_course_passed(course, grade_summary),
         'credit_course_requirements': _credit_course_requirements(course_key, student),
-        'certificate_data': _get_cert_data(student, course, course_key, is_active, enrollment_mode)
+        'certificate_data': _get_cert_data(student, course, course_key, is_active, enrollment_mode),
+        'studylocation': studylocation
     }
 
     with outer_atomic():
