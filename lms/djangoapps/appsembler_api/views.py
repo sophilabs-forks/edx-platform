@@ -605,9 +605,9 @@ class GetBatchEnrollmentDataView(APIView):
         updated_min = request.GET.get('updated_min', '')
         updated_max = request.GET.get('updated_max', '')
         course_id = request.GET.get('course_id')
-        username = request.GET.get('username')
 
-        query_filter = {}
+        enrollment_query_filter = {}
+        cert_query_filter = {}
 
         if course_id:
             course_id= course_id.replace(' ', '+')
@@ -615,20 +615,21 @@ class GetBatchEnrollmentDataView(APIView):
 
         if course_id:
             course_key = CourseKey.from_string(course_id)
-            query_filter['course_id'] = course_key
-
-        if username:
-            query_filter['user__username'] = username
+            enrollment_query_filter['course_id'] = course_key
+            cert_query_filter['course_id'] = course_key
 
         if updated_min:
             min_date = parser.parse(updated_min)
-            query_filter['created__gt'] = min_date
+            enrollment_query_filter['created__gt'] = min_date
+            cert_query_filter['created__gt'] = min_date
 
         if updated_max:
             max_date = parser.parse(updated_max)
-            query_filter['created__lt'] = max_date
+            enrollment_query_filter['created__lt'] = max_date
+            cert_query_filter['created__lt'] = max_date
 
-        enrollments = CourseEnrollment.objects.filter(**query_filter)
+        enrollments = CourseEnrollment.objects.filter(**enrollment_query_filter)
+        
 
         enrollment_list = []
         for enrollment in enrollments:
@@ -651,4 +652,27 @@ class GetBatchEnrollmentDataView(APIView):
 
             enrollment_list.append(enrollment_data)
 
-        return Response(enrollment_list, status=200)
+
+        certificate_list = []
+        for certificate in certificate_list:
+            enrollment = CourseEnrollment.get(user=certificate.user, course_id=certificate.course_id)
+            enrollment_data = {
+                'enrollment_id': enrollment.id,
+                'user_id': enrollment.user.id,
+                'username': enrollment.user.username,
+                'course_id': str(enrollment.course_id),
+                'date_enrolled': enrollment.created,
+            }
+            
+            enrollment_data['certificate'] = {
+                'completion_date': str(certificate.created_date),
+                'grade': certificate.grade,
+                'url': certificate.download_url,
+            } 
+
+            certificate_list.append(enrollment_data)
+
+        #this list will have duplicates
+        full_enrollment_list = enrollment_list + certificate_list
+
+        return Response(full_enrollment_list, status=200)
