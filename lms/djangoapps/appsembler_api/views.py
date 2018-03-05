@@ -2,6 +2,7 @@ import json
 import logging
 import string
 import random
+import operator
 
 from dateutil import parser
 
@@ -628,8 +629,16 @@ class GetBatchEnrollmentDataView(APIView):
             enrollment_query_filter['created__lt'] = max_date
             cert_query_filter['created__lt'] = max_date
 
-        enrollments = CourseEnrollment.objects.filter(**enrollment_query_filter)
-        
+        certificates = GeneratedCertificate.objects.filter(**cert_query_filter)
+        cert_lookup = [{'user':c.user, 'course_id':c.course_id} for c in certificates]
+        cert_query = reduce(
+            operator.or_, 
+            (Q(**lookup) for lookup in cert_lookup)
+        )
+
+        enrollments = CourseEnrollment.objects.filter(
+            Q(**enrollment_query_filter) | cert_query
+        )
 
         enrollment_list = []
         for enrollment in enrollments:
@@ -652,27 +661,4 @@ class GetBatchEnrollmentDataView(APIView):
 
             enrollment_list.append(enrollment_data)
 
-
-        certificate_list = []
-        for certificate in certificate_list:
-            enrollment = CourseEnrollment.get(user=certificate.user, course_id=certificate.course_id)
-            enrollment_data = {
-                'enrollment_id': enrollment.id,
-                'user_id': enrollment.user.id,
-                'username': enrollment.user.username,
-                'course_id': str(enrollment.course_id),
-                'date_enrolled': enrollment.created,
-            }
-            
-            enrollment_data['certificate'] = {
-                'completion_date': str(certificate.created_date),
-                'grade': certificate.grade,
-                'url': certificate.download_url,
-            } 
-
-            certificate_list.append(enrollment_data)
-
-        #this list will have duplicates
-        full_enrollment_list = enrollment_list + certificate_list
-
-        return Response(full_enrollment_list, status=200)
+        return Response(enrollment_list, status=200)
