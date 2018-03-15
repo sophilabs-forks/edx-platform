@@ -105,7 +105,7 @@ except ImportError:
 log = logging.getLogger("edx.courseware")
 
 # Interim code to get courseware views to work with Taxoman
-if settings.TAXOMAN_ENABLED:
+if getattr(settings, 'TAXOMAN_ENABLED', False):
     try:
         from taxoman_api.models import Facet
         using_taxoman = True
