@@ -4,15 +4,15 @@ the below wouldn't be defined here, but in some other module
 or add on app
 
 
-class BryanTestExtensionField(AccountSettingsExtensionField):
+class ExampleExtensionField(AccountSettingsExtensionField):
 
-    field_id = 'bryan_test'
+    field_id = 'example_field'
     js_model = 'js/student_account/models/user_account_model'
     js_field_view_class = 'FieldViews.DropdownFieldView'
     api_url = None
-    title = 'Bryan Test Field'
-    helpMessage = 'Hey, does this help?'
-    valueAttribute = 'bryan_test'
+    title = 'Example Test Field'
+    helpMessage = 'Helpful help message'
+    valueAttribute = 'example_field'
     options= [(1, 'One'), (2, 'Two'), ]
     persistChanges = True 
 
