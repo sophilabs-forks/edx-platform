@@ -270,7 +270,7 @@
                     model_inst.url = extfield.api_url;
                     field_view_class = eval(extfield.js_field_view_class);
                     return {
-                        'view': new field_view_class({ // TODO: determine which view
+                        'view': new field_view_class({
                             model: model_inst,
                             api_url: model_inst.url,
                             title: extfield.title,
@@ -335,7 +335,6 @@
 
             fetchAccountExtensionModels = function() {
                 //fetch each of the extension field models
-                // TODO: is it important to chain these as on success callbacks?
                 _.each(ext_fields, function (el, index, list) {
                     el.view.model.fetch({error: showLoadingError});
                 });

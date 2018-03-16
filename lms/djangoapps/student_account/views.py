@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse, resolve
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpRequest
@@ -20,7 +21,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from django_countries import countries
 
-from django.core.exceptions import ImproperlyConfigured
 
 from edxmako.shortcuts import render_to_response
 import pytz
@@ -52,9 +52,6 @@ from third_party_auth.decorators import xframe_allow_whitelisted
 from util.bad_request_rate_limiter import BadRequestRateLimiter
 from util.date_utils import strftime_localized
 from util.enterprise_helpers import set_enterprise_branding_filter_param
-
-from openedx.core.djangoapps.user_api.accounts.api import request_password_change
-from openedx.core.djangoapps.user_api.errors import UserNotFound
 
 from student_account.fields import AccountSettingsExtensionField
 
@@ -483,7 +480,7 @@ def account_settings_context(request):
     }
 
     # extend to add keys to fields based on extension account settings fields
-    extension_field_config = get_account_settings_extension_config(request)
+    extension_field_config = _get_account_settings_extension_config(request)
     context['extension_fields'] = extension_field_config
 
     if third_party_auth.is_enabled():
@@ -516,7 +513,7 @@ def account_settings_context(request):
     return context
 
 
-def get_account_settings_extension_config(request):
+def _get_account_settings_extension_config(request):
     """ Return any optional configuration for additional account settings fields
 
         Args:
