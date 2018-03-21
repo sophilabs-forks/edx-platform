@@ -627,22 +627,17 @@ class GetBatchEnrollmentDataView(APIView):
         if updated_min:
             min_date = parser.parse(updated_min)
             enrollment_query_filter['created__gt'] = min_date
-            cert_query_filter['created__gt'] = min_date
+            cert_query_filter['created_date__gt'] = min_date
 
         if updated_max:
             max_date = parser.parse(updated_max)
             enrollment_query_filter['created__lt'] = max_date
-            cert_query_filter['created__lt'] = max_date
+            cert_query_filter['created_date__lt'] = max_date
 
-        certificates = GeneratedCertificate.objects.filter(**cert_query_filter)
-        cert_lookup = [{'user':c.user, 'course_id':c.course_id} for c in certificates]
-        cert_query = reduce(
-            operator.or_, 
-            (Q(**lookup) for lookup in cert_lookup)
-        )
+        user_ids_with_certs = GeneratedCertificate.objects.filter(**cert_query_filter).values('user_id')
 
         enrollments = CourseEnrollment.objects.filter(
-            Q(**enrollment_query_filter) | cert_query
+           Q(user_id__in=user_ids_with_certs) | Q(**enrollment_query_filter)
         )
 
         enrollment_list = []
