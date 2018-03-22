@@ -66,7 +66,6 @@ class CreateUserAccountView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
 
-
     def post(self, request):
         """
         Creates a new user account
@@ -120,14 +119,13 @@ class CreateUserAccountView(APIView):
             errors = {"user_message": "Wrong parameters on user creation"}
             return Response(errors, status=400)
 
-        response = Response({'user_id': user_id }, status=200)
+        response = Response({'user_id ': user_id}, status=200)
         return response
 
 
 class CreateUserAccountWithoutPasswordView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
-
 
     def post(self, request):
         """
@@ -142,7 +140,6 @@ class CreateUserAccountWithoutPasswordView(APIView):
 
         email = request.data.get('email')
 
-
         # Handle duplicate email/username
         conflicts = check_account_exists(email=email)
         if conflicts:
@@ -153,7 +150,7 @@ class CreateUserAccountWithoutPasswordView(APIView):
             username = auto_generate_username(email)
             password = ''.join(random.choice(
                 string.ascii_uppercase + string.ascii_lowercase + string.digits)
-                               for _ in range(32))
+                for _ in range(32))
 
             data['username'] = username
             data['password'] = password
@@ -224,7 +221,7 @@ class UserAccountConnect(APIView):
                     if check_account_exists(email=new_email):
                         errors = {
                             "user_message": "The email %s is in use by another user" % (
-                            new_email)}
+                                new_email)}
                         return Response(errors, status=409)
 
                     user.email = new_email
@@ -343,9 +340,10 @@ class UpdateUserAccount(APIView):
                     **custom_profile_fields_to_update)
 
         return Response(
-            {"success": "The following fields has been updated: {}".format(
-                ', '.join(
-                    '{}={}'.format(f, v) for f, v in updated_fields.items())
+            {
+                "success": "The following fields has been updated: {}".format(
+                    ', '.join(
+                        '{}={}'.format(f, v) for f, v in updated_fields.items())
                 )
             },
             status=200)
@@ -381,7 +379,7 @@ class GetUserAccountView(APIView):
 @can_disable_rate_limit
 class BulkEnrollView(APIView, ApiKeyPermissionMixIn):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = ApiKeyHeaderPermissionIsAuthenticated,
     throttle_classes = EnrollmentUserThrottle,
 
@@ -409,7 +407,7 @@ class BulkEnrollView(APIView, ApiKeyPermissionMixIn):
 
 class GenerateRegistrationCodesView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = IsStaffOrOwner,
 
     def post(self, request):
@@ -447,7 +445,7 @@ class GenerateRegistrationCodesView(APIView):
 
 class EnrollUserWithEnrollmentCodeView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = IsStaffOrOwner,
 
     def post(self, request):
@@ -725,7 +723,7 @@ class GetBatchEnrollmentDataView(APIView):
         query_filter = {}
 
         if course_id:
-            course_id= course_id.replace(' ', '+')
+            course_id = course_id.replace(' ', '+')
         # the replace function is because Django encodes '+' or '%2B' as spaces
 
         if course_id:

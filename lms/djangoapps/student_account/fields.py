@@ -14,7 +14,7 @@ class ExampleExtensionField(AccountSettingsExtensionField):
     helpMessage = 'Helpful help message'
     valueAttribute = 'example_field'
     options= [(1, 'One'), (2, 'Two'), ]
-    persistChanges = True 
+    persistChanges = True
 
     def __init__(self, request):
         self.api_url = reverse("accounts_api", kwargs={'username': request.user.username})
@@ -55,7 +55,7 @@ class AccountSettingsExtensionField(object):
     @abstractproperty
     def js_model(self):
         """
-        set the Backbone model associated with the Django model 
+        set the Backbone model associated with the Django model
         for this field
         """
         raise NotImplementedError
@@ -65,23 +65,21 @@ class AccountSettingsExtensionField(object):
         """
         set the field class for use in the Backbone application
         """
-        raise NotImplementedError       
+        raise NotImplementedError
 
     @abstractproperty
     def api_url(self):
         """
-        set the API url used to get/set values to/from the Django model 
+        set the API url used to get/set values to/from the Django model
         for this field
-        """     
+        """
         raise NotImplementedError
 
     @abstractmethod
     def __call__(self):
         """
         an AccountSettingsExtensionField instance should return a
-        dictionary-like object with at least the required 
+        dictionary-like object with at least the required
         abstract properties when called
         """
         raise NotImplementedError
-
-
