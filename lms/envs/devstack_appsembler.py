@@ -122,3 +122,7 @@ except ImportError:
 
 # override devstack.py automatic enabling of courseware discovery
 FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS['FEATURES'].get('ENABLE_COURSE_DISCOVERY', FEATURES['ENABLE_COURSE_DISCOVERY'])
+
+# edx-figures additions
+if FEATURES.get('ENABLE_EDX_FIGURES'):
+    from edx_figures.settings import EDX_FIGURES
