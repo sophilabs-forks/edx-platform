@@ -81,7 +81,7 @@ class CreateUserAccountView(APIView):
                 "name": "stafftest"
             }
         Returns:
-            HttpResponse: 200 on success, {"user_id ": 9, "success": true }
+            HttpResponse: 200 on success, {"user_id": 9, "success": true }
             HttpResponse: 400 if the request is not valid.
             HttpResponse: 409 if an account with the given username or email
                 address already exists
@@ -120,7 +120,7 @@ class CreateUserAccountView(APIView):
             errors = {"user_message": "Wrong parameters on user creation"}
             return Response(errors, status=400)
 
-        response = Response({'user_id ': user_id }, status=200)
+        response = Response({'user_id': user_id }, status=200)
         return response
 
 
