@@ -116,8 +116,6 @@ else:
     using_taxoman = False
 
 
-
-
 # Only display the requirements on learner dashboard for
 # credit and verified modes.
 REQUIREMENTS_DISPLAY_MODES = CourseMode.CREDIT_MODES + [CourseMode.VERIFIED]
@@ -160,7 +158,7 @@ def courses(request):
     if using_taxoman:
         for facet in Facet.objects.all():
             if not course_discovery_meanings.get(facet.slug):
-                course_discovery_meanings[facet.slug] = { 'name': facet.name }
+                course_discovery_meanings[facet.slug] = {'name': facet.name}
 
     if not settings.FEATURES.get('ENABLE_COURSE_DISCOVERY'):
         courses_list = get_courses(request.user)
@@ -697,7 +695,7 @@ def course_about(request, course_id):
             course_cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
         except NameError:
             pass
-        else: 
+        else:
             context['require_access_request'] = course_cca_settings.require_access_request
 
         return render_to_response('courseware/course_about.html', context)

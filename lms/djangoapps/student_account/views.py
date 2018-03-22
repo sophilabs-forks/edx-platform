@@ -534,13 +534,13 @@ def _get_account_settings_extension_config(request):
 
         Returns:
         list of dicts like ['field_name': {'options'|'url'}, ]
-    
+
     """
     # TODO: be microsite middleware aware
 
     # ACCOUNT_SETTINGS_EXTENSION_FIELDS should be defined like
     # ['dotted_path_to_class', 'dotted_path_to_class' }]
-    # TODO: could potentially also have a case that just uses one of the 
+    # TODO: could potentially also have a case that just uses one of the
     # 'meta_key': key defined in JSON 'meta' field on UserProfile model
 
     # field class must subclass AccountSettingsExtensionField
@@ -560,9 +560,9 @@ def _get_account_settings_extension_config(request):
         except (AssertionError, ImproperlyConfigured), e:
             # AccountSettingsExtensionFields can raise
             # ImproperlyConfigured if required configuration is missing
-            ERR_LOG.warn( 
+            ERR_LOG.warn(
                 ("Skipping Account Settings extension field {} due to "
                  "error:{}").format(klass.__name__, e.message)
-            )           
+            )
             continue
     return ext_fields

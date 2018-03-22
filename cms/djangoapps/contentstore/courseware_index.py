@@ -30,7 +30,7 @@ log = logging.getLogger('edx.modulestore')
 
 
 # Interim code to get courseware_index to work with Taxoman
-if hasattr(settings,'FEATURES') and settings.FEATURES.get('ENABLE_TAXOMAN', False):
+if hasattr(settings, 'FEATURES') and settings.FEATURES.get('ENABLE_TAXOMAN', False):
     try:
         from taxoman_api.models import Facet, FacetValue, CourseFacetValue
         using_taxoman = True

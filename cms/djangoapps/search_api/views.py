@@ -1,7 +1,6 @@
-
 import json
 
-from django.conf import settings 
+from django.conf import settings
 from django.http import HttpResponse
 
 from rest_framework.authentication import (
@@ -25,9 +24,10 @@ from .permissions import IsStaffUser
 ALLOWED_ORIGIN = settings.LMS_BASE
 
 description = """
-Appembler Open edX search api. 
+Appembler Open edX search api.
 Opens up access to Open edX'sa search infrastructure via HTTP (REST) API interfaces.
 """
+
 
 class SearchIndex(APIView):
     authentication_classes = (
@@ -36,11 +36,12 @@ class SearchIndex(APIView):
         TokenAuthentication
     )
 
-    permission_classes = ( IsAuthenticated, IsStaffUser, )
+    permission_classes = (IsAuthenticated, IsStaffUser, )
+
     def get(self, request, format=None):
         return Response({
             'message': 'CMS Search API',
-            })
+        })
 
 
 class CourseIndexer(APIView):
@@ -50,12 +51,12 @@ class CourseIndexer(APIView):
         TokenAuthentication
     )
 
-    permission_classes = ( IsAuthenticated, IsStaffUser, )
-    
+    permission_classes = (IsAuthenticated, IsStaffUser, )
+
     def get(self, request, format=None):
         return Response({
             'message': 'Course Indexer',
-            })
+        })
 
     def post(self, request, format=None):
 
@@ -83,10 +84,10 @@ class CourseIndexer(APIView):
                 message = 'Exception "{}" msg: {}'.format(e.__class__, e.message)
                 status = 500
             return Response(json.dumps({
-                    'course_id': course_id,
-                    'status': 'ERROR',
-                    'message': message,
-                }), status=status)
+                'course_id': course_id,
+                'status': 'ERROR',
+                'message': message,
+            }), status=status)
 
     def options(self, request, format=None):
         response = Response()
