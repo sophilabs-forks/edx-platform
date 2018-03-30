@@ -70,7 +70,7 @@ class CreateUserAccountView(APIView):
     def post(self, request):
         """
         Creates a new user account
-        URL: /api/ps_user_api/v1/accounts/create
+        URL: /appsembler_api/v0/accounts/create
         Arguments:
             request (HttpRequest)
             JSON (application/json)
