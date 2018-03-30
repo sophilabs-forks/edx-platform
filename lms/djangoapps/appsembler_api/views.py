@@ -33,7 +33,7 @@ from openedx.core.lib.api.permissions import (
 )
 
 from student.forms import get_registration_extension_form
-from student.views import create_account_with_params
+from student.views import create_account_with_params, validate_new_email
 from student.models import CourseEnrollment, EnrollmentClosedError, \
     CourseFullError, AlreadyEnrolledError, UserProfile
 
@@ -81,7 +81,7 @@ class CreateUserAccountView(APIView):
                 "name": "stafftest"
             }
         Returns:
-            HttpResponse: 200 on success, {"user_id ": 9, "success": true }
+            HttpResponse: 200 on success, {"user_id ": 9}
             HttpResponse: 400 if the request is not valid.
             HttpResponse: 409 if an account with the given username or email
                 address already exists
@@ -284,30 +284,31 @@ class UpdateUserAccount(APIView):
         """
         data = request.data
 
-        if data['user_lookup'].strip() == "":
+        if not unicode(data.get('user_lookup', '')).strip():
             errors = {"lookup_error": "No user lookup has been provided"}
             return Response(errors, status=400)
 
-        user = User.objects.filter(
-            Q(username=data['user_lookup']) | Q(email=data['user_lookup'])
-        )
-
-        if user:
-            user = user[0]
-        else:
-            errors = {
-                "user_not_found": "The user for the Given username or email doesn't exists"
-            }
-            return Response(errors, status=404)
+        try:
+            user = User.objects.get(
+                Q(username=data['user_lookup']) | Q(email=data['user_lookup'])
+            )
+        except User.DoesNotExist:
+            return Response({
+                "user_not_found": "The user for the Given username or email doesn't exists",
+            }, status=404)
+        except User.MultipleObjectsReturned:
+            return Response({
+                "lookup_error": "Two users have been found with the provided user_lookup",
+            }, status=400)
 
         updated_fields = {}
 
         # update email
         if 'email' in data and data['email'] != user.email:
-            user_exists = check_account_exists(email=data['email'])
-            if user_exists:
-                errors = {"integrity_error": "the user email you're trying to set already belongs to another user"}
-                return Response(errors, status=400)
+            try:
+                validate_new_email(user, data['email'])
+            except ValueError as e:
+                return Response({"integrity_error": e.message}, status=400)
 
             user.email = data['email']
             user.save()
