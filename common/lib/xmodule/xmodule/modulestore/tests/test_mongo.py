@@ -187,6 +187,7 @@ class TestMongoModuleStore(TestMongoModuleStoreBase):
 
     @classmethod
     def setupClass(cls):
+        raise unittest.SkipTest("Appsembler: skipping")
         super(TestMongoModuleStore, cls).setupClass()
 
     @classmethod
@@ -729,6 +730,7 @@ class TestMongoModuleStoreWithNoAssetCollection(TestMongoModuleStore):
 
     @classmethod
     def setupClass(cls):
+        raise unittest.SkipTest("Appsembler: skipping")
         super(TestMongoModuleStoreWithNoAssetCollection, cls).setupClass()
 
     @classmethod
