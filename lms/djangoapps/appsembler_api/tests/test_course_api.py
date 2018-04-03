@@ -1,16 +1,13 @@
 """
-Tests for the Appsembler API views.
+Tests for the CourseListSearchView.
 """
-
-from urllib import quote, urlencode
-
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 
 from lms.djangoapps.course_api.tests.test_views import CourseApiTestViewMixin
 import json
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 
-from django.test.utils import override_settings
 
 from search.tests.tests import TEST_INDEX_NAME
 from search.tests.test_course_discovery import DemoCourse
@@ -30,6 +27,8 @@ class CourseListSearchViewTest(CourseApiTestViewMixin, ModuleStoreTestCase, Sear
     """
     Similar to search.tests.test_course_discovery_views but with the course API integration.
     """
+
+    ENABLED_SIGNALS = ['course_published']
 
     def setUp(self):
         super(CourseListSearchViewTest, self).setUp()
