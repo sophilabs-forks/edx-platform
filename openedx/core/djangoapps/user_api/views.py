@@ -45,6 +45,7 @@ from .serializers import CountryTimeZoneSerializer, UserPreferenceSerializer, Us
 
 from openedx.core.djangoapps.cors_csrf.decorators import ensure_csrf_cookie_cross_domain
 
+
 class LoginSessionView(APIView):
     """HTTP end-points for logging in users. """
 
