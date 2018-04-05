@@ -60,8 +60,7 @@ if APPSEMBLER_FEATURES.get('ENABLE_EXTERNAL_COURSES', False):
         }
 
 if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
-    APPSEMBLER_FEATURES.get('ENABLE_USAGE_AGGREGATION', False)
-):
+        APPSEMBLER_FEATURES.get('ENABLE_USAGE_AGGREGATION', False)):
     # enable both apps for either feature flag, because
     #
     # * appsembler_usage depends on souvenirs models
@@ -89,8 +88,7 @@ if (APPSEMBLER_FEATURES.get('ENABLE_USAGE_TRACKING', False) or
 
     # operator can override DB auth for migrations
     if ('appsembler_usage' in DATABASES and
-        os.environ.get('APPSEMBLER_USAGE_DB_AUTH')
-    ):
+            os.environ.get('APPSEMBLER_USAGE_DB_AUTH')):
         _user, _password = os.environ['APPSEMBLER_USAGE_DB_AUTH'].split(':', 1)
         DATABASES['appsembler_usage'].update({
             'USER': _user,

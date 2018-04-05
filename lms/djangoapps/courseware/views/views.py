@@ -833,7 +833,7 @@ def course_about(request, course_id):
             course_cca_settings, created = CourseCCASettings.objects.get_or_create(course_id=course_key)
         except NameError:
             pass
-        else: 
+        else:
             context['require_access_request'] = course_cca_settings.require_access_request
 
         return render_to_response('courseware/course_about.html', context)
