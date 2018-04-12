@@ -776,7 +776,6 @@ def _progress(request, course_key, student_id):
     # checking certificate generation configuration
     enrollment_mode, is_active = CourseEnrollment.enrollment_mode_for_user(student, course_key)
     # check if location is set
-    student = User.objects.get(username=request.user)
     studylocation = StudentStudyLocation.location_for_student(student)
     if studylocation == None:
         studylocation = 'false'
