@@ -3,6 +3,7 @@ import logging
 import string
 import random
 import operator
+import pytz
 
 from dateutil import parser
 
@@ -625,12 +626,12 @@ class GetBatchEnrollmentDataView(APIView):
             cert_query_filter['user__username'] = username
 
         if updated_min:
-            min_date = parser.parse(updated_min + ' UTC')
+            min_date = parser.parse(updated_min).replace(tzinfo=pytz.UTC)
             enrollment_query_filter['created__gt'] = min_date
             cert_query_filter['created_date__gt'] = min_date
 
         if updated_max:
-            max_date = parser.parse(updated_max + ' UTC')
+            max_date = parser.parse(updated_max).replace(tzinfo=pytz.UTC)
             enrollment_query_filter['created__lt'] = max_date
             cert_query_filter['created_date__lt'] = max_date
 
