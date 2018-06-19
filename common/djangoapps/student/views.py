@@ -6,6 +6,7 @@ import logging
 import uuid
 import json
 import warnings
+import re
 from collections import defaultdict
 from urlparse import urljoin, urlsplit, parse_qs, urlunsplit
 
@@ -130,7 +131,7 @@ from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.catalog.utils import get_programs_data
 
 # try to import appsembler fork of edx-organizations (if it's installed)
-try: 
+try:
     from organizations.models import Organization, UserOrganizationMapping
     from hr_management.views import send_microsite_request_email_to_managers
 except ImportError:
@@ -350,7 +351,7 @@ def _cert_info(user, course_overview, cert_status, course_mode):  # pylint: disa
     }
 
     # open-ended courses should not display the 'processing' message
-    default_status = 'unavailable' if not course_overview.end else 'processing' 
+    default_status = 'unavailable' if not course_overview.end else 'processing'
 
     default_info = {
         'status': default_status,
@@ -485,6 +486,11 @@ def register_user(request, extra_context=None):
     if external_auth_response is not None:
         return external_auth_response
 
+    if third_party_auth.is_enabled() and pipeline.running(request):
+        auto_submit = True
+    else:
+        auto_submit = False
+
     context = {
         'login_redirect_url': redirect_to,  # This gets added to the query string of the "Sign In" button in the header
         'email': '',
@@ -497,6 +503,7 @@ def register_user(request, extra_context=None):
         ),
         'selected_provider': '',
         'username': '',
+        'auto_submit': auto_submit,
     }
 
     if extra_context is not None:
@@ -1648,6 +1655,21 @@ def create_account_with_params(request, params):
     # params is request.POST, that results in a dict containing lists of values
     params = dict(params.items())
 
+    username = params["username"]
+    email = params["email"]
+
+    # if a username is missing, auto-generate one from the email address
+    # and populate the field
+    if not username:
+        try:
+            params["username"] = re.sub(r'[^a-zA-Z0-9]', '', email.split('@')[0])
+        except AttributeError:
+            raise ValidationError({
+                    'username': [
+                        _("We could not create an account without a valid username")
+                    ]
+            })
+
     # allow to define custom set of required/optional/hidden fields via configuration
     extra_fields = configuration_helpers.get_value(
         'REGISTRATION_EXTRA_FIELDS',
@@ -1864,20 +1886,30 @@ def create_account_with_params(request, params):
     else:
         registration.activate()
         _enroll_user_in_pending_courses(user)  # Enroll student in any pending courses
-    
+
     #if using custom Appsembler backend from edx-organizations
     if u'organizations.backends.OrganizationMemberBackend' in settings.AUTHENTICATION_BACKENDS:
         org = configuration_helpers.get_value('course_org_filter')
         organization = Organization.objects.filter(name=org).first()
-        if organization: 
+        if organization:
             UserOrganizationMapping.objects.get_or_create(user=user, organization=organization, is_active=False)
             send_microsite_request_email_to_managers(request, user)
 
     # Immediately after a user creates an account, we log them in. They are only
     # logged in until they close the browser. They can't log in again until they click
     # the activation link from the email.
+
+    # ISC exception if user is logging in with Totara
+    if third_party_auth.is_enabled() and pipeline.running(request):
+        log.info('entro')
+        new_user = authenticate(username=user.username, password=params['password'])
+        login(request, new_user)
+        request.session.set_expiry(0)
+    else:
+        new_user = None
+
     new_user = authenticate(username=user.username, password=params['password'])
-    
+
     if not settings.APPSEMBLER_FEATURES.get('SKIP_LOGIN_AFTER_REGISTRATION', False):
         login(request, new_user)
         request.session.set_expiry(0)
@@ -2010,6 +2042,7 @@ def create_account(request, post_override=None):
         'success': True,
         'redirect_url': redirect_url,
     })
+
     set_logged_in_cookies(request, response, user)
     return response
 
