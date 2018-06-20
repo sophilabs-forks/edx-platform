@@ -222,7 +222,9 @@ class ProviderConfig(ConfigurationModel):
         # creation of the user object, so it is still possible for users to get
         # an error on submit.
         suggested_username = pipeline_kwargs.get('username')
-
+        #
+        suggested_username = ''.join(e for e in suggested_username if e.isalnum())
+        #
         # if the FEATURE flag ENABLE_THIRD_PARTY_AUTH_CLEAN_USERNAMES is set to
         # True we clean all special chars from the username, this feature is
         # configurable by this three env settings with this default:
