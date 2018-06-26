@@ -150,6 +150,28 @@ def enroll_email(course_id, student_email, auto_enroll=False, email_students=Fal
             email_params['email_address'] = student_email
             email_params['full_name'] = previous_state.full_name
             send_mail_to_student(student_email, email_params, language=language)
+
+            # Add some helpers and microconfig subsitutions
+            if 'display_name' in email_params:
+                email_params['course_name'] = email_params['display_name']
+
+            email_params['site_name'] = configuration_helpers.get_value(
+                'SITE_NAME',
+                email_params['site_name']
+            )
+
+            from instructor.message_types import EnrollEnrolled
+            from edx_ace import Recipient
+            from edx_ace import ace
+
+            message = EnrollEnrolled().personalize(
+                recipient=Recipient(username='', email_address=student_email),
+                language=language,
+                user_context=email_params,
+            )
+
+            ace.send(message)
+
     elif not is_email_retired(student_email):
         cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id=course_id, email=student_email)
         cea.auto_enroll = auto_enroll
