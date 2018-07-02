@@ -1304,18 +1304,26 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
             mail.outbox[0].subject,
             u'You have been enrolled in {}'.format(self.course.display_name)
         )
-        self.assertEqual(
-            mail.outbox[0].body,
-            "Dear NotEnrolled Student\n\nYou have been enrolled in {} "
-            "at edx.org by a member of the course staff. "
-            "The course should now appear on your edx.org dashboard.\n\n"
-            "To start accessing course materials, please visit "
-            "{proto}://{site}{course_path}\n\n----\n"
-            "This email was automatically sent from edx.org to NotEnrolled Student".format(
-                self.course.display_name,
-                proto=protocol, site=self.site_name, course_path=self.course_path
-            )
-        )
+
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+
+        assert text_body.startswith('Dear NotEnrolled Student\n\n')
+
+        for body in [text_body, html_body]:
+            self.assertIn('You have been enrolled in {course_name} at edx.org by a member of the course staff.'.format(
+                course_name=self.course.display_name,
+            ), body)
+
+            self.assertIn('The course should now appear on your edx.org dashboard.', body)
+            self.assertIn('{proto}://{site}{course_path}'.format(
+                proto=protocol,
+                site=self.site_name,
+                course_path=self.course_path,
+            ), body)
+
+        self.assertIn("To start accessing course materials, please visit", text_body)
+        self.assertIn("This email was automatically sent from edx.org to NotEnrolled Student\n\n", text_body)
 
     @ddt.data('http', 'https')
     def test_enroll_with_email_not_registered(self, protocol):

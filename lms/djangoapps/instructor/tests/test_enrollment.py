@@ -6,6 +6,7 @@ Unit tests for instructor.enrollment methods.
 import json
 from abc import ABCMeta
 
+import ddt
 import mock
 from ccx_keys.locator import CCXLocator
 from django.conf import settings
@@ -30,6 +31,7 @@ from lms.djangoapps.instructor.enrollment import (
     send_beta_role_email,
     unenroll_email
 )
+from openedx.core.djangoapps.ace_common.tests.test_templatetags import EmailTemplateTagMixin
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase, get_mock_request
 from openedx.core.lib.tests import attr
 from student.models import CourseEnrollment, CourseEnrollmentAllowed, anonymous_id_for_user
@@ -757,7 +759,8 @@ class TestGetEmailParams(SharedModuleStoreTestCase):
 
 
 @attr(shard=1)
-class TestRenderMessageToString(SharedModuleStoreTestCase):
+@ddt.ddt
+class TestRenderMessageToString(EmailTemplateTagMixin, SharedModuleStoreTestCase):
     """
     Test that email templates can be rendered in a language chosen manually.
     Test CCX enrollmet email.
@@ -802,6 +805,7 @@ class TestRenderMessageToString(SharedModuleStoreTestCase):
         )
         email_params["email_address"] = "user@example.com"
         email_params["full_name"] = "Jean Reno"
+        email_params.update(self.context)
 
         return email_params
 
@@ -827,12 +831,12 @@ class TestRenderMessageToString(SharedModuleStoreTestCase):
         )
 
     def test_subject_and_message_translation(self):
-        subject, message = self.get_subject_and_message('fr')
+        subject, message = self.get_subject_and_message('eo')
         language_after_rendering = get_language()
 
-        you_have_been_invited_in_french = u"Vous avez été invité"
-        self.assertIn(you_have_been_invited_in_french, subject)
-        self.assertIn(you_have_been_invited_in_french, message)
+        you_have_been_invited_in_esperanto = u"Ýöü hävé ßéén"
+        self.assertIn(you_have_been_invited_in_esperanto, subject)
+        self.assertIn(you_have_been_invited_in_esperanto, message)
         self.assertEqual(settings.LANGUAGE_CODE, language_after_rendering)
 
     def test_platform_language_is_used_for_logged_in_user(self):
@@ -842,15 +846,19 @@ class TestRenderMessageToString(SharedModuleStoreTestCase):
             self.assertIn("You have been", message)
 
     @patch.dict('django.conf.settings.FEATURES', {'CUSTOM_COURSES_EDX': True})
-    def test_render_enrollment_message_ccx_members(self):
+    @ddt.data('body.html', 'body.txt')
+    def test_render_enrollment_message_ccx_members(self, body_file_name):
         """
         Test enrollment email template renders for CCX.
         For EDX members.
         """
-        subject_template = 'emails/enroll_email_enrolledsubject.txt'
-        message_template = 'emails/enroll_email_enrolledmessage.txt'
+        subject_template = 'instructor/edx_ace/enrollenrolled/email/subject.txt'
+        body_template = 'instructor/edx_ace/enrollenrolled/email/{body_file_name}'.format(
+            body_file_name=body_file_name,
+        )
 
-        subject, message = self.get_subject_and_message_ccx(subject_template, message_template)
+        subject, message = self.get_subject_and_message_ccx(subject_template, body_template)
+
         self.assertIn(self.ccx.display_name, subject)
         self.assertIn(self.ccx.display_name, message)
         site = settings.SITE_NAME
