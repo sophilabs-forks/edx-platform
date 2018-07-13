@@ -103,7 +103,19 @@ class HtmlModuleMixin(HtmlBlock, XModule):
     }
     js_module_name = "HTMLModule"
     css = {'scss': [resource_string(__name__, 'css/html/display.scss')]}
+    def get_html(self):
+        data = self.data
+        from django.contrib.auth.models import User
+        if self.system.user_is_staff:
+            user = User.objects.get(id=self.system.user_id)
+            data = data.replace("%%USER_EMAIL%%", user.email)
+        elif self.system.anonymous_student_id:
+            data = data.replace("%%USER_ID%%", self.system.anonymous_student_id)
+            user = User.objects.get(id=self.system.user_id)
+            if user and user.is_authenticated():
+                data = data.replace("%%USER_EMAIL%%", user.email)
 
+        return data
 
 @edxnotes
 class HtmlModule(HtmlModuleMixin):
