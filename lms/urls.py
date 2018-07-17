@@ -1038,3 +1038,8 @@ if 'appsembler' in settings.INSTALLED_APPS:
     urlpatterns += (
         url('', include('appsembler.urls')),
     )
+
+urlpatterns += (
+        url(r'^react-lms/',
+            include('react_lms.urls', namespace='react-lms')),
+)
