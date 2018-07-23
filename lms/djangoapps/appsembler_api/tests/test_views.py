@@ -2,8 +2,6 @@
 Tests for the Appsembler API views.
 """
 
-
-
 import json
 import pytz
 import ddt
@@ -130,6 +128,7 @@ class CourseListSearchViewTest(CourseApiTestViewMixin, ModuleStoreTestCase, Sear
         self.assertNotEqual(data["results"], [])
         self.assertEqual(data["pagination"]["count"], 1)
 
+
 @ddt.ddt
 @patch('appsembler_api.views.GetBatchCompletionDataView.authentication_classes', [])
 @patch('appsembler_api.views.GetBatchCompletionDataView.permission_classes', [AllowAny])
@@ -139,7 +138,7 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
     """
     def setUp(self):
         super(GetBatchCompletionDataViewTest, self).setUp()
-        
+
         self.course1 = CourseFactory()
         self.course2 = CourseFactory()
 
@@ -153,12 +152,12 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
             CourseEnrollmentFactory(course_id=self.course2.id),
         ]
 
-        for ce in self.enrollments: 
+        for ce in self.enrollments:
             GeneratedCertificate(
-                course_id=ce.course_id, 
-                user=ce.user, 
+                course_id=ce.course_id,
+                user=ce.user,
             ).save()
-                                
+
         self.certificates = list(GeneratedCertificate.objects.all())
 
         # certificate issue dates at years 2005, 2015, 2025 (five years after each enrollment)
@@ -170,25 +169,24 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
             {'enrollment': 2020, 'certificate': 2025},
         ]
         for enrollment, certificate, year in zip(self.enrollments, self.certificates, years):
-           enrollment.created = test_time.replace(year=year['enrollment'])
-           enrollment.save()
-           certificate.created_date = test_time.replace(year=year['certificate'])
-           certificate.save()
+            enrollment.created = test_time.replace(year=year['enrollment'])
+            enrollment.save()
+            certificate.created_date = test_time.replace(year=year['certificate'])
+            certificate.save()
 
         self.url = reverse('get_batch_completion_data')
 
-
     def _create_cert_without_matching_course(self):
         # Create a GeneratedCertificate object for a course that no longer exists
-        #   and return str(deleted_course_id) 
-        
+        #   and return str(deleted_course_id)
+
         deleted_course_id_string = 'course-v1:edX+Deleted_course+1990'
         deleted_course_id = CourseKey.from_string(deleted_course_id_string)
         gc = GeneratedCertificate(course_id=deleted_course_id, user=self.enrollments[0].user)
         gc.save()
 
         return deleted_course_id_string
-    
+
     def test_analytics_enrollment_endpoint_alone(self):
 
         res = self.client.get(self.url)
@@ -200,10 +198,10 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
         self.assertEqual(len(data), len(self.certificates))
 
     @ddt.unpack
-    @ddt.data(  {'query_string': 'updated_min=2030-01-01T00:00:00', 'num_certificates': 0}, 
-                {'query_string': 'updated_min=2010-01-01T00:00:00', 'num_certificates': 3}, 
-                {'query_string': 'updated_max=2010-01-01T00:00:00', 'num_certificates': 1}, 
-                {'query_string': 'updated_min=2010-01-01T00:00:00&updated_max=2020-01-01T00:00:00', 'num_certificates': 1},) 
+    @ddt.data({'query_string': 'updated_min=2030-01-01T00:00:00', 'num_certificates': 0},
+              {'query_string': 'updated_min=2010-01-01T00:00:00', 'num_certificates': 3},
+              {'query_string': 'updated_max=2010-01-01T00:00:00', 'num_certificates': 1},
+              {'query_string': 'updated_min=2010-01-01T00:00:00&updated_max=2020-01-01T00:00:00', 'num_certificates': 1},)
     def test_analytics_enrollment_endpoint_with_query_strings(self, query_string, num_certificates):
 
         res = self.client.get(self.url + '?{}'.format(query_string))
@@ -219,7 +217,7 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
 
     def test_certificate_without_course(self):
         # Test the codepath for a certificate requested about a previously deleted course
-        # The course_name and 
+        # The course_name and
         deleted_course_id_string = self._create_cert_without_matching_course()
 
         res = self.client.get(self.url)
@@ -229,14 +227,14 @@ class GetBatchCompletionDataViewTest(CourseApiTestViewMixin, ModuleStoreTestCase
 
         data = res.data
 
-        cert_with_missing_course_list = [ cert for cert in data 
+        cert_with_missing_course_list = [
+            cert for cert in data
             if cert['course_id'] == deleted_course_id_string
         ]
-        
+
         self.assertEqual(len(cert_with_missing_course_list), 1)
         cert_with_missing_course = cert_with_missing_course_list[0]
 
-        self.assertEqual(cert_with_missing_course['course_name'], 
+        self.assertEqual(cert_with_missing_course['course_name'],
                          cert_with_missing_course['course_id'],
-                         'course_name and course_id should be equal if course does\'t exist on server'
-                        )
+                         'course_name and course_id should be equal if course does\'t exist on server')
