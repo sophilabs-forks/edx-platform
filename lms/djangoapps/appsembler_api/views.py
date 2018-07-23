@@ -767,6 +767,7 @@ class GetBatchEnrollmentDataView(APIView):
 
         return Response(enrollment_list, status=200)
 
+
 class GetBatchCompletionDataView(ListAPIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
@@ -793,7 +794,6 @@ class GetBatchCompletionDataView(ListAPIView):
             max_date = parser.parse(updated_max).replace(tzinfo=pytz.UTC)
             query_filter['created_date__lt'] = max_date
 
-
         certificates = GeneratedCertificate.objects.filter(**query_filter)
 
         certificate_list = []
@@ -803,13 +803,13 @@ class GetBatchCompletionDataView(ListAPIView):
                 course_name = course.display_name
             except Http404:
                 course_name = str(certificate.course_id)
-                
+
             certificate_list.append({
                 'email': certificate.user.email,
                 'course_name': course_name,
                 'course_id': str(certificate.course_id),
                 'grade': certificate.grade,
-                'completion_date':  str(certificate.created_date),
+                'completion_date': str(certificate.created_date),
             })
 
         return Response(certificate_list)
