@@ -2,6 +2,7 @@ import json
 import logging
 import string
 import random
+import pytz
 
 import search
 from dateutil import parser
@@ -66,7 +67,6 @@ class CreateUserAccountView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
 
-
     def post(self, request):
         """
         Creates a new user account
@@ -81,7 +81,7 @@ class CreateUserAccountView(APIView):
                 "name": "stafftest"
             }
         Returns:
-            HttpResponse: 200 on success, {"user_id ": 9, "success": true }
+            HttpResponse: 200 on success, {"user_id": 9, "success": true }
             HttpResponse: 400 if the request is not valid.
             HttpResponse: 409 if an account with the given username or email
                 address already exists
@@ -120,14 +120,13 @@ class CreateUserAccountView(APIView):
             errors = {"user_message": "Wrong parameters on user creation"}
             return Response(errors, status=400)
 
-        response = Response({'user_id ': user_id }, status=200)
+        response = Response({'user_id ': user_id}, status=200)
         return response
 
 
 class CreateUserAccountWithoutPasswordView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser,
     permission_classes = IsStaffOrOwner,
-
 
     def post(self, request):
         """
@@ -142,7 +141,6 @@ class CreateUserAccountWithoutPasswordView(APIView):
 
         email = request.data.get('email')
 
-
         # Handle duplicate email/username
         conflicts = check_account_exists(email=email)
         if conflicts:
@@ -153,7 +151,7 @@ class CreateUserAccountWithoutPasswordView(APIView):
             username = auto_generate_username(email)
             password = ''.join(random.choice(
                 string.ascii_uppercase + string.ascii_lowercase + string.digits)
-                               for _ in range(32))
+                for _ in range(32))
 
             data['username'] = username
             data['password'] = password
@@ -224,7 +222,7 @@ class UserAccountConnect(APIView):
                     if check_account_exists(email=new_email):
                         errors = {
                             "user_message": "The email %s is in use by another user" % (
-                            new_email)}
+                                new_email)}
                         return Response(errors, status=409)
 
                     user.email = new_email
@@ -343,9 +341,10 @@ class UpdateUserAccount(APIView):
                     **custom_profile_fields_to_update)
 
         return Response(
-            {"success": "The following fields has been updated: {}".format(
-                ', '.join(
-                    '{}={}'.format(f, v) for f, v in updated_fields.items())
+            {
+                "success": "The following fields has been updated: {}".format(
+                    ', '.join(
+                        '{}={}'.format(f, v) for f, v in updated_fields.items())
                 )
             },
             status=200)
@@ -381,7 +380,7 @@ class GetUserAccountView(APIView):
 @can_disable_rate_limit
 class BulkEnrollView(APIView, ApiKeyPermissionMixIn):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = ApiKeyHeaderPermissionIsAuthenticated,
     throttle_classes = EnrollmentUserThrottle,
 
@@ -409,7 +408,7 @@ class BulkEnrollView(APIView, ApiKeyPermissionMixIn):
 
 class GenerateRegistrationCodesView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = IsStaffOrOwner,
 
     def post(self, request):
@@ -447,7 +446,7 @@ class GenerateRegistrationCodesView(APIView):
 
 class EnrollUserWithEnrollmentCodeView(APIView):
     authentication_classes = OAuth2AuthenticationAllowInactiveUser, \
-                             EnrollmentCrossDomainSessionAuth
+        EnrollmentCrossDomainSessionAuth
     permission_classes = IsStaffOrOwner,
 
     def post(self, request):
@@ -725,7 +724,7 @@ class GetBatchEnrollmentDataView(APIView):
         query_filter = {}
 
         if course_id:
-            course_id= course_id.replace(' ', '+')
+            course_id = course_id.replace(' ', '+')
         # the replace function is because Django encodes '+' or '%2B' as spaces
 
         if course_id:
@@ -767,3 +766,50 @@ class GetBatchEnrollmentDataView(APIView):
             enrollment_list.append(enrollment_data)
 
         return Response(enrollment_list, status=200)
+
+
+class GetBatchCompletionDataView(ListAPIView):
+    authentication_classes = OAuth2AuthenticationAllowInactiveUser,
+    permission_classes = IsStaffOrOwner,
+
+    def get(self, request):
+        """
+        /appsembler_api/v0/analytics/course_completion/batch[?time-parameter]
+
+        time-parameter is an optional query parameter of:
+                ?updated_min=yyyy-mm-ddThh:mm:ss
+                ?updated_max=yyyy-mm-ddThh:mm:ss
+                ?updated_min=yyyy-mm-ddThh:mm:ss&updated_max=yyyy-mm-ddThh:mm:ss
+        """
+        updated_min = request.GET.get('updated_min', '')
+        updated_max = request.GET.get('updated_max', '')
+
+        query_filter = {}
+
+        if updated_min:
+            min_date = parser.parse(updated_min).replace(tzinfo=pytz.UTC)
+            query_filter['created_date__gt'] = min_date
+
+        if updated_max:
+            max_date = parser.parse(updated_max).replace(tzinfo=pytz.UTC)
+            query_filter['created_date__lt'] = max_date
+
+        certificates = GeneratedCertificate.objects.filter(**query_filter)
+
+        certificate_list = []
+        for certificate in certificates:
+            try:
+                course = get_course_by_id(certificate.course_id, depth=0)
+                course_name = course.display_name
+            except Http404:
+                course_name = str(certificate.course_id)
+
+            certificate_list.append({
+                'email': certificate.user.email,
+                'course_name': course_name,
+                'course_id': str(certificate.course_id),
+                'grade': certificate.grade,
+                'completion_date': str(certificate.created_date),
+            })
+
+        return Response(certificate_list)

@@ -4,7 +4,7 @@ import json
 from path import path
 
 SERVICE_VARIANT = os.environ.get('SERVICE_VARIANT', None)
-CONFIG_ROOT = path('/edx/app/edxapp/')  #don't hardcode this in the future
+CONFIG_ROOT = path('/edx/app/edxapp/')  # don't hardcode this in the future
 CONFIG_PREFIX = SERVICE_VARIANT + "." if SERVICE_VARIANT else ""
 with open(CONFIG_ROOT / CONFIG_PREFIX + 'env.json') as env_file:
     ENV_TOKENS = json.load(env_file)
@@ -23,4 +23,4 @@ if APPSEMBLER_FEATURES.get('ENABLE_APPSEMBLER_REPORTING', False):
     from appsembler_reporting.settings import APPSEMBLER_REPORTING
 
     APPSEMBLER_REPORTING.update(APPSEMBLER_FEATURES.get(
-        'APPSEMBLER_REPORTING', {} ))
+        'APPSEMBLER_REPORTING', {}))
