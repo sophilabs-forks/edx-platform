@@ -35,7 +35,6 @@ from util.file import (
     FileValidationException, UniversalNewlineIterator
 )
 from util.json_request import JsonResponse, JsonResponseBadRequest
-from util.views import require_global_staff
 from lms.djangoapps.instructor.views.instructor_task_helpers import extract_email_features, extract_task_features
 
 from courseware.access import has_access
@@ -2766,7 +2765,7 @@ def _instructor_dash_url(course_key, section=None):
     return url
 
 
-@require_global_staff
+@require_level('staff')
 @require_POST
 def generate_example_certificates(request, course_id=None):  # pylint: disable=unused-argument
     """Start generating a set of example certificates.
@@ -2828,7 +2827,7 @@ def mark_student_can_skip_entrance_exam(request, course_id):  # pylint: disable=
 @transaction.non_atomic_requests
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@require_global_staff
+@require_level('staff')
 @require_POST
 def start_certificate_generation(request, course_id):
     """
