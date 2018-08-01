@@ -164,7 +164,6 @@ class CertificateGeneration(object):
                 # the embargoed country restricted list
                 # otherwise, put a new certificate request
                 # on the queue
-                logger.info('grade is {}'.format(grade_contents))
                 print grade_contents
                 if self.restricted.filter(user=student).exists():
                     new_status = status.restricted
@@ -180,7 +179,6 @@ class CertificateGeneration(object):
                         'grade': grade_contents
                     }
 
-                    logger.info('the contents are {}'.format(contents))
                     if defined_status == "generating":
                         approve = False
                     else:
