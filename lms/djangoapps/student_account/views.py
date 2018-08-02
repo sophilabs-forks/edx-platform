@@ -123,8 +123,7 @@ def login_and_registration_form(request, initial_mode="login"):
                 settings.EXCLUSIVE_SSO_LOGISTRATION_URL_MAP)
 
             if initial_mode == 'register':
-                if 'register' in urls_dict:
-                    return redirect(urls_dict['register'])
+                return redirect(urls_dict['register'])
             else:
                 return redirect(urls_dict['login'])
 
