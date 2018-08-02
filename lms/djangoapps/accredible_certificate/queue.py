@@ -97,10 +97,10 @@ class CertificateGeneration(object):
         """
 
         VALID_STATUSES = [status.generating,
-                          status.unavailable,
-                          status.deleted,
-                          status.error,
-                          status.notpassing]
+                            status.unavailable,
+                            status.deleted,
+                            status.error,
+                            status.notpassing]
 
         cert_status = certificate_status_for_student(student, course_id)['status']
 
@@ -127,13 +127,13 @@ class CertificateGeneration(object):
                 loc = loc = course.location.replace(category='about', name=section_key)
                 try:
                     if modulestore().get_item(loc).data:
-                       description = modulestore().get_item(loc).data
-                       break
+                        description = modulestore().get_item(loc).data
+                        break
                 except:
                     print "this course don't have " +section_key
-              
+
             if not description:
-               description = "course_description"
+                description = "course_description"
 
 
             is_whitelisted = self.whitelist.filter(user=student, course_id=course_id, whitelist=True).exists()
@@ -154,13 +154,9 @@ class CertificateGeneration(object):
             cert.grade = grade['percent']
             cert.course_id = course_id
             cert.name = profile_name
+
             # Strip HTML from grade range label
-            grade_contents = grade.get('grade', None)
-            try:
-                grade_contents = lxml.html.fromstring(grade_contents).text_content()
-            except (TypeError, XMLSyntaxError, ParserError) as e:
-                #   Despite blowing up the xml parser, bad values here are fine
-                grade_contents = None
+            grade_contents = int(grade['percent'] * 100) # convert percent to points as an integer
 
             if is_whitelisted or grade_contents is not None:
 
@@ -174,7 +170,6 @@ class CertificateGeneration(object):
                     cert.status = new_status
                     cert.save()
                 else:
-                  
                     contents = {
                         'action': 'create',
                         'username': student.username,
@@ -183,10 +178,11 @@ class CertificateGeneration(object):
                         'name': profile_name,
                         'grade': grade_contents
                     }
+
                     if defined_status == "generating":
-                      approve = False
+                        approve = False
                     else:
-                      approve = True
+                        approve = True
 
                     # check to see if this is a BETA course
                     course_name = course_name.strip()
@@ -204,25 +200,27 @@ class CertificateGeneration(object):
                                     "course_link": "/courses/" +contents['course_id'] + "/about",
                                     "approve": approve,
                                     "template_name": contents['course_id'],
-                                    "grade": grade_contents,
+                                    "grade": contents['grade'],
                                     "recipient": {
-                                      "name": contents['name'],
-                                      "email": student.email
+                                        "name": contents['name'],
+                                        "email": student.email
                                     }
                                 }
                             }
+
                     payload = json.dumps(payload)
+
                     r = requests.post('https://api.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token=' + self.api_key, 'Content-Type':'application/json'})
                     
                     if r.status_code == 200:
-                       json_response = r.json()  
-                       cert.status = defined_status
-                       cert.key = json_response["credential"]["id"]
-                       if 'private' in json_response:
-                          cert.download_url = "https://wwww.accredible.com/" + str(json_response["credential"]["id"]) + "?key" + str(json_response["private_key"])
-                       else:
-                          cert.download_url = "https://www.accredible.com/" + str(cert.key)
-                       cert.save()
+                        json_response = r.json()  
+                        cert.status = defined_status
+                        cert.key = json_response["credential"]["id"]
+                        if 'private' in json_response:
+                            cert.download_url = "https://wwww.accredible.com/" + str(json_response["credential"]["id"]) + "?key" + str(json_response["private_key"])
+                        else:
+                            cert.download_url = "https://www.accredible.com/" + str(cert.key)
+                        cert.save()
                     else:
                         new_status = "errors"
                     
