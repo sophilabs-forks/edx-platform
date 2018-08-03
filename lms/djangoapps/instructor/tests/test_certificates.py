@@ -53,6 +53,7 @@ class CertificatesInstructorDashTest(SharedModuleStoreTestCase):
         super(CertificatesInstructorDashTest, self).setUp()
         self.global_staff = GlobalStaffFactory()
         self.instructor = InstructorFactory(course_key=self.course.id)
+        self.staff = StaffFactory(course_key=self.course.id)
 
         # Need to clear the cache for model-based configuration
         cache.clear()
@@ -65,8 +66,8 @@ class CertificatesInstructorDashTest(SharedModuleStoreTestCase):
         self.client.login(username=self.instructor.username, password="test")
         self._assert_certificates_visible(False)
 
-        # Global staff can see the certificates section
-        self.client.login(username=self.global_staff.username, password="test")
+        # Course staff can see the certificates section
+        self.client.login(username=self.staff.username, password="test")
         self._assert_certificates_visible(True)
 
     def test_visible_only_when_feature_flag_enabled(self):

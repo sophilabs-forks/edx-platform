@@ -35,6 +35,7 @@ from util.file import (
     FileValidationException, UniversalNewlineIterator
 )
 from util.json_request import JsonResponse, JsonResponseBadRequest
+from util.views import require_global_staff
 from lms.djangoapps.instructor.views.instructor_task_helpers import extract_email_features, extract_task_features
 
 from courseware.access import has_access
