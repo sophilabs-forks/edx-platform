@@ -77,3 +77,6 @@ elif 'appsembler_usage' in DATABASES:
 
 # to allow to run python-saml with custom port
 SP_SAML_RESTRICT_MODE = False
+
+# use configured course mode defaults as for aws, not standard devstack's
+COURSE_MODE_DEFAULTS.update(ENV_TOKENS.get('COURSE_MODE_DEFAULTS', COURSE_MODE_DEFAULTS))

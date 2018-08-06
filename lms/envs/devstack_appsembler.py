@@ -124,3 +124,6 @@ FEATURES['ENABLE_COURSE_DISCOVERY'] = ENV_TOKENS['FEATURES'].get('ENABLE_COURSE_
 # edx-figures additions
 if FEATURES.get('ENABLE_EDX_FIGURES'):
     from edx_figures.settings import EDX_FIGURES
+
+# use configured course mode defaults as for aws, not standard devstack's
+COURSE_MODE_DEFAULTS.update(ENV_TOKENS.get('COURSE_MODE_DEFAULTS', COURSE_MODE_DEFAULTS))
