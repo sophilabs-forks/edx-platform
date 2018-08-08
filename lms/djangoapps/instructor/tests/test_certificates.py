@@ -21,7 +21,7 @@ from lms.djangoapps.verify_student.models import SoftwareSecurePhotoVerification
 from xmodule.modulestore.tests.django_utils import SharedModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 from config_models.models import cache
-from courseware.tests.factories import GlobalStaffFactory, InstructorFactory, UserFactory
+from courseware.tests.factories import StaffFactory, GlobalStaffFactory, InstructorFactory, UserFactory
 from certificates.tests.factories import GeneratedCertificateFactory, CertificateWhitelistFactory, \
     CertificateInvalidationFactory
 from certificates.models import CertificateGenerationConfiguration, CertificateStatuses, CertificateWhitelist, \
