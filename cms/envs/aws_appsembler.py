@@ -91,3 +91,6 @@ MEDIA_ROOT = '/edx/var/edxapp/media'
 MEDIA_URL = '/media/'
 
 HTTPS = 'on' if ENV_TOKENS.get('BASE_SCHEME', 'https').lower() == 'https' else 'off'
+
+# use configured course mode defaults as for aws, not standard devstack's
+COURSE_MODE_DEFAULTS.update(ENV_TOKENS.get('COURSE_MODE_DEFAULTS', COURSE_MODE_DEFAULTS))
