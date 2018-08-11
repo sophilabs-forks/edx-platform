@@ -1342,15 +1342,19 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
             mail.outbox[0].subject,
             u'You have been invited to register for {}'.format(self.course.display_name)
         )
-        self.assertEqual(
+        self.assertRegexpMatches(
             mail.outbox[0].body,
-            "Dear student,\n\nYou have been invited to join {} at edx.org by a member of the course staff.\n\n"
+            "Dear student,\n+You have been invited to join {course} "
+            "at edx.org by a member of the course staff.\n+"
             "To finish your registration, please visit {proto}://{site}/register and fill out the "
-            "registration form making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n"
+            "registration form making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n+"
             "Once you have registered and activated your account, "
-            "visit {proto}://{site}{about_path} to join the course.\n\n----\n"
+            "visit {proto}://{site}{about_path} to join the course.\n+----\n+"
             "This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
-                self.course.display_name, proto=protocol, site=self.site_name, about_path=self.about_path
+                course=self.course.display_name,
+                proto=protocol,
+                site=self.site_name,
+                about_path=self.about_path
             )
         )
 
@@ -1366,13 +1370,13 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
         self.assertEqual(manual_enrollments.count(), 1)
         self.assertEqual(manual_enrollments[0].state_transition, UNENROLLED_TO_ALLOWEDTOENROLL)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
+        self.assertRegexpMatches(
             mail.outbox[0].body,
-            "Dear student,\n\nYou have been invited to join {display_name}"
-            " at edx.org by a member of the course staff.\n\n"
+            "Dear student,\n+You have been invited to join {display_name}"
+            " at edx.org by a member of the course staff.\n+"
             "To finish your registration, please visit {proto}://{site}/register and fill out the registration form "
-            "making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n"
-            "You can then enroll in {display_name}.\n\n----\n"
+            "making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n+"
+            "You can then enroll in {display_name}.\n+----\n+"
             "This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
                 display_name=self.course.display_name, proto=protocol, site=self.site_name
             )
@@ -1397,14 +1401,14 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
         manual_enrollments = ManualEnrollmentAudit.objects.all()
         self.assertEqual(manual_enrollments.count(), 1)
         self.assertEqual(manual_enrollments[0].state_transition, UNENROLLED_TO_ALLOWEDTOENROLL)
-        self.assertEqual(
+        self.assertRegexpMatches(
             mail.outbox[0].body,
-            "Dear student,\n\nYou have been invited to join {display_name}"
-            " at edx.org by a member of the course staff.\n\n"
+            "Dear student,\n+You have been invited to join {display_name}"
+            " at edx.org by a member of the course staff.\n+"
             "To finish your registration, please visit {proto}://{site}/register and fill out the registration form "
-            "making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n"
+            "making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n+"
             "Once you have registered and activated your account,"
-            " you will see {display_name} listed on your dashboard.\n\n----\n"
+            " you will see {display_name} listed on your dashboard.\n+----\n+"
             "This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
                 proto=protocol, site=self.site_name, display_name=self.course.display_name
             )
@@ -1630,12 +1634,12 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
             'You have been invited to register for {display_name}'.format(display_name=self.course.display_name,)
         )
 
-        self.assertEqual(
+        self.assertRegexpMatches(
             mail.outbox[0].body,
-            "Dear student,\n\nYou have been invited to join {display_name}"
-            " at edx.org by a member of the course staff.\n\n"
-            "To access the course visit {proto}://{site}{course_path} and login.\n\n----\n"
-            "This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
+            r"Dear student,\n+You have been invited to join {display_name}"
+            r" at edx.org by a member of the course staff.\n+"
+            r"To access the course visit {proto}://{site}{course_path} and login.\n+----\n+"
+            r"This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
                 display_name=self.course.display_name,
                 proto=protocol, site=self.site_name, course_path=self.course_path
             )
