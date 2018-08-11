@@ -28,7 +28,9 @@ from lms.djangoapps.grades.signals.handlers import disconnect_submissions_signal
 from lms.djangoapps.grades.signals.signals import PROBLEM_RAW_SCORE_CHANGED
 from lms.djangoapps.instructor.message_types import (
     AllowedEnroll,
+    AllowedUnenroll,
     EnrollEnrolled,
+    EnrolledUnenroll,
 )
 from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -458,10 +460,9 @@ def send_mail_to_student(student, param_dict, language=None):
 
     ace_emails_dict = {
         'allowed_enroll': AllowedEnroll,
-        # emails/enroll_email_allowedsubject.txt
-        # emails/enroll_email_allowedmessage.txt
-
+        'allowed_unenroll': AllowedUnenroll,
         'enrolled_enroll': EnrollEnrolled,
+        'enrolled_unenroll': EnrolledUnenroll,
     }
 
     if message_type in ace_emails_dict:
@@ -476,14 +477,6 @@ def send_mail_to_student(student, param_dict, language=None):
         ace.send(message)
     else:
         email_template_dict = {
-            'allowed_unenroll': (
-                'emails/unenroll_email_subject.txt',
-                'emails/unenroll_email_allowedmessage.txt'
-            ),
-            'enrolled_unenroll': (
-                'emails/unenroll_email_subject.txt',
-                'emails/unenroll_email_enrolledmessage.txt'
-            ),
             'add_beta_tester': (
                 'emails/add_beta_tester_email_subject.txt',
                 'emails/add_beta_tester_email_message.txt'
