@@ -5,6 +5,17 @@ ACE message types for the instructor module.
 from openedx.core.djangoapps.ace_common.message import BaseMessageType
 
 
+class AccountCreationAndEnrollment(BaseMessageType):
+    """
+    A message for course beta testers when they're invited.
+    """
+    APP_LABEL = 'instructor'
+
+    def __init__(self, *args, **kwargs):
+        super(AccountCreationAndEnrollment, self).__init__(*args, **kwargs)
+        self.options['transactional'] = True  # pylint: disable=unsupported-assignment-operation
+
+
 class AddBetaTester(BaseMessageType):
     """
     A message for course beta testers when they're invited.

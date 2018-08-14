@@ -27,6 +27,7 @@ from lms.djangoapps.grades.events import STATE_DELETED_EVENT_TYPE
 from lms.djangoapps.grades.signals.handlers import disconnect_submissions_signal_receiver
 from lms.djangoapps.grades.signals.signals import PROBLEM_RAW_SCORE_CHANGED
 from lms.djangoapps.instructor.message_types import (
+    AccountCreationAndEnrollment,
     AddBetaTester,
     AllowedEnroll,
     AllowedUnenroll,
@@ -461,6 +462,7 @@ def send_mail_to_student(student, param_dict, language=None):
     message_type = param_dict['message_type']
 
     ace_emails_dict = {
+        'account_creation_and_enrollment': AccountCreationAndEnrollment,
         'add_beta_tester': AddBetaTester,
         'allowed_enroll': AllowedEnroll,
         'allowed_unenroll': AllowedUnenroll,
@@ -481,10 +483,10 @@ def send_mail_to_student(student, param_dict, language=None):
         ace.send(message)
     else:
         email_template_dict = {
-            'account_creation_and_enrollment': (
-                'emails/enroll_email_enrolledsubject.txt',
-                'emails/account_creation_and_enroll_emailMessage.txt'
-            ),
+            # 'account_creation_and_enrollment': (
+            #     'emails/enroll_email_enrolledsubject.txt',
+            #     'emails/account_creation_and_enroll_emailMessage.txt'
+            # ),
         }
 
         subject_template, message_template = email_template_dict.get(message_type, (None, None))
