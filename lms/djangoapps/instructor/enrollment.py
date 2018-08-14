@@ -445,7 +445,7 @@ def send_mail_to_student(student, param_dict, language=None):
     Returns a boolean indicating whether the email was sent successfully.
     """
 
-    # add some helpers and microconfig subsitutions
+    # Add some helpers and microconfig subsitutions
     if 'display_name' in param_dict:
         param_dict['course_name'] = param_dict['display_name']
 
@@ -453,9 +453,6 @@ def send_mail_to_student(student, param_dict, language=None):
         'SITE_NAME',
         param_dict['site_name']
     )
-
-    subject = None
-    message = None
 
     # see if there is an activation email template definition available as configuration,
     # if so, then render that
@@ -471,42 +468,14 @@ def send_mail_to_student(student, param_dict, language=None):
         'remove_beta_tester': RemoveBetaTester,
     }
 
-    if message_type in ace_emails_dict:
-        # TODO: ^^^ Remove this if statement when all the messages are converted
-        message_class = ace_emails_dict[message_type]
-        message = message_class().personalize(
-            recipient=Recipient(username='', email_address=student),
-            language=language,
-            user_context=param_dict,
-        )
+    message_class = ace_emails_dict[message_type]
+    message = message_class().personalize(
+        recipient=Recipient(username='', email_address=student),
+        language=language,
+        user_context=param_dict,
+    )
 
-        ace.send(message)
-    else:
-        email_template_dict = {
-            # 'account_creation_and_enrollment': (
-            #     'emails/enroll_email_enrolledsubject.txt',
-            #     'emails/account_creation_and_enroll_emailMessage.txt'
-            # ),
-        }
-
-        subject_template, message_template = email_template_dict.get(message_type, (None, None))
-        if subject_template is not None and message_template is not None:
-            subject, message = render_message_to_string(
-                subject_template, message_template, param_dict, language=language
-            )
-
-        if subject and message:
-            # Remove leading and trailing whitespace from body
-            message = message.strip()
-
-            # Email subject *must not* contain newlines
-            subject = ''.join(subject.splitlines())
-            from_address = configuration_helpers.get_value(
-                'email_from_address',
-                settings.DEFAULT_FROM_EMAIL
-            )
-
-            send_mail(subject, message, from_address, [student], fail_silently=False)
+    ace.send(message)
 
 
 def render_message_to_string(subject_template, message_template, param_dict, language=None):
