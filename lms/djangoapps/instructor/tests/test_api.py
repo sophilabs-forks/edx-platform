@@ -1265,7 +1265,6 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
         environ = {'wsgi.url_scheme': protocol}
         response = self.client.post(url, params, **environ)
 
-        print "type(self.notenrolled_student.email): {}".format(type(self.notenrolled_student.email))
         self.assertEqual(response.status_code, 200)
 
         # test that the user is now enrolled
@@ -1342,21 +1341,32 @@ class TestInstructorAPIEnrollment(SharedModuleStoreTestCase, LoginEnrollmentTest
             mail.outbox[0].subject,
             u'You have been invited to register for {}'.format(self.course.display_name)
         )
-        self.assertRegexpMatches(
-            mail.outbox[0].body,
-            "Dear student,\n+You have been invited to join {course} "
-            "at edx.org by a member of the course staff.\n+"
-            "To finish your registration, please visit {proto}://{site}/register and fill out the "
-            "registration form making sure to use robot-not-an-email-yet@robot.org in the E-mail field.\n+"
-            "Once you have registered and activated your account, "
-            "visit {proto}://{site}{about_path} to join the course.\n+----\n+"
-            "This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org".format(
-                course=self.course.display_name,
+
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+
+        assert text_body.startswith('Dear student,')
+
+        for body in [text_body, html_body]:
+            assert 'You have been invited to join {course} at edx.org by a member of the course staff.'.format(
+                course=self.course.display_name
+            ) in body
+
+            assert ('To finish your registration, please '
+                    'visit {proto}://{site}/register').format(proto=protocol, site=self.site_name) in body
+
+            assert ('fill out the registration form making sure to use '
+                    'robot-not-an-email-yet@robot.org in the E-mail field.') in body
+
+            assert 'Once you have registered and activated your account,' in body
+
+            assert '{proto}://{site}{about_path}'.format(
                 proto=protocol,
                 site=self.site_name,
                 about_path=self.about_path
-            )
-        )
+            ) in body
+
+            assert 'This email was automatically sent from edx.org to robot-not-an-email-yet@robot.org' in body
 
     @ddt.data('http', 'https')
     @patch.dict(settings.FEATURES, {'ENABLE_MKTG_SITE': True})
