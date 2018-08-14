@@ -7,7 +7,9 @@ from openedx.core.djangoapps.ace_common.message import BaseMessageType
 
 class AccountCreationAndEnrollment(BaseMessageType):
     """
-    A message for course beta testers when they're invited.
+    A message for registering and inviting learners into a course.
+
+    This message includes username and password.
     """
     APP_LABEL = 'instructor'
 
@@ -29,7 +31,7 @@ class AddBetaTester(BaseMessageType):
 
 class AllowedEnroll(BaseMessageType):
     """
-    A message for _unregistered_ students who received an invitation to a course.
+    A message for _unregistered_ learners who received an invitation to a course.
     """
     APP_LABEL = 'instructor'
 
@@ -40,7 +42,7 @@ class AllowedEnroll(BaseMessageType):
 
 class AllowedUnenroll(BaseMessageType):
     """
-    A message for _unregistered_ students who had their invitation to a course cancelled.
+    A message for _unregistered_ learners who had their invitation to a course cancelled.
     """
     APP_LABEL = 'instructor'
 
@@ -51,7 +53,7 @@ class AllowedUnenroll(BaseMessageType):
 
 class EnrollEnrolled(BaseMessageType):
     """
-    A message for _registered_ students who have been both invited and enrolled to a course.
+    A message for _registered_ learners who have been both invited and enrolled to a course.
     """
     APP_LABEL = 'instructor'
 
@@ -62,7 +64,7 @@ class EnrollEnrolled(BaseMessageType):
 
 class EnrolledUnenroll(BaseMessageType):
     """
-    A message for _registered_ students who have been unenrolled from a course.
+    A message for _registered_ learners who have been unenrolled from a course.
     """
     APP_LABEL = 'instructor'
 
