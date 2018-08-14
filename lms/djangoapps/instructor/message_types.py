@@ -7,7 +7,7 @@ from openedx.core.djangoapps.ace_common.message import BaseMessageType
 
 class AddBetaTester(BaseMessageType):
     """
-    A message for beta students when they're invited.
+    A message for course beta testers when they're invited.
     """
     APP_LABEL = 'instructor'
 
@@ -57,4 +57,15 @@ class EnrolledUnenroll(BaseMessageType):
 
     def __init__(self, *args, **kwargs):
         super(EnrolledUnenroll, self).__init__(*args, **kwargs)
+        self.options['transactional'] = True  # pylint: disable=unsupported-assignment-operation
+
+
+class RemoveBetaTester(BaseMessageType):
+    """
+    A message for course beta testers when they're removed.
+    """
+    APP_LABEL = 'instructor'
+
+    def __init__(self, *args, **kwargs):
+        super(RemoveBetaTester, self).__init__(*args, **kwargs)
         self.options['transactional'] = True  # pylint: disable=unsupported-assignment-operation

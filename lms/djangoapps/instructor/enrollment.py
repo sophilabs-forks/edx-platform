@@ -32,6 +32,7 @@ from lms.djangoapps.instructor.message_types import (
     AllowedUnenroll,
     EnrollEnrolled,
     EnrolledUnenroll,
+    RemoveBetaTester,
 )
 from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
@@ -465,6 +466,7 @@ def send_mail_to_student(student, param_dict, language=None):
         'allowed_unenroll': AllowedUnenroll,
         'enrolled_enroll': EnrollEnrolled,
         'enrolled_unenroll': EnrolledUnenroll,
+        'remove_beta_tester': RemoveBetaTester,
     }
 
     if message_type in ace_emails_dict:
@@ -479,14 +481,6 @@ def send_mail_to_student(student, param_dict, language=None):
         ace.send(message)
     else:
         email_template_dict = {
-            # 'add_beta_tester': (
-            #     'emails/add_beta_tester_email_subject.txt',
-            #     'emails/add_beta_tester_email_message.txt'
-            # ),
-            'remove_beta_tester': (
-                'emails/remove_beta_tester_email_subject.txt',
-                'emails/remove_beta_tester_email_message.txt'
-            ),
             'account_creation_and_enrollment': (
                 'emails/enroll_email_enrolledsubject.txt',
                 'emails/account_creation_and_enroll_emailMessage.txt'
