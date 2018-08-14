@@ -29,9 +29,13 @@ define([
         },
 
         termName: function (facetKey, termKey) {
-            return this.meanings[facetKey] &&
+            var term_name = this.meanings[facetKey] &&
                 this.meanings[facetKey].terms  &&
                 this.meanings[facetKey].terms[termKey] || termKey;
+
+            // We are appending a double colon followed by a number (the facet
+            // value database row id) and her we trim the trailing key if present
+            return term_name.replace(/ ::\d+\s*$/, '');
         },
 
         renderOptions: function (options) {
