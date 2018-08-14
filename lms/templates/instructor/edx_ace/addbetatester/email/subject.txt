@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with course_name=display_name|default:course.display_name_with_default %}You have been invited to a beta test for {{ course_name }}{% endblocktrans %}
+{% endautoescape %}
