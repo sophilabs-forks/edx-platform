@@ -35,7 +35,7 @@ define([
 
             // We are appending a double colon followed by a number (the facet
             // value database row id) and her we trim the trailing key if present
-            return term_name.replace(/::\d+\s*$/,'');
+            return term_name.replace(/ ::\d+\s*$/, '');
         },
 
         renderOptions: function (options) {

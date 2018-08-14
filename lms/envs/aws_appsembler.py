@@ -16,7 +16,8 @@ SEARCH_SKIP_ENROLLMENT_START_DATE_FILTERING = True
 COURSE_CATALOG_VISIBILITY_PERMISSION = 'see_in_catalog'
 COURSE_ABOUT_VISIBILITY_PERMISSION = 'see_about_page'
 
-COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
+# Removed the default filters, "org", "language", "modes" per customer request
+COURSE_DISCOVERY_FILTERS = []
 
 CMS_SEARCH_API_URL = ENV_TOKENS.get("CMS_SEARCH_API_URL", None)
 CMS_SEARCH_API_URL_SSL = ENV_TOKENS.get("CMS_SEARCH_API_URL_SSL", None)

@@ -548,10 +548,11 @@ class AboutInfo(object):
             raise ValueError("Context dictionary does not contain expected argument 'course'")
         course_facet_value = CourseFacetValue.objects.filter(
             course_id=course.id,
-            facet_value__facet__slug=self.property_name).values_list('facet_value__id', 'facet_value__value')
+            facet_value__facet__slug=self.property_name,
+        ).values_list('facet_value__id', 'facet_value__value')
         # IMPORTANT: If you change the pattern here, make sure you also change
         # the regex in refine_sidebar.js 'termName' function
-        return ['{} ::{}'.format(v[1], v[0]) for v in course_facet_value]
+        return ['{value} ::{pk}'.format(value=value, pk=pk) for pk, value in course_facet_value]
 
     # Source location options - either from the course or the about info
     FROM_ABOUT_INFO = from_about_dictionary
