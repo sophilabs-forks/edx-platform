@@ -2037,21 +2037,29 @@ class TestInstructorAPIBulkBetaEnrollment(SharedModuleStoreTestCase, LoginEnroll
             'You have been invited to a beta test for {display_name}'.format(display_name=self.course.display_name,)
         )
 
-        self.assertEqual(
-            mail.outbox[0].body,
-            u"Dear {student_name}\n\nYou have been invited to be a beta tester "
-            "for {display_name} at edx.org by a member of the course staff.\n\n"
-            "Visit {proto}://{site}{about_path} to join "
-            "the course and begin the beta test.\n\n----\n"
-            "This email was automatically sent from edx.org to {student_email}".format(
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+        student_name = self.notenrolled_student.profile.name
+        assert text_body.startswith('Dear {student_name}'.format(student_name=student_name))
+        assert 'Visit {display_name}'.format(display_name=self.course.display_name) in html_body
+
+        for body in [text_body, html_body]:
+            assert ('You have been invited to be a beta tester for {display_name} at edx.org').format(
                 display_name=self.course.display_name,
-                student_name=self.notenrolled_student.profile.name,
-                student_email=self.notenrolled_student.email,
+            ) in body
+
+            assert 'by a member of the course staff.' in body
+            assert 'join the course and begin the beta test' in body
+
+            assert '{proto}://{site}{about_path}'.format(
                 proto=protocol,
                 site=self.site_name,
-                about_path=self.about_path
-            )
-        )
+                about_path=self.about_path,
+            ) in body
+
+            assert 'This email was automatically sent from edx.org to {student_email}'.format(
+                student_email=self.notenrolled_student.email,
+            ) in body
 
     @ddt.data('http', 'https')
     def test_add_notenrolled_with_email_autoenroll(self, protocol):

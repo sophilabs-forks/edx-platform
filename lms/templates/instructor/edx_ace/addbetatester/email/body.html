@@ -8,14 +8,20 @@
         <td>
             <h1>
                 {% blocktrans with course_name=display_name|default:course.display_name_with_default %}
-                    You have been invited to be a beta tester for {{ course_name }}
+                    You have been invited to be a beta tester for {{ course_name }} at {{ site_name }}
                 {% endblocktrans %}
             </h1>
 
 
+            <p style="color: rgba(0,0,0,.75);">
+                {% blocktrans %}The invitation has been sent by a member of the course staff.{% endblocktrans %}
+                <br />
+            </p>
+
+
             {% if auto_enroll %}
                 <p style="color: rgba(0,0,0,.75);">
-                    {% blocktrans %}To start accessing course materials, please visit {{ course_url }}.{% endblocktrans %}
+                    {% blocktrans %}To start accessing course materials, please visit:{% endblocktrans %}
                     <br />
                 </p>
 
@@ -26,7 +32,7 @@
                     <br />
                 </p>
 
-                {% blocktrans asvar course_cta_text with course_cta_text=display_name|default:course.display_name_with_default%}Visit {{ course_cta_text }}{% endblocktrans %}
+                {% blocktrans asvar course_cta_text with course_name=display_name|default:course.display_name_with_default%}Visit {{ course_name }}{% endblocktrans %}
                 {% include "ace_common/edx_ace/common/return_to_course_cta.html" with course_cta_text=course_cta_text course_cta_url=course_about_url %}
             {% else %}
                 <p style="color: rgba(0,0,0,.75);">
@@ -39,7 +45,7 @@
             {% endif %}
 
             <p style="color: rgba(0,0,0,.75);">
-                {% blocktrans %}This email was automatically sent from {{ site_name }} to {{ full_name }}{% endblocktrans %}
+                {% blocktrans %}This email was automatically sent from {{ site_name }} to {{ email_address }}{% endblocktrans %}
                 <br />
             </p>
         </td>
