@@ -7,18 +7,18 @@
     <tr>
         <td>
             <h1>
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}
+                {% blocktrans %}
                     You have been un-enrolled from {{ course_name }}
                 {% endblocktrans %}
             </h1>
 
             <p style="color: rgba(0,0,0,.75);">
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}You have been un-enrolled in {{ course_name }} at {{ site_name }} by a member of the course staff. The course will no longer appear on your {{ site_name }} dashboard.{% endblocktrans %}
+                {% blocktrans %}You have been un-enrolled in {{ course_name }} at {{ site_name }} by a member of the course staff. The course will no longer appear on your {{ site_name }} dashboard.{% endblocktrans %}
                 <br />
             </p>
 
             <p style="color: rgba(0,0,0,.75);">
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}Your other courses have not been affected.{% endblocktrans %}
+                {% blocktrans %}Your other courses have not been affected.{% endblocktrans %}
                 <br />
             </p>
 

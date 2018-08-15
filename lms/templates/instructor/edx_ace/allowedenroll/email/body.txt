@@ -1,6 +1,6 @@
 {% load i18n %}{% autoescape off %}{% blocktrans %}Dear student,{% endblocktrans %}
 
-{% blocktrans with course_name=display_name|default:course.display_name_with_default %}You have been invited to join {{ course_name }} at {{ site_name }} by a member of the course staff.{% endblocktrans %}
+{% blocktrans %}You have been invited to join {{ course_name }} at {{ site_name }} by a member of the course staff.{% endblocktrans %}
 {% if is_shib_course %}{% if auto_enroll %}{% blocktrans %}To access the course visit {{ course_url }} and login.{% endblocktrans %}
 {% elif course_about_url is not None %}
 {% blocktrans %}To access the course visit {{ course_about_url }} and register for the course.{% endblocktrans %}

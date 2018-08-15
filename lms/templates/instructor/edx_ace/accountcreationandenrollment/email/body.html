@@ -7,7 +7,7 @@
     <tr>
         <td>
             <h1>
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}
+                {% blocktrans %}
                     Welcome to {{ course_name }}
                 {% endblocktrans %}
             </h1>
@@ -32,7 +32,7 @@
             </p>
 
             <p style="color: rgba(0,0,0,.75);">
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}Sincerely yours, The {{ course_name }} Team{% endblocktrans %}{% endautoescape %}
+                {% blocktrans %}Sincerely yours, The {{ course_name }} Team{% endblocktrans %}{% endautoescape %}
                 <br />
             </p>
         </td>

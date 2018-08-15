@@ -7,7 +7,7 @@
     <tr>
         <td>
             <h1>
-                {% blocktrans with course_name=display_name|default:course.display_name_with_default %}
+                {% blocktrans %}
                     You have been invited to be a beta tester for {{ course_name }} at {{ site_name }}
                 {% endblocktrans %}
             </h1>
@@ -30,7 +30,7 @@
                     <br />
                 </p>
 
-                {% blocktrans asvar course_cta_text with course_name=display_name|default:course.display_name_with_default%}Visit {{ course_name }}{% endblocktrans %}
+                {% blocktrans asvar course_cta_text %}Visit {{ course_name }}{% endblocktrans %}
                 {% include "ace_common/edx_ace/common/return_to_course_cta.html" with course_cta_text=course_cta_text course_cta_url=course_about_url %}
             {% else %}
                 <p style="color: rgba(0,0,0,.75);">

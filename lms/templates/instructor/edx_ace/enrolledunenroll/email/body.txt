@@ -1,6 +1,6 @@
 {% load i18n %}{% autoescape off %}{% blocktrans %}Dear {{ full_name }}{% endblocktrans %}
 
-{% blocktrans with course_name=display_name|default:course.display_name_with_default %}You have been un-enrolled in {{ course_name }} at {{ site_name }} by a member of the course staff. The course will no longer appear on your {{ site_name }} dashboard.{% endblocktrans %}
+{% blocktrans %}You have been un-enrolled in {{ course_name }} at {{ site_name }} by a member of the course staff. The course will no longer appear on your {{ site_name }} dashboard.{% endblocktrans %}
 
 {% blocktrans %}Your other courses have not been affected.{% endblocktrans %}
 
