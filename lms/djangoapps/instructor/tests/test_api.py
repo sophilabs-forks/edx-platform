@@ -2230,19 +2230,24 @@ class TestInstructorAPIBulkBetaEnrollment(SharedModuleStoreTestCase, LoginEnroll
             mail.outbox[0].subject,
             u'You have been removed from a beta test for {display_name}'.format(display_name=self.course.display_name,)
         )
-        self.assertEqual(
-            mail.outbox[0].body,
-            "Dear {full_name}\n\nYou have been removed as a beta tester for "
-            "{display_name} at edx.org by a member of the course staff. "
-            "The course will remain on your dashboard, but you will no longer "
-            "be part of the beta testing group.\n\n"
-            "Your other courses have not been affected.\n\n----\n"
-            "This email was automatically sent from edx.org to {email_address}".format(
+
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+        assert text_body.startswith('Dear {name}'.format(name=self.beta_tester.profile.name))
+
+        for body in [text_body, html_body]:
+            assert 'You have been removed as a beta tester for {display_name} at edx.org'.format(
                 display_name=self.course.display_name,
-                full_name=self.beta_tester.profile.name,
-                email_address=self.beta_tester.email
-            )
-        )
+            ) in body
+
+            assert ('The course will remain on your dashboard, but you will no longer be '
+                    'part of the beta testing group.') in body
+
+            assert 'Your other courses have not been affected.' in body
+
+            assert 'This email was automatically sent from edx.org to {email_address}'.format(
+                email_address=self.beta_tester.email,
+            ) in body
 
 
 @attr(shard=5)
