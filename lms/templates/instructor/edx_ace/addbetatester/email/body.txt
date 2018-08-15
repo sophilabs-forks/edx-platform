@@ -4,7 +4,7 @@
 {% if auto_enroll %}
 {% blocktrans %}To start accessing course materials, please visit {{ course_url }}{% endblocktrans %}
 {% elif course_about_url is not None %}
-{% blocktrans %}Visit {{ course_about_url }} to join the course and begin the beta test.{% endblocktrans %}
+{% blocktrans %}Visit {{ course_about_url }} to enroll in the course and begin the beta test.{% endblocktrans %}
 {% else %}
 {% blocktrans %}Visit {{ site_name }} to enroll in the course and begin the beta test.{% endblocktrans %}
 {% endif %}

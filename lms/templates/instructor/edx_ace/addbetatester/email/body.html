@@ -12,12 +12,10 @@
                 {% endblocktrans %}
             </h1>
 
-
             <p style="color: rgba(0,0,0,.75);">
                 {% blocktrans %}The invitation has been sent by a member of the course staff.{% endblocktrans %}
                 <br />
             </p>
-
 
             {% if auto_enroll %}
                 <p style="color: rgba(0,0,0,.75);">
@@ -28,7 +26,7 @@
                 {% include "ace_common/edx_ace/common/return_to_course_cta.html" with course_cta_text=display_name|default:course.display_name_with_default course_cta_url=course_url %}
             {% elif course_about_url is not None %}
                 <p style="color: rgba(0,0,0,.75);">
-                    {% blocktrans %}To join the course and begin the beta test:{% endblocktrans %}
+                    {% blocktrans %}To enroll in the course and begin the beta test:{% endblocktrans %}
                     <br />
                 </p>
 

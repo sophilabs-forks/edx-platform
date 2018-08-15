@@ -2044,12 +2044,12 @@ class TestInstructorAPIBulkBetaEnrollment(SharedModuleStoreTestCase, LoginEnroll
         assert 'Visit {display_name}'.format(display_name=self.course.display_name) in html_body
 
         for body in [text_body, html_body]:
-            assert ('You have been invited to be a beta tester for {display_name} at edx.org').format(
+            assert 'You have been invited to be a beta tester for {display_name} at edx.org'.format(
                 display_name=self.course.display_name,
             ) in body
 
             assert 'by a member of the course staff.' in body
-            assert 'join the course and begin the beta test' in body
+            assert 'enroll in the course and begin the beta test' in body
 
             assert '{proto}://{site}{about_path}'.format(
                 proto=protocol,
@@ -2093,21 +2093,28 @@ class TestInstructorAPIBulkBetaEnrollment(SharedModuleStoreTestCase, LoginEnroll
             'You have been invited to a beta test for {display_name}'.format(display_name=self.course.display_name)
         )
 
-        self.assertEqual(
-            mail.outbox[0].body,
-            u"Dear {student_name}\n\nYou have been invited to be a beta tester "
-            "for {display_name} at edx.org by a member of the course staff.\n\n"
-            "To start accessing course materials, please visit "
-            "{proto}://{site}{course_path}\n\n----\n"
-            "This email was automatically sent from edx.org to {student_email}".format(
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+        student_name = self.notenrolled_student.profile.name
+        assert text_body.startswith('Dear {student_name}'.format(student_name=student_name))
+
+        for body in [text_body, html_body]:
+            assert 'You have been invited to be a beta tester for {display_name} at edx.org'.format(
                 display_name=self.course.display_name,
-                student_name=self.notenrolled_student.profile.name,
-                student_email=self.notenrolled_student.email,
+            ) in body
+
+            assert 'by a member of the course staff' in body
+
+            assert 'To start accessing course materials, please visit' in body
+            assert '{proto}://{site}{course_path}'.format(
                 proto=protocol,
                 site=self.site_name,
                 course_path=self.course_path
             )
-        )
+
+            assert 'This email was automatically sent from edx.org to {student_email}'.format(
+                student_email=self.notenrolled_student.email,
+            ) in body
 
     @patch.dict(settings.FEATURES, {'ENABLE_MKTG_SITE': True})
     def test_add_notenrolled_email_mktgsite(self):
@@ -2116,17 +2123,23 @@ class TestInstructorAPIBulkBetaEnrollment(SharedModuleStoreTestCase, LoginEnroll
         response = self.client.post(url, {'identifiers': self.notenrolled_student.email, 'action': 'add', 'email_students': True})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            mail.outbox[0].body,
-            u"Dear {}\n\nYou have been invited to be a beta tester "
-            "for {} at edx.org by a member of the course staff.\n\n"
-            "Visit edx.org to enroll in the course and begin the beta test.\n\n----\n"
-            "This email was automatically sent from edx.org to {}".format(
-                self.notenrolled_student.profile.name,
-                self.course.display_name,
-                self.notenrolled_student.email,
-            )
-        )
+
+        text_body = mail.outbox[0].body
+        html_body = mail.outbox[0].alternatives[0][0]
+        student_name = self.notenrolled_student.profile.name
+        assert text_body.startswith('Dear {student_name}'.format(student_name=student_name))
+
+        for body in [text_body, html_body]:
+            assert 'You have been invited to be a beta tester for {display_name} at edx.org'.format(
+                display_name=self.course.display_name,
+            ) in body
+
+            assert 'by a member of the course staff.' in body
+            assert 'Visit edx.org' in body
+            assert 'enroll in the course and begin the beta test' in body
+            assert 'This email was automatically sent from edx.org to {student_email}'.format(
+                student_email=self.notenrolled_student.email,
+            ) in body
 
     def test_enroll_with_email_not_registered(self):
         # User doesn't exist
