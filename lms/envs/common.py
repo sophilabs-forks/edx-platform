@@ -654,7 +654,12 @@ EVENT_TRACKING_BACKENDS = {
         'ENGINE': 'eventtracking.backends.routing.RoutingBackend',
         'OPTIONS': {
             'backends': {
-                'segment': {'ENGINE': 'eventtracking.backends.segment.SegmentBackend'}
+                'segment': {
+                    'ENGINE': 'eventtracking.backends.segment.SegmentBackend'
+                },
+                'custom_segment': {
+                    'ENGINE': 'track.backends.routing.CustomSegmentBackend'
+                }
             },
             'processors': [
                 {
