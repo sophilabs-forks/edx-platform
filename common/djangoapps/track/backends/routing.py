@@ -57,6 +57,11 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
 
         context = event.get('context', {})
         user_id = context.get('user_id')
+        event_source = context.get('event_source')
+
+        event_data = event.get('data')
+
+        info = event_data.get('info')
         name = event.get('name')
         if name is None or user_id is None:
             return
@@ -71,9 +76,34 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
             }
 
         # TODO Grab the proper type from the event
-        self.custom_segment.track(
-            user_id,
-            name,
-            event,
-            context=segment_context
+        site_segment_client = Client(
+            write_key=site_segment_key,
+            debug=False, on_error=None, send=True
         )
+
+        if event_source == 'browser.identify':
+            site_segment_client.identify(
+                user_id=user_id,
+                traits=info
+            )
+        elif event_source == 'browser.page':
+            site_segment_client.page(
+                user_id=user_id,
+                properties=info
+            )
+        elif event_source == 'browser.track':
+            print('received info')
+            pprint(event_data)
+            site_segment_client.track(
+                user_id,
+                event_data.get('name'),
+                properties=info,
+                context=segment_context
+            )
+        else:
+            site_segment_client.track(
+                user_id,
+                name,
+                event,
+                context=segment_context
+            )
