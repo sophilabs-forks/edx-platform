@@ -1,5 +1,5 @@
 from analytics import Client
-from eventtracking.backends.segment import SegmentBackend
+from eventtracking.backends.segment import SegmentBackend as BaseSegmentBackend
 
 import logging
 
@@ -8,10 +8,19 @@ from track.backends import BaseBackend
 log = logging.getLogger('track.backends.logger')
 
 
-SAMPLE_KEY = 'YourCustomerSegmentKey'
+class SegmentBackend(BaseSegmentBackend, BaseBackend):
+    def __init__(self, **kwargs):
+        self.blacklist = kwargs.get('blacklist', [])
+
+    def send(self, event):
+        event_name = event.get('name')
+        if event_name and event_name in self.blacklist:
+            return
+
+        super(SegmentBackend, self).send(event)
 
 
-class CustomSegmentBackend(SegmentBackend, BaseBackend):
+class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
     def __init__(self, **kwargs):
         """Event tracker backend that uses a python logger.
 
