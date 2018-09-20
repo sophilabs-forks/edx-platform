@@ -29,28 +29,32 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
             been configured using the default python mechanisms.
 
         """
-        super(CustomSegmentBackend, self).__init__()
+        super(SiteSegmentBackend, self).__init__()
         self.event_logger = logging.getLogger('segment_override')
 
-        self.custom_segment = Client(
-            write_key=SAMPLE_KEY,
-            debug=False, on_error=None, send=True
-        )
-
-
-    def get_site_segment_key(self):
+    def get_site_segment_key(self, event):
         """
         Get the current site configuration to see if there is a custom key
         configured
         :return: Segment IO write key
         """
-        return SAMPLE_KEY
+        site_configuration = event.get('context').get('site_configuration')
+        if site_configuration:
+            return site_configuration.get('SEGMENT_KEY')
+
+        return None
 
     def send(self, event):
         """
         Process the event using all registered processors and send it to all registered backends.
         Logs and swallows all `Exception`.
         """
+        site_segment_key = self.get_site_segment_key(event)
+        if not site_segment_key:
+            return
+
+        del event['context']['site_configuration']
+
         context = event.get('context', {})
         user_id = context.get('user_id')
         name = event.get('name')

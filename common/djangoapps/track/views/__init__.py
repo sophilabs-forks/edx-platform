@@ -61,6 +61,8 @@ def user_track(request):
     except:
         username = "anonymous"
 
+    site_configuration = get_site_configuration_from_request(request)
+
     name = _get_request_value(request, 'event_type')
     data = _get_request_value(request, 'event', {})
     page = _get_request_value(request, 'page')
@@ -75,11 +77,20 @@ def user_track(request):
     context_override['username'] = username
     context_override['event_source'] = 'browser'
     context_override['page'] = page
+    context_override['site_configuration'] = site_configuration
 
     with eventtracker.get_tracker().context('edx.course.browser', context_override):
         eventtracker.emit(name=name, data=data)
 
     return HttpResponse('success')
+
+
+def get_site_configuration_from_request(request):
+    try:
+        site_configuration = request.site.configuration.values
+    except:
+        site_configuration = None
+    return site_configuration
 
 
 def server_track(request, event_type, event, page=None):
@@ -96,6 +107,8 @@ def server_track(request, event_type, event, page=None):
     except:
         username = "anonymous"
 
+    site_configuration = get_site_configuration_from_request(request)
+
     # define output:
     event = {
         "username": username,
@@ -110,6 +123,7 @@ def server_track(request, event_type, event, page=None):
         "time": datetime.datetime.utcnow(),
         "host": _get_request_header(request, 'SERVER_NAME'),
         "context": eventtracker.get_tracker().resolve_context(),
+        "site_configuration": site_configuration.values
     }
 
     # Some duplicated fields are passed into event-tracking via the context by track.middleware.
