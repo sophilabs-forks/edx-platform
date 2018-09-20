@@ -6,7 +6,7 @@
     <script type="text/javascript">
     % if user.is_authenticated():
         $(window).load(function() {
-            analytics.identify(
+            window.cAnalytics.identify(
                 "${ user.id | n, js_escaped_string }",
                 {
                     email: "${ user.email | n, js_escaped_string }",
