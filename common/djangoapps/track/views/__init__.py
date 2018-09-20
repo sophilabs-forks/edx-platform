@@ -50,6 +50,51 @@ def _get_request_value(request, value_name, default=''):
     return default
 
 
+def handle_browser_track(request, event_source, context_name):
+    post = json.loads(request.body)
+    try:
+        username = request.user.username
+    except:
+        username = "anonymous"
+    site_configuration = get_site_configuration_from_request(request)
+    data = post
+    if isinstance(data, basestring) and len(data) > 0:
+        try:
+            data = json.loads(data)
+        except ValueError:
+            pass
+    context_override = {
+        'username': username,
+        'event_source': event_source,
+        'site_configuration': site_configuration
+    }
+    with eventtracker.get_tracker().context(context_name,
+                                            context_override):
+        eventtracker.emit(name=event_source, data=data)
+    return HttpResponse('success')
+
+
+def user_identify_event(request):
+    context_name = 'edx.course.browser.identify'
+    event_source = 'browser.identify'
+
+    return handle_browser_track(request, event_source, context_name)
+
+
+def user_page_event(request):
+    event_source = 'browser.page'
+    context_name = 'edx.course.browser.page'
+
+    return handle_browser_track(request, event_source, context_name)
+
+
+def user_track_event(request):
+    event_source = 'browser.track'
+    context_name = 'edx.course.browser.track'
+
+    return handle_browser_track(request, event_source, context_name)
+
+
 def user_track(request):
     """
     Log when POST call to "event" URL is made by a user.
