@@ -53,6 +53,16 @@
           var name = arguments[0];
           var properties = arguments[1];
           SegmentProxy.track(name, properties);
+        },
+        trackLink: function(arguments) {
+          var name = arguments[1];
+          var properties = arguments[1];
+
+          SegmentProxy.track(name, properties);
+          window.analytics.trackLink.apply(null, arguments);
+        },
+        pageview: function() {
+          window.analytics.pageview.apply(null, arguments);
         }
       }
       window.cAnalytics.page();
