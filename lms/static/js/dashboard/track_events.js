@@ -26,7 +26,7 @@ var edx = edx || {};
 
         window.cAnalytics.trackLink(
             $courseTitleLink,
-            'edx.bi.dashboard.course_title.clicked.paco',
+            'edx.bi.dashboard.course_title.clicked',
             trackProperty
         );
     };
