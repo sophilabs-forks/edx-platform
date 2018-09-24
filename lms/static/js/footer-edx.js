@@ -31,7 +31,7 @@ var edx = edx || {};
 
                     // Only tracking external links
                     if ($link.hasClass('external')) {
-                        window.analytics.track('edx.bi.footer.link', {
+                        window.cAnalytics.track('edx.bi.footer.link', {
                             category: 'outbound_link',
                             label: $link.attr('href')
                         });

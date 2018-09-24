@@ -42,7 +42,7 @@ var edx = edx || {};
         * @param {string} course - The course ID for the donation.
         */
         var firePaymentAnalyticsEvent = function(course) {
-            analytics.track(
+            window.cAnalytics.track(
                 'edx.bi.user.payment_processor.visited',
                 {
                     category: 'donations',

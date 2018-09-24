@@ -29,11 +29,11 @@ var edx = edx || {};
             }).render();
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.analytics.page('verification', this.templateName);
+            window.cAnalytics.page('verification', this.templateName);
 
             this.listenTo(webcam, 'imageCaptured', function() {
                 // Track the user's successful image capture
-                window.analytics.track('edx.bi.user.identification_image.captured', {
+                window.cAnalytics.track('edx.bi.user.identification_image.captured', {
                     category: 'verification'
                 });
             });

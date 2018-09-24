@@ -124,7 +124,7 @@ var edx = edx || {};
         },
 
         trackPurchase: function(order) {
-            window.analytics.track('Completed Purchase', {
+            window.cAnalytics.track('Completed Purchase', {
                 orderId: order.number,
                 total: order.total_excl_tax,
                 currency: order.currency
@@ -149,15 +149,15 @@ var edx = edx || {};
                 $verifyLaterButton = $('#verify_later_button');
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.analytics.page('payment', 'receipt');
+            window.cAnalytics.page('payment', 'receipt');
 
             // Track the user's decision to verify immediately
-            window.analytics.trackLink($verifyNowButton, 'edx.bi.user.verification.immediate', {
+            window.cAnalytics.trackLink($verifyNowButton, 'edx.bi.user.verification.immediate', {
                 category: 'verification'
             });
 
             // Track the user's decision to defer their verification
-            window.analytics.trackLink($verifyLaterButton, 'edx.bi.user.verification.deferred', {
+            window.cAnalytics.trackLink($verifyLaterButton, 'edx.bi.user.verification.deferred', {
                 category: 'verification'
             });
         },
@@ -368,7 +368,7 @@ function completeOrder(event) {
         // Ignore the error as not all event inputs have the preventDefault method.
     }
 
-    analytics.track(
+    window.cAnalytics.track(
         'edx.bi.credit.clicked_complete_credit',
         {
             category: 'credit',
