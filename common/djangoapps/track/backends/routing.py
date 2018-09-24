@@ -93,7 +93,6 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
             )
         elif event_source == 'browser.track':
             print('received info')
-            pprint(event_data)
             site_segment_client.track(
                 user_id,
                 event_data.get('name'),
