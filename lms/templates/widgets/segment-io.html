@@ -33,6 +33,7 @@
       analytics.SNIPPET_VERSION = "3.1.0";
       analytics.load("${ settings.LMS_SEGMENT_KEY | n, js_escaped_string }");
 
+      //TODO Refactor. Duplicated on cms
       window.cAnalytics = {
         identify: function() {
           window.analytics.identify.apply(null, arguments);
