@@ -44,6 +44,18 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
 
         return None
 
+    def get_site_google_analytics_key(self, event):
+        """
+        Get the current site configuration to see if there is a custom key
+        configured
+        :return: Segment IO write key
+        """
+        site_configuration = event.get('context').get('site_configuration')
+        if site_configuration:
+            return site_configuration.get('GOOGLE_ANALYTICS_TRACKING_ID')
+
+        return None
+
     def send(self, event):
         """
         Process the event using all registered processors and send it to all registered backends.
@@ -68,14 +80,12 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
 
         segment_context = {}
 
-        # TODO Should be grabbed from the site config
-        ga_client_id = context.get('client_id')
+        ga_client_id = self.get_site_google_analytics_key(event)
         if ga_client_id is not None:
             segment_context['Google Analytics'] = {
                 'clientId': ga_client_id
             }
 
-        # TODO Grab the proper type from the event
         site_segment_client = Client(
             write_key=site_segment_key,
             debug=False, on_error=None, send=True
