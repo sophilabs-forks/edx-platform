@@ -86,15 +86,15 @@ var edx = edx || {};
                 $verifyLaterButton = $('#verify_later_button');
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.cAnalytics.page('payment', this.templateName);
+            window.analytics.page('payment', this.templateName);
 
             // Track the user's decision to verify immediately
-            window.cAnalytics.trackLink($verifyNowButton, 'edx.bi.user.verification.immediate', {
+            window.analytics.trackLink($verifyNowButton, 'edx.bi.user.verification.immediate', {
                 category: 'verification'
             });
 
             // Track the user's decision to defer their verification
-            window.cAnalytics.trackLink($verifyLaterButton, 'edx.bi.user.verification.deferred', {
+            window.analytics.trackLink($verifyLaterButton, 'edx.bi.user.verification.deferred', {
                 category: 'verification'
             });
         },

@@ -116,7 +116,7 @@ such that the value can be defined later than this assignment (file load order).
                 $(this).addClass(CSS_ACTIVE_SECTION);
                 $(this).attr('aria-pressed', 'true');
                 $section.addClass(CSS_ACTIVE_SECTION);
-                window.cAnalytics.pageview('instructor_section:' + itemSectionName);
+                window.analytics.pageview('instructor_section:' + itemSectionName);
                 location.hash = '' + HASH_LINK_PREFIX + itemSectionName;
                 sectionsHaveLoaded.afterFor(function() {
                     return $section.data('wrapper').onClickTitle();

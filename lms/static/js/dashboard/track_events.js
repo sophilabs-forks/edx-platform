@@ -24,7 +24,7 @@ var edx = edx || {};
     edx.dashboard.trackCourseTitleClicked = function($courseTitleLink, properties) {
         var trackProperty = properties || edx.dashboard.generateTrackProperties;
 
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $courseTitleLink,
             'edx.bi.dashboard.course_title.clicked',
             trackProperty
@@ -34,7 +34,7 @@ var edx = edx || {};
     // Emit an event  when the 'course image' is clicked.
     edx.dashboard.trackCourseImageLinkClicked = function($courseImageLink, properties) {
         var trackProperty = properties || edx.dashboard.generateTrackProperties;
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $courseImageLink,
             'edx.bi.dashboard.course_image.clicked',
             trackProperty
@@ -44,7 +44,7 @@ var edx = edx || {};
     // Emit an event  when the 'View Course' button is clicked.
     edx.dashboard.trackEnterCourseLinkClicked = function($enterCourseLink, properties) {
         var trackProperty = properties || edx.dashboard.generateTrackProperties;
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $enterCourseLink,
             'edx.bi.dashboard.enter_course.clicked',
             trackProperty
@@ -54,7 +54,7 @@ var edx = edx || {};
     // Emit an event when the options dropdown is engaged.
     edx.dashboard.trackCourseOptionDropdownClicked = function($optionsDropdown, properties) {
         var trackProperty = properties || edx.dashboard.generateTrackProperties;
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $optionsDropdown,
             'edx.bi.dashboard.course_options_dropdown.clicked',
             trackProperty
@@ -64,7 +64,7 @@ var edx = edx || {};
     // Emit an event  when the 'Learn about verified' link is clicked.
     edx.dashboard.trackLearnVerifiedLinkClicked = function($courseLearnVerified, properties) {
         var trackProperty = properties || edx.dashboard.generateTrackProperties;
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $courseLearnVerified,
             'edx.bi.dashboard.verified_info_link.clicked',
             trackProperty
@@ -74,7 +74,7 @@ var edx = edx || {};
     // Emit an event  when the 'Find Courses' button is clicked.
     edx.dashboard.trackFindCourseBtnClicked = function($findCoursesBtn, properties) {
         var trackProperty = properties || {category: 'dashboard', label: null};
-        window.cAnalytics.trackLink(
+        window.analytics.trackLink(
             $findCoursesBtn,
             'edx.bi.dashboard.find_courses_button.clicked',
             trackProperty

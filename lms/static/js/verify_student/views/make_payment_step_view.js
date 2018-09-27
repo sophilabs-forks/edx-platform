@@ -90,7 +90,7 @@ var edx = edx || {};
                 self = this;
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.cAnalytics.page('payment', this.templateName);
+            window.analytics.page('payment', this.templateName);
 
             // The contribution section is hidden by default
             // Display it if the user hasn't already selected an amount
@@ -205,7 +205,7 @@ var edx = edx || {};
             // Marketing needs a way to tell the difference between users
             // leaving for the payment processor and users dropping off on
             // this page. A virtual pageview can be used to do this.
-            window.cAnalytics.page('payment', 'payment_processor_step');
+            window.analytics.page('payment', 'payment_processor_step');
 
             this.submitForm(form);
         },

@@ -191,7 +191,7 @@
                 },
 
                 resetPassword: function() {
-                    window.cAnalytics.track('edx.bi.password_reset_form.viewed', {
+                    window.analytics.track('edx.bi.password_reset_form.viewed', {
                         category: 'user-engagement'
                     });
 
@@ -209,7 +209,7 @@
 
                     e.preventDefault();
 
-                    window.cAnalytics.track('edx.bi.' + type + '_form.toggled', {
+                    window.analytics.track('edx.bi.' + type + '_form.toggled', {
                         category: 'user-engagement'
                     });
 

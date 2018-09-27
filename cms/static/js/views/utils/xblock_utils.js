@@ -50,7 +50,7 @@ define(['jquery', 'underscore', 'gettext', 'common/js/components/utils/view_util
             return ViewUtils.runOperationShowingMessage(gettext('Adding'),
                 function() {
                     var addOperation = $.Deferred();
-                    window.cAnalytics.track('Created a ' + category, {
+                    window.analytics.track('Created a ' + category, {
                         course: course_location_analytics,
                         display_name: displayName
                     });

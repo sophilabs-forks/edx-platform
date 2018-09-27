@@ -52,7 +52,7 @@
                  data.full_name = model.get('fullName');
 
                 // Track the user's decision to change the name on their account
-                 window.cAnalytics.track('edx.bi.user.full_name.changed', {
+                 window.analytics.track('edx.bi.user.full_name.changed', {
                      category: 'verification'
                  });
              }

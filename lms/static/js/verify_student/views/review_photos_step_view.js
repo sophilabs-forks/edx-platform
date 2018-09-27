@@ -36,12 +36,12 @@ var edx = edx || {};
             $('#next_step_button').on('click', _.bind(this.submitPhotos, this));
 
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.cAnalytics.page('verification', this.templateName);
+            window.analytics.page('verification', this.templateName);
         },
 
         retakePhotos: function() {
             // Track the user's intent to retake their photos
-            window.cAnalytics.track('edx.bi.user.images.retaken', {
+            window.analytics.track('edx.bi.user.images.retaken', {
                 category: 'verification'
             });
 

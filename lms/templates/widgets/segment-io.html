@@ -7,6 +7,8 @@
   // Asynchronously load Segment's analytics.js library
   !function () {
     var analytics = window.analytics = window.analytics || [];
+    window.segmentAnalytics = window.analytics;
+
     if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
       analytics.invoked = !0;
       analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "page", "once", "off", "on"];
@@ -34,9 +36,9 @@
       analytics.load("${ settings.LMS_SEGMENT_KEY | n, js_escaped_string }");
 
       //TODO Refactor. Duplicated on cms
-      window.cAnalytics = {
+      window.analytics = {
         identify: function() {
-          window.analytics.identify.apply(null, arguments);
+          window.segmentAnalytics.identify.apply(null, arguments);
           SegmentProxy.identify(arguments);
         },
         page: function() {
@@ -46,11 +48,11 @@
             title: document.title,
             url: window.location.href
           };
-          window.analytics.page.apply(null);
+          window.segmentAnalytics.page.apply(null);
           SegmentProxy.page(data);
         },
         track: function() {
-          window.analytics.track.apply(null, arguments);
+          window.segmentAnalytics.track.apply(null, arguments);
           var name = arguments[0];
           var properties = arguments[1];
           SegmentProxy.track(name, properties);
@@ -60,13 +62,13 @@
           var properties = arguments[1];
 
           SegmentProxy.track(name, properties);
-          window.analytics.trackLink.apply(null, arguments);
+          window.segmentAnalytics.trackLink.apply(null, arguments);
         },
         pageview: function() {
-          window.analytics.pageview.apply(null, arguments);
+          window.segmentAnalytics.pageview.apply(null, arguments);
         }
-      }
-      window.cAnalytics.page();
+      };
+      window.analytics.page();
     }
   }();
   // Note: user tracking moved to segment-io-footer.html
@@ -81,7 +83,7 @@
     pageview: function() { return; },
     page: function() { return; }
   };
-  window.cAnalytics = {
+  window.analytics = {
     track: function() { return; },
     trackLink: function() { return; },
     pageview: function() { return; },

@@ -244,7 +244,7 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
 
         callAnalytics: function(event) {
             event.preventDefault();
-            window.cAnalytics.track('edx.bi.highlights.' + event.target.innerText.toLowerCase());
+            window.analytics.track('edx.bi.highlights.' + event.target.innerText.toLowerCase());
             if (event.target.className.indexOf('save') !== -1) {
                 this.save(event);
             } else {
@@ -282,7 +282,7 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
 
         callAnalytics: function(event) {
             event.preventDefault();
-            window.cAnalytics.track('edx.bi.highlights_enable.' + event.target.innerText.toLowerCase());
+            window.analytics.track('edx.bi.highlights_enable.' + event.target.innerText.toLowerCase());
             if (event.target.className.indexOf('save') !== -1) {
                 this.save(event);
             } else {

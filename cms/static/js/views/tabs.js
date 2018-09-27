@@ -110,7 +110,7 @@
                             tab_locator: $(element).data('locator')
                         });
                     });
-                    window.cAnalytics.track('Reordered Pages', {
+                    window.analytics.track('Reordered Pages', {
                         course: course_location_analytics
                     });
                     saving = new NotificationView.Mini({
@@ -148,7 +148,7 @@
                     editor.createItem(this.model.get('id'), {
                         category: 'static_tab'
                     });
-                    return window.cAnalytics.track('Added Page', {
+                    return window.analytics.track('Added Page', {
                         course: course_location_analytics
                     });
                 };
@@ -165,7 +165,7 @@
                                     var $component, deleting;
                                     view.hide();
                                     $component = $(event.currentTarget).parents('.component');
-                                    window.cAnalytics.track('Deleted Page', {
+                                    window.analytics.track('Deleted Page', {
                                         course: course_location_analytics,
                                         id: $component.data('locator')
                                     });

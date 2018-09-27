@@ -17,7 +17,7 @@ var edx = edx || {};
 
         postRender: function() {
             // Track a virtual pageview, for easy funnel reconstruction.
-            window.cAnalytics.page('verification', this.templateName);
+            window.analytics.page('verification', this.templateName);
         },
 
         defaultContext: function() {

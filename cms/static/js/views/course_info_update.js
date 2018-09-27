@@ -183,7 +183,7 @@ define(['codemirror',
                 });
                 this.closeEditor(false);
 
-                window.cAnalytics.track('Saved Course Update', {
+                window.analytics.track('Saved Course Update', {
                     course: course_location_analytics,
                     date: this.dateEntry(event).val(),
                     push_notification_selected: this.push_notification_selected(event)
@@ -244,7 +244,7 @@ define(['codemirror',
                         primary: {
                             text: gettext('OK'),
                             click: function() {
-                                window.cAnalytics.track('Deleted Course Update', {
+                                window.analytics.track('Deleted Course Update', {
                                     course: course_location_analytics,
                                     date: self.dateEntry(event).val()
                                 });

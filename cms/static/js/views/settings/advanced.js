@@ -118,7 +118,7 @@ define(['js/views/validation',
                         var message = gettext('No validation is performed on policy keys or value pairs. If you are having difficulties, check your formatting.');  // eslint-disable-line max-len
                         self.render();
                         self.showSavedBar(title, message);
-                        window.cAnalytics.track('Saved Advanced Settings', {
+                        window.analytics.track('Saved Advanced Settings', {
                             course: course_location_analytics
                         });
                     },
