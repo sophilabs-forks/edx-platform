@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  let eventAjaxRequest = function (eventName, postBody) {
+  var eventAjaxRequest = function (eventName, postBody) {
     $.ajax({
       url: '/event/' + eventName,
       type: 'POST',
@@ -14,11 +14,11 @@
 
   var SegmentProxy = {
     identify: function () {
-      let userId = arguments[0][0];
-      let info = arguments[0][1];
-      let options = arguments[0][2];
+      var userId = arguments[0][0];
+      var info = arguments[0][1];
+      var options = arguments[0][2];
 
-      let postBody = {
+      var postBody = {
         userId: userId,
         info: info,
         options: options
@@ -26,13 +26,13 @@
       eventAjaxRequest('identify', postBody);
     },
     page: function (properties) {
-      let postBody = {
+      var postBody = {
         info: properties,
       };
       eventAjaxRequest('page', postBody);
     },
     track: function (name, properties) {
-      let postBody = {
+      var postBody = {
         name: name,
         info: properties,
       };
