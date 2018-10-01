@@ -50,7 +50,7 @@
       window.analytics = {
         identify: function() {
           window.segmentAnalytics.identify.apply(null, arguments);
-          SegmentProxy.identify(arguments);
+          // SegmentProxy.identify(arguments);
         },
         page: function() {
           var data = {
@@ -60,19 +60,19 @@
             url: window.location.href
           };
           window.segmentAnalytics.page.apply(null);
-          SegmentProxy.page(data);
+          // SegmentProxy.page(data);
         },
         track: function() {
           window.segmentAnalytics.track.apply(null, arguments);
           var name = arguments[0];
           var properties = arguments[1];
-          SegmentProxy.track(name, properties);
+          // SegmentProxy.track(name, properties);
         },
         trackLink: function(arguments) {
           var name = arguments[1];
           var properties = arguments[1];
 
-          SegmentProxy.track(name, properties);
+          // SegmentProxy.track(name, properties);
           window.segmentAnalytics.trackLink.apply(null, arguments);
         },
         pageview: function() {
