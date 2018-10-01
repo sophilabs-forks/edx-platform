@@ -152,7 +152,9 @@ def server_track(request, event_type, event, page=None):
     except:
         username = "anonymous"
 
+    context = eventtracker.get_tracker().resolve_context()
     site_configuration = get_site_configuration_from_request(request)
+    context['site_configuration'] = site_configuration
 
     # define output:
     event = {
@@ -167,8 +169,7 @@ def server_track(request, event_type, event, page=None):
         "page": page,
         "time": datetime.datetime.utcnow(),
         "host": _get_request_header(request, 'SERVER_NAME'),
-        "context": eventtracker.get_tracker().resolve_context(),
-        "site_configuration": site_configuration.values
+        "context": context
     }
 
     # Some duplicated fields are passed into event-tracking via the context by track.middleware.

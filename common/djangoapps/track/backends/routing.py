@@ -73,7 +73,11 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
 
         event_data = event.get('data')
 
-        info = event_data.get('info')
+        if isinstance(event_data, dict):
+            info = event_data.get('info')
+        else:
+            info = {'info': event_data}
+
         name = event.get('name')
         if name is None or user_id is None:
             return
@@ -102,10 +106,14 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
                 properties=info
             )
         elif event_source == 'browser.track':
-            print('received info')
+            if isinstance(event_data, dict):
+                name = event_data.get('name')
+            else:
+                name = event_data
+
             site_segment_client.track(
                 user_id,
-                event_data.get('name'),
+                name,
                 properties=info,
                 context=segment_context
             )
