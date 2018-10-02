@@ -118,6 +118,7 @@ from openedx.core.djangoapps.embargo import api as embargo_api
 
 import analytics
 from eventtracking import tracker
+from track.utils import get_site_configuration_from_request
 
 # Note that this lives in LMS, so this dependency should be refactored.
 from notification_prefs.views import enable_notifications
@@ -1767,20 +1768,23 @@ def create_account_with_params(request, params):
     # Track the user's registration
     if hasattr(settings, 'LMS_SEGMENT_KEY') and settings.LMS_SEGMENT_KEY:
         tracking_context = tracker.get_tracker().resolve_context()
+        event = {
+            'email': user.email,
+            'username': user.username,
+            'name': profile.name,
+            # Mailchimp requires the age & yearOfBirth to be integers, we send a sane integer default if falsey.
+            'age': profile.age or -1,
+            'yearOfBirth': profile.year_of_birth or datetime.datetime.now(
+                UTC).year,
+            'education': profile.level_of_education_display,
+            'address': profile.mailing_address,
+            'gender': profile.gender_display,
+            'country': text_type(profile.country),
+        }
+
         identity_args = [
-            user.id,  # pylint: disable=no-member
-            {
-                'email': user.email,
-                'username': user.username,
-                'name': profile.name,
-                # Mailchimp requires the age & yearOfBirth to be integers, we send a sane integer default if falsey.
-                'age': profile.age or -1,
-                'yearOfBirth': profile.year_of_birth or datetime.datetime.now(UTC).year,
-                'education': profile.level_of_education_display,
-                'address': profile.mailing_address,
-                'gender': profile.gender_display,
-                'country': unicode(profile.country),
-            }
+            user.id,
+            event
         ]
 
         if hasattr(settings, 'MAILCHIMP_NEW_USER_LIST_ID'):
@@ -1792,14 +1796,17 @@ def create_account_with_params(request, params):
 
         analytics.identify(*identity_args)
 
+        track_data = {
+            'category': 'conversion',
+            'label': params.get('course_id'),
+            'provider': third_party_provider.name if third_party_provider else None
+        }
+
+        register_event_name = "edx.bi.user.account.registered"
         analytics.track(
             user.id,
-            "edx.bi.user.account.registered",
-            {
-                'category': 'conversion',
-                'label': params.get('course_id'),
-                'provider': third_party_provider.name if third_party_provider else None
-            },
+            register_event_name,
+            track_data,
             context={
                 'ip': tracking_context.get('ip'),
                 'Google Analytics': {
@@ -1807,6 +1814,30 @@ def create_account_with_params(request, params):
                 }
             }
         )
+
+        segment_backend = tracker.get_tracker().get_backend('segmentio')
+        tracking_context['user_id'] = user.id
+        tracking_context['site_configuration'] = get_site_configuration_from_request(request)
+        tracking_context['event_source'] = 'registration.identify'
+
+        segment_backend.send({
+            'context': tracking_context,
+            'data': event,
+            'name': 'registration.identify'
+        })
+
+        tracking_context['event_source'] = 'registration.track'
+        # FIXME Setting again because it was deleted by previous call
+        tracking_context['site_configuration'] = get_site_configuration_from_request(request)
+        segment_backend.send({
+            'context': tracking_context,
+            'data': {
+                'info': track_data,
+                'name': register_event_name
+            },
+            'name': 'registration.track'
+        })
+
 
     # Announce registration
     REGISTER_USER.send(sender=None, user=user, profile=profile)

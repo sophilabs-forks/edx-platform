@@ -105,7 +105,7 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
                 user_id=user_id,
                 properties=info
             )
-        elif event_source == 'browser.track':
+        elif event_source in ['browser.track', 'registration.track']:
             if isinstance(event_data, dict):
                 name = event_data.get('name')
             else:
@@ -114,8 +114,14 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
             site_segment_client.track(
                 user_id,
                 name,
-                properties=info,
+                properties=info if info else {},
                 context=segment_context
+            )
+        elif event_source == 'registration.identify':
+            site_segment_client.identify(
+                user_id,
+                event_data,
+                context=context
             )
         else:
             site_segment_client.track(
