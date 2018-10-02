@@ -18,6 +18,8 @@ from track import shim
 from track.models import TrackingLog
 from eventtracking import tracker as eventtracker
 
+from track.utils import get_site_configuration_from_request
+
 
 def log_event(event):
     """Capture a event by sending it to the register trackers"""
@@ -128,14 +130,6 @@ def user_track(request):
         eventtracker.emit(name=name, data=data)
 
     return HttpResponse('success')
-
-
-def get_site_configuration_from_request(request):
-    try:
-        site_configuration = request.site.configuration.values
-    except:
-        site_configuration = None
-    return site_configuration
 
 
 def server_track(request, event_type, event, page=None):

@@ -28,3 +28,11 @@ class DateTimeJSONEncoder(json.JSONEncoder):
             return obj.isoformat()
 
         return super(DateTimeJSONEncoder, self).default(obj)
+
+
+def get_site_configuration_from_request(request):
+    try:
+        site_configuration = request.site.configuration.values
+    except:
+        site_configuration = None
+    return site_configuration
