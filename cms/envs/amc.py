@@ -111,7 +111,9 @@ EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['segment']['OPTIONS'
     'blacklist': [
         'browser.identify',
         'browser.page',
-        'browser.track'
+        'browser.track',
+        'registration.identify',
+        'registration.track'
    ]
 }
 EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['custom_segment'] = {
