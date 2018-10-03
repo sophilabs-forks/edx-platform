@@ -107,6 +107,7 @@ EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['segment']['OPTIONS'
         'browser.track'
         'registration.identify',
         'registration.track',
+        'backend.track'
     ]
 }
 EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['custom_segment'] = {

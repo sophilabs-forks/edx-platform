@@ -149,7 +149,8 @@ EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['segment']['OPTIONS'
         'browser.page',
         'browser.track',
         'registration.identify',
-        'registration.track'
+        'registration.track',
+        'backend.track'
    ]
 }
 EVENT_TRACKING_BACKENDS['segmentio']['OPTIONS']['backends']['custom_segment'] = {'ENGINE': 'track.backends.routing.SiteSegmentBackend'}
