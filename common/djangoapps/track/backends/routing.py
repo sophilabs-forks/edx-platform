@@ -105,7 +105,10 @@ class SiteSegmentBackend(BaseSegmentBackend, BaseBackend):
                 user_id=user_id,
                 properties=info
             )
-        elif event_source in ['browser.track', 'registration.track']:
+
+        elif event_source in [
+            'browser.track', 'registration.track', 'backend.track'
+        ]:
             if isinstance(event_data, dict):
                 name = event_data.get('name')
             else:

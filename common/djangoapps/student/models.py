@@ -54,6 +54,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.xmodule_django.models import CourseKeyField, NoneToEmptyManager
 from track import contexts
+from track.utils import get_site_configuration
 from util.milestones_helpers import is_entrance_exams_enabled
 from util.model_utils import emit_field_changed_events, get_changed_fields_dict
 from util.query import use_read_replica_if_available
@@ -1184,24 +1185,43 @@ class CourseEnrollment(models.Model):
                 'mode': self.mode,
             }
 
+            segment_backend = tracker.get_tracker().get_backend('segmentio')
+
             with tracker.get_tracker().context(event_name, context):
-                tracker.emit(event_name, data)
+                # tracker.emit(event_name, data)
 
                 if hasattr(settings, 'LMS_SEGMENT_KEY') and settings.LMS_SEGMENT_KEY:
                     tracking_context = tracker.get_tracker().resolve_context()
-                    analytics.track(self.user_id, event_name, {
+                    track_data = {
                         'category': 'conversion',
                         'label': self.course_id.to_deprecated_string(),
                         'org': self.course_id.org,
                         'course': self.course_id.course,
-                        'run': self.course_id.run,
-                        'mode': self.mode,
-                    }, context={
+                        'run': self.course_id.run, 'mode': self.mode,
+                    }
+                    analytics.track(self.user_id, event_name, track_data, context={
                         'ip': tracking_context.get('ip'),
                         'Google Analytics': {
                             'clientId': tracking_context.get('client_id')
                         }
                     })
+
+                    if 'site_id' in tracking_context:
+                        tracking_context['user_id'] = self.user.id
+                        tracking_context['event_source'] = 'backend.track'
+                        tracking_context['site_configuration'] = \
+                            get_site_configuration(
+                                tracking_context['site_id']
+                            )
+
+                        segment_backend.send({
+                            'context': tracking_context,
+                            'data': {
+                                'info': track_data,
+                                'name': event_name
+                            },
+                            'name': 'backend.track'
+                        })
 
         except:  # pylint: disable=bare-except
             if event_name and self.course_id:
