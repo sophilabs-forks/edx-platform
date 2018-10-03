@@ -138,6 +138,7 @@ class TrackMiddleware(object):
             'user_id': self.get_user_primary_key(request),
             'username': self.get_username(request),
             'ip': self.get_request_ip_address(request),
+            'site_id': self.get_request_site_id(request)
         }
         for header_name, context_key in META_KEY_TO_CONTEXT_KEY.iteritems():
             # HTTP headers may contain Latin1 characters. Decoding using Latin1 encoding here
@@ -159,6 +160,12 @@ class TrackMiddleware(object):
             CONTEXT_NAME,
             context
         )
+
+    def get_request_site_id(self, request):
+        try:
+            return request.site.id
+        except AttributeError:
+            return None
 
     def get_session_key(self, request):
         """ Gets and encrypts the Django session key from the request or an empty string if it isn't found."""
