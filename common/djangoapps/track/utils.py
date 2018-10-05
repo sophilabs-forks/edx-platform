@@ -3,9 +3,9 @@
 import json
 from datetime import datetime, date
 
+from django.contrib.sites.models import Site
 from pytz import UTC
 
-from openedx.core.djangoapps.site_configuration.models import SiteConfiguration
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
@@ -41,8 +41,11 @@ def get_site_configuration_from_request(request):
 
 
 def get_site_configuration(site_id):
+    site_configuration = None
     try:
-        site_configuration = SiteConfiguration.objects.get(pk=site_id).values
-    except SiteConfiguration.DoesNotExist:
+        site = Site.objects.get(pk=site_id)
+        if site.configuration:
+            site_configuration = site.configuration.values
+    except Site.DoesNotExist:
         site_configuration = None
     return site_configuration
